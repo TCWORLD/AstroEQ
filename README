@@ -1,0 +1,17 @@
+AstroEQ Arduino code. Hardware schematics to follow
+
+Currently it doesn't track at the correct speed, I am working on it. Will add a ZIP download when it is properly functional.
+
+/*
+  Code written by Thomas Carpenter 2012
+  
+  With thanks Chris over at the EQMOD Yahoo group for explaining the Skywatcher protocol
+  
+  
+  Equatorial mount tracking system for integration with EQMOD using the Skywatcher/Synta
+  communication protocol.
+ 
+  Works with EQ5, HEQ5, and EQ6 mounts
+ 
+  Current Verison: 3.5 
+*/
