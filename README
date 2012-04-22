@@ -5,6 +5,8 @@ With thanks Chris over at the EQMOD Yahoo group for help communicating with EQMO
 
 AstroEQ is an alternative to the expensive SynScan upgrade. The project acts as a gateway to connect the EQMOD Software (and hence ASCOM planetariums) to a motorised Equatorial mount that lacks Goto functionality.
 
+The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
+
 As of current, I have got the firmware tracking at the correct speed.
 It should work with most EQ mounts, including ones with custom gearing and custom stepper motors.
 
