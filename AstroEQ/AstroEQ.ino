@@ -208,6 +208,7 @@ void stepMode(){
 
 void decodeCommand(char command, char* packetIn){ //each command is axis specific. The axis being modified can be retrieved by calling synta.axis()
   char response[11]; //generated response string
+  char check[100] = {0};
   unsigned long responseData; //data for response
   
   switch(command){
@@ -257,7 +258,7 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         break;
     case 'I': //set slew speed, return empty response (this sets the speed to move at if in slew mode)
         synta.cmd.IVal(synta.axis(), synta.hexToLong(packetIn)); //set the speed container (convert string to long first)
-  
+        
         //This will be different if you use a different motor code
         calculateRate(); //Used to convert speed into the number of 0.5usecs per step. Result is stored in TimerOVF
   
@@ -320,7 +321,8 @@ void calculateRate(){
     rate /= synta.cmd.bVal(synta.axis());
   } else if ((synta.cmd.GVal(synta.axis()) == 0)||(synta.cmd.GVal(synta.axis()) == 3)){ //High Speed
     rate = clockRate * synta.cmd.IVal(synta.axis());
-    rate /= (synta.cmd.bVal(synta.axis()) * synta.cmd.gVal(synta.axis()));
+    rate /= synta.cmd.bVal(synta.axis());
+    rate /= synta.cmd.gVal(synta.axis());
   }
   char check[100] = {0};
   sprintf(check,"%ld,%ld,%ld,%ld\n",clockRate,synta.cmd.IVal(synta.axis()),synta.cmd.bVal(synta.axis()),rate);
@@ -338,7 +340,7 @@ void calculateRate(){
 
 void slewMode(){
   digitalWrite(dirPin[synta.axis()],synta.cmd.dir(synta.axis())); //set the direction
-  if(timerOVF[synta.axis()] > 38000L){
+  if(timerOVF[synta.axis()] < 38000L){
     accellerate(64); //accellerate to calculated rate in 64 steps
   } else {
     accellerate(32); //accellerate to calculated rate in 32 steps (faster to avoid missing serial messages)
@@ -355,7 +357,7 @@ void slewMode(){
 
 void gotoMode(){
   digitalWrite(dirPin[synta.axis()],synta.cmd.dir(synta.axis())); //set the direction
-  synta.cmd.IVal(synta.axis(), 140); //Set GOTO speed
+  synta.cmd.IVal(synta.axis(), 176L);
   calculateRate();
   unsigned int temp = 0;
   byte accellerateSteps;
@@ -376,15 +378,14 @@ void gotoMode(){
     accellerateSteps = 64;
   }
   gotoPosn[synta.axis()] = synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position
-  if(synta.cmd.HVal(synta.axis()) < 124){ //there are 496 steps of decelleration, so we need to find the correct part of the decelleration curve
+  /*if(synta.cmd.HVal(synta.axis()) < 124){ //there are 496 steps of decelleration, so we need to find the correct part of the decelleration curve
     //find point in decelleration curve (timerOVF[synta.axis()] -= 76; for each step)
     temp = 124 - synta.cmd.HVal(synta.axis()); //number of decelleration steps into the curve
     temp *= 304;
     timerOVF[synta.axis()] -= temp;
-  }
+  }*/
   accellerate(accellerateSteps); //accellerate to calculated rate in 64 steps
   synta.cmd.gotoEn(synta.axis(),1);
-  synta.cmd.stopped(synta.axis(),0);
   if(synta.axis()){
     TCNT4 = timerOVF[synta.axis()];
     TIMSK4 |= (1<<TOIE4); //Enable timer interrupt
@@ -392,6 +393,7 @@ void gotoMode(){
     TCNT3 = timerOVF[synta.axis()];
     TIMSK3 |= (1<<TOIE3); //Enable timer interrupt
   }
+  synta.cmd.stopped(synta.axis(),0);
 }
 
 void motorStop(boolean caller){
