@@ -9,36 +9,77 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 3.5 
+  Current Verison: 3.6
 */
 
 #include "synta.h"
 
-//Create an instance of the mount
-Synta synta(1281,4505600,32368,16,31289);
-
-//Synta synta(e,a,b,g,s);
+//Synta synta(e,a,b,g,s,scalar);
 //
 // e = version number (this doesnt need chaning)
 //
 // a = number of steps per complete axis revolution. 
+// aVal = 64 * motor steps per revolution * ratio
+// where ratio is the gear ratio from motor to axis. E.g. for an HEQ5 mount, this is 705
+// and motor steps is how many steps per one revolution of the motor. E.g. a 1.8degree stepper has 200 steps/revolution
 //
-// b = sidereal rate. This again depends on number of microsteps per step.
+// b = sidereal rate. This again depends on number of microsteps per step. 
+// bVal = 620 * aVal / 86164.0905   (round UP to nearest integer)
 //
 // g = high speed multiplyer. This is the EQMOD recommended default. In highspeed mode, the step rate will be 16 times larger.
 //
 // s = steps per worm revolution
+// sVal = aVal / Worm Gear Teeth
+// where worm gear teeth is how many teeth on the main worm gear. E.g. for an HEQ5 this is 135
 //
-// mount specifics can be found here: http://tech.groups.yahoo.com/group/EQMOD/database?method=reportRows&tbl=5&sortBy=5
+// mount specifics can be found here: http://tech.groups.yahoo.com/group/EQMOD/database?method=reportRows&tbl=5
 //
-// The motor portion of the code I have is written is for EQ5 Mounts.
-// It may work for EQ6 mounts if you change the numbers above to:
-// (1281,4512000,32466,16,50133)
-// And possibly for HEQ5 mounts if you change the numbers above to:
-// (1281,4512000,32466,16,66844)
+// Summary of mounts (Untested):
 //
+// HEQ5 Pro/Syntrek/SynscanUpgrade:
+// aVal = 9024000
+// bVal = 64933
+// sVal = 66845
+// scalar = 1
+//
+// EQ6 Pro/Syntrek/SynscanUpgrade:
+// aVal = 9024000
+// bVal = 64933
+// sVal = 50133
+// scalar = 1
+//
+// EQ5 Synscan/SynscanUpgrade:
+// aVal = 9011200
+// bVal = 64841
+// sVal = 31289
+// scalar = 1
+//
+// EQ4/5 Mount upgraded with the Dual motor kit (non Goto) -- This is the only one I have tested, the others are theoretical
+// aVal = 26542080
+// bVal = 190985
+// sVal = 184320
+// scalar = 10   -> This is vital that it be set as 10!!!
+//
+// EQ3 Mount upgraded with the Dual motor kit (non Goto)
+// aVal = 23961600
+// bVal = 172418
+// sVal = 184320
+// scalar = 10   -> This is vital that it be set as 10!!!
+//
+// Other mounts:
+// aVal = 64 * motor steps per revolution * ratio
+// bVal = 620 * aVal / 86164.0905   (round UP to nearest integer)
+// sVal = aVal / Worm Gear Teeth
+// scalar = depends on aVal, see notes below
+//
+//Create an instance of the mount
+//If aVal is roughly greater than 10000000 (ten million), the number needs to be scaled down by some factor
+//to make it smaller than that limit. In my case I have chosen 10 as it nicely scales the
+//a and s values. Hence below, I have set scalar to 10.
 
-//Define the two axes
+Synta synta(1281,26542080,190985,16,184320,10);
+
+//Define the two axes (swap if RA and DEC motors are reversed)
 #define RA 0
 #define DC 1
 
@@ -86,18 +127,82 @@ void setup()
   configureTimer(); //setup the motor pulse timers.
 }
 
-
 void loop(){
   char decodedPacket[11]; //temporary store for completed command ready to be processed
   if (Serial.available()) { //is there a byte in buffer
     char recievedChar = Serial.read(); //get the next character in buffer
     Serial1.print(recievedChar);
+    if(recievedChar == 'T'){
+      testMode();
+      return;
+    } else if(recievedChar == 'S'){
+      stepMode();
+      return;
+    }
     char decoded = synta.recieveCommand(decodedPacket,recievedChar); //once full command packet recieved, decodedPacket returns either error packet, or valid packet
     if (decoded == 1){ //Valid Packet
       decodeCommand(synta.command(),decodedPacket); //decode the valid packet
     } else if (decoded == -1){ //Error
       Serial.print(decodedPacket); //send the error packet
     } //otherwise command not yet fully recieved, so wait for next byte
+  }
+}
+
+void testMode(){
+  while(Serial.available()){
+    Serial.read(); //Clear the buffer
+  }
+  while(1){
+    delay(100);
+    Serial.print('.');
+    if (Serial.read()=='C') {
+      while(Serial.available()){
+        Serial.read(); //Clear the buffer
+      }
+      break;
+    }
+  }
+  digitalWrite(enablePin[0],LOW);
+  for(long i = 0L; i < 12800L;i++){
+    delayMicroseconds(7990);
+    writeSTEP1(HIGH);
+    delayMicroseconds(10);
+    writeSTEP1(LOW);
+    long check = i % 64L;
+    if(check == 0){
+      char out[20] = {0};
+      sprintf(out,"%ld\n",i);
+      Serial.print(out);
+    }
+  }
+}
+void stepMode(){
+  digitalWrite(enablePin[0],LOW);
+  while(Serial.available()){
+    Serial.read(); //Clear the buffer
+  }
+  while(1){
+    delay(10);
+    Serial.print('.');
+    char bleh = Serial.read();
+    if (bleh=='L') {
+      while(Serial.available()){
+        Serial.read(); //Clear the buffer
+      }
+      break;
+    } else if (bleh=='C') {
+      writeSTEP1(HIGH);
+      delayMicroseconds(10);
+      writeSTEP1(LOW);
+    } else if (bleh=='R') {
+      for(int i = 0;i<32;i++){
+        Serial.print("boo\n");
+        writeSTEP1(HIGH);
+        delayMicroseconds(10);
+        writeSTEP1(LOW);
+        delayMicroseconds(1000);
+      }
+    }
   }
 }
 
@@ -111,15 +216,21 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         break;
     case 'a': //readonly, return the aVal (steps per axis)
         responseData = synta.cmd.aVal(synta.axis()); //response to the a command is stored in the aVal function for that axis.
+        responseData /= synta.scalar();
         break;
     case 'b': //readonly, return the bVal (sidereal rate)
         responseData = synta.cmd.bVal(synta.axis()); //response to the b command is stored in the bVal function for that axis.
+        responseData /= synta.scalar();
+        if (synta.cmd.bVal(synta.axis()) % synta.scalar()){
+          responseData++; //round up
+        }
         break;
     case 'g': //readonly, return the gVal (high speed multiplier)
         responseData = synta.cmd.gVal(synta.axis()); //response to the g command is stored in the gVal function for that axis.
         break;
     case 's': //readonly, return the sVal (steps per worm rotation)
         responseData = synta.cmd.sVal(synta.axis()); //response to the s command is stored in the sVal function for that axis.
+        responseData /= synta.scalar();
         break;
     case 'f': //readonly, return the fVal (axis status)
         responseData = synta.cmd.fVal(synta.axis()); //response to the f command is stored in the fVal function for that axis.
@@ -190,40 +301,36 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
   }
 }
 
-//
-//Everything below this point needs to be customised for your motor driver. As yet code below here is untested
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 
 //Calculates the rate based on the recieved I value 
 void calculateRate(){
   
-  //steps per second = IVal / BVal; for lowspeed move
-  //or steps per second = IVal / (BVal * gVal); for highspeed move 
+  //seconds per step = IVal / BVal; for lowspeed move
+  //or seconds per step = IVal / (BVal * gVal); for highspeed move 
   //
   //whether to use highspeed move or not is determined by the GVal;
   //
+  //clocks per step = 16000000 * seconds per step
   
   unsigned long rate;
+  unsigned long clockRate = 1600000L; //1/10th the actual clock to prevent numbers getting too big for an unsigned long
   if((synta.cmd.GVal(synta.axis()) == 2)||(synta.cmd.GVal(synta.axis()) == 1)){ //Normal Speed
-    rate = 2000000L * synta.cmd.IVal(synta.axis());
+    rate = clockRate * synta.cmd.IVal(synta.axis());
     rate /= synta.cmd.bVal(synta.axis());
   } else if ((synta.cmd.GVal(synta.axis()) == 0)||(synta.cmd.GVal(synta.axis()) == 3)){ //High Speed
-    rate = 2000000L * synta.cmd.IVal(synta.axis());
+    rate = clockRate * synta.cmd.IVal(synta.axis());
     rate /= (synta.cmd.bVal(synta.axis()) * synta.cmd.gVal(synta.axis()));
   }
-  
+  char check[100] = {0};
+  sprintf(check,"%ld,%ld,%ld,%ld\n",clockRate,synta.cmd.IVal(synta.axis()),synta.cmd.bVal(synta.axis()),rate);
+  Serial1.print(check);
+  rate *= 10; //corrects for clock rate being set to 1/10th of the required to prevent numbers getting too big for an unsigned long.
   //Now truncate to an unsigned int with a sensible max value (the int is to avoid register issues with the 16 bit timer)
   if(rate < 539){ //We do 65535 - result as timer counts up from this number to 65536 then interrupts
     timerOVF[synta.axis()] = 64997L;
+  } else if (rate > 65534L) {
+    timerOVF[synta.axis()] = 1L;
   } else {
     timerOVF[synta.axis()] = 65535L - rate;
   }
@@ -288,6 +395,14 @@ void gotoMode(){
 }
 
 void motorStop(boolean caller){
+      if(synta.axis()){ //switch off correct axis
+        TIMSK4 &= ~(1<<TOIE4); //disable timer
+      } else {
+        TIMSK3 &= ~(1<<TOIE3); //disable timer
+      }
+      synta.cmd.gotoEn(synta.axis(),0); //Cancel goto mode
+      synta.cmd.stopped(synta.axis(),1); //mark as stopped
+      /*
   if(!synta.cmd.stopped(synta.axis())){ //only has an effect if not already stopped
     if(!caller && !synta.cmd.gotoEn(synta.axis())){ //If not in goto mode, then decellerate
       synta.cmd.HVal(synta.axis(), (64997 - timerOVF[synta.axis()])); //work out where in decelleration curve we are to know how many steps to run
@@ -309,7 +424,7 @@ void motorStop(boolean caller){
       synta.cmd.HVal(synta.axis(), (496 - synta.cmd.HVal(synta.axis()))); //find steps
       gotoPosn[synta.axis()] =  synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position
     }
-  }
+  }*/
 }
 
 void motorEnable(){
@@ -373,26 +488,44 @@ ISR(TIMER4_OVF_vect) {
 }
 
 void motorStep(byte motor){
-  static byte divider = 0;
+  static byte divider[2] = {0};
   if(motor){
     writeSTEP2(HIGH);
-    delayMicroseconds(2);
+    delayMicroseconds(15);
     writeSTEP2(LOW);
   } else {
     writeSTEP1(HIGH);
-    delayMicroseconds(2);
+    delayMicroseconds(15);
     writeSTEP1(LOW);
   }
-  divider++;
-  if((divider & 7) == 0){
-    synta.cmd.jVal(motor, (synta.cmd.jVal(motor) + synta.cmd.stepDir(motor)));
-    if(synta.cmd.gotoEn(motor)){
-      long stepsLeft = gotoPosn[motor] - synta.cmd.jVal(motor);
-      stepsLeft *= synta.cmd.stepDir(motor);
-      if(stepsLeft <= 0){
-        motorStop(1);
-      } else if (stepsLeft < 124){
-        timerOVF[motor] -= 304; //decelleration region
+  if(synta.cmd.stepDir(motor) < 0){
+    divider[motor]--;
+    if (divider[motor] == -1){
+      divider[motor] = synta.scalar() - 1;
+      synta.cmd.jVal(motor, (synta.cmd.jVal(motor) - 1));
+      if(synta.cmd.gotoEn(motor)){
+        long stepsLeft = gotoPosn[motor] - synta.cmd.jVal(motor);
+        stepsLeft *= synta.cmd.stepDir(motor);
+        if(stepsLeft <= 0){
+          motorStop(1);
+        } else if (stepsLeft < 124){
+          //timerOVF[motor] -= 304; //decelleration region
+        }
+      }
+    }
+  } else {
+    divider[motor]++;
+    if (divider[motor] >= synta.scalar()){
+      divider[motor] = 0;
+      synta.cmd.jVal(motor, (synta.cmd.jVal(motor) + 1));
+      if(synta.cmd.gotoEn(motor)){
+        long stepsLeft = gotoPosn[motor] - synta.cmd.jVal(motor);
+        stepsLeft *= synta.cmd.stepDir(motor);
+        if(stepsLeft <= 0){
+          motorStop(1);
+        } else if (stepsLeft < 124){
+          //timerOVF[motor] -= 304; //decelleration region
+        }
       }
     }
   }

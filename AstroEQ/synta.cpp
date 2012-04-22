@@ -1,11 +1,12 @@
 
 #include "synta.h"
 
-Synta::Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal){
+Synta::Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal,byte scalar){
   validPacket = 0;
   _axis = 0;
   commandIndex = 0;
   clearBuffer(commandString,sizeof(commandString));
+  _scalar = scalar;
   cmd.init(eVal, aVal, bVal, gVal, sVal);
 }
 
@@ -146,4 +147,8 @@ byte Synta::axis(byte axis){
     _axis = axis;
   }
   return _axis;
+}
+
+byte Synta::scalar(){
+  return _scalar;
 }

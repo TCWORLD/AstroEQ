@@ -11,11 +11,12 @@
   
   class Synta{
     public:
-      Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal);
+      Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal,byte scalar);
       Commands cmd;
       void assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData);
       char recieveCommand(char* dataPacket, char character);
       byte axis(byte axis = 2); //make target readonly to outside world.
+      byte scalar();
       char command(); //make current command readonly to outside world.
       
       unsigned long hexToLong(char* hex);
@@ -35,6 +36,7 @@
       
       byte _axis;
       char _command;
+      byte _scalar;
       
       static const char startInChar;
       static const char startOutChar;

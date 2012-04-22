@@ -1,17 +1,26 @@
 AstroEQ Arduino code. Hardware schematics to follow
 
-Currently it doesn't track at the correct speed, I am working on it. Will add a ZIP download when it is properly functional.
+As of current, I have got the firmware tracking at the correct speed.
+It should work with most EQ mounts, including ones with custom gearing and custom stepper motors.
+
+Getting the mount to track at the correct speed does require some calculation, but all is explained in the arduino file.
+Also included are some example values for different Skywatcher mounts. These are untested, but should work in theory.
+At the moment the only tested mount an EQ5 mount with the dual axis motor upgrade (non goto).
+
+If anyone has success with the example numbers I have provided, please let me know.
+Also if you have problems getting the numbers to work, open an issue thread and I will see if I can help.
+
 
 /*
   Code written by Thomas Carpenter 2012
   
-  With thanks Chris over at the EQMOD Yahoo group for explaining the Skywatcher protocol
+  With thanks Chris over at the EQMOD Yahoo group.
   
   
   Equatorial mount tracking system for integration with EQMOD using the Skywatcher/Synta
   communication protocol.
  
-  Works with EQ5, HEQ5, and EQ6 mounts
+  Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Verison: 3.5 
+  Current Verison: 3.6 
 */
