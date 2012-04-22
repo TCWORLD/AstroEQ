@@ -490,7 +490,7 @@ ISR(TIMER4_OVF_vect) {
 }
 
 void motorStep(byte motor){
-  static byte divider[2] = {0};
+  static char divider[2] = {0};
   if(motor){
     writeSTEP2(HIGH);
     delayMicroseconds(15);
@@ -502,7 +502,7 @@ void motorStep(byte motor){
   }
   if(synta.cmd.stepDir(motor) < 0){
     divider[motor]--;
-    if (divider[motor] == -1){
+    if (divider[motor] < 0){
       divider[motor] = synta.scalar() - 1;
       synta.cmd.jVal(motor, (synta.cmd.jVal(motor) - 1));
       if(synta.cmd.gotoEn(motor)){
