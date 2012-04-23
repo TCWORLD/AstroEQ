@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 3.6
+  Current Verison: 4.0
 */
 
 #include "synta.h"
@@ -31,6 +31,9 @@
 // s = steps per worm revolution
 // sVal = aVal / Worm Gear Teeth
 // where worm gear teeth is how many teeth on the main worm gear. E.g. for an HEQ5 this is 135
+//
+// scalar = reduces the number reported to EQMOD, whilst not affecting mount behavior.
+// This is required if aVal is roughly greater than 10000000 (ten million). Numbers larger than this will overflow calculation limits and result in weird behaviour.
 //
 // mount specifics can be found here: http://tech.groups.yahoo.com/group/EQMOD/database?method=reportRows&tbl=5
 //
@@ -85,6 +88,8 @@ Synta synta(1281,26542080,190985,16,184320,10);
 
 unsigned long gotoPosn[2] = {0,0}; //where to slew to
 unsigned int timerOVF[2];
+unsigned long timerCountRate;
+unsigned long minTimerOVF;
 
 //Pins
 const char resetPin[2] = {A1,A0};
@@ -242,7 +247,7 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
     case 'K': //stop the motor, return empty response
     
     
-        motorStop(0); //No specific response, just stop the motor (Feel free to customise motorStop function to suit your needs
+        motorStop(synta.axis()); //No specific response, just stop the motor (Feel free to customise motorStop function to suit your needs
       
       
         responseData = 0;
@@ -257,7 +262,11 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         responseData = 0;
         break;
     case 'I': //set slew speed, return empty response (this sets the speed to move at if in slew mode)
-        synta.cmd.IVal(synta.axis(), synta.hexToLong(packetIn)); //set the speed container (convert string to long first)
+        responseData = synta.hexToLong(packetIn);
+        if (responseData > 650L){
+          responseData = 650L; //minimum speed to prevent timer overrun
+        }
+        synta.cmd.IVal(synta.axis(), responseData); //set the speed container (convert string to long first)
         
         //This will be different if you use a different motor code
         calculateRate(); //Used to convert speed into the number of 0.5usecs per step. Result is stored in TimerOVF
@@ -312,22 +321,18 @@ void calculateRate(){
   //
   //whether to use highspeed move or not is determined by the GVal;
   //
-  //clocks per step = 16000000 * seconds per step
+  //clocks per step = timerCountRate * seconds per step
   
   unsigned long rate;
-  unsigned long clockRate = 1600000L; //1/10th the actual clock to prevent numbers getting too big for an unsigned long
   if((synta.cmd.GVal(synta.axis()) == 2)||(synta.cmd.GVal(synta.axis()) == 1)){ //Normal Speed
-    rate = clockRate * synta.cmd.IVal(synta.axis());
+    rate = timerCountRate * synta.cmd.IVal(synta.axis());
     rate /= synta.cmd.bVal(synta.axis());
   } else if ((synta.cmd.GVal(synta.axis()) == 0)||(synta.cmd.GVal(synta.axis()) == 3)){ //High Speed
-    rate = clockRate * synta.cmd.IVal(synta.axis());
+    rate = timerCountRate * synta.cmd.IVal(synta.axis());
     rate /= synta.cmd.bVal(synta.axis());
     rate /= synta.cmd.gVal(synta.axis());
   }
-  char check[100] = {0};
-  sprintf(check,"%ld,%ld,%ld,%ld\n",clockRate,synta.cmd.IVal(synta.axis()),synta.cmd.bVal(synta.axis()),rate);
-  Serial1.print(check);
-  rate *= 10; //corrects for clock rate being set to 1/10th of the required to prevent numbers getting too big for an unsigned long.
+  rate *= 10; //corrects for timer count rate being set to 1/10th of the required to prevent numbers getting too big for an unsigned long.
   //Now truncate to an unsigned int with a sensible max value (the int is to avoid register issues with the 16 bit timer)
   if(rate < 539){ //We do 65535 - result as timer counts up from this number to 65536 then interrupts
     timerOVF[synta.axis()] = 64997L;
@@ -340,11 +345,7 @@ void calculateRate(){
 
 void slewMode(){
   digitalWrite(dirPin[synta.axis()],synta.cmd.dir(synta.axis())); //set the direction
-  if(timerOVF[synta.axis()] < 38000L){
-    accellerate(64); //accellerate to calculated rate in 64 steps
-  } else {
-    accellerate(32); //accellerate to calculated rate in 32 steps (faster to avoid missing serial messages)
-  }
+  accellerate(32,synta.axis()); //accellerate to calculated rate in 32 steps
   if(synta.axis()){
     TCNT4 = timerOVF[synta.axis()];
     TIMSK4 |= (1<<TOIE4); //Enable timer interrupt
@@ -357,34 +358,21 @@ void slewMode(){
 
 void gotoMode(){
   digitalWrite(dirPin[synta.axis()],synta.cmd.dir(synta.axis())); //set the direction
-  synta.cmd.IVal(synta.axis(), 176L);
-  calculateRate();
   unsigned int temp = 0;
-  byte accellerateSteps;
-  if (synta.cmd.HVal(synta.axis()) < 32){
-    synta.cmd.HVal(synta.axis(), 32); //This will cause a small error on VERY TINY Goto's though in reality should never be an issue.
-  }
-  if (synta.cmd.HVal(synta.axis()) < 64){
-    synta.cmd.HVal(synta.axis(),(synta.cmd.HVal(synta.axis()) - 16));
-    accellerateSteps = 16;
-  } else if(synta.cmd.HVal(synta.axis()) < 96){
-    synta.cmd.HVal(synta.axis(),(synta.cmd.HVal(synta.axis()) - 32));
-    accellerateSteps = 32;
-  } else if(synta.cmd.HVal(synta.axis()) < 128){
-    synta.cmd.HVal(synta.axis(),(synta.cmd.HVal(synta.axis()) - 48));
-    accellerateSteps = 48;
-  } else {
-    synta.cmd.HVal(synta.axis(),(synta.cmd.HVal(synta.axis()) - 64));
-    accellerateSteps = 64;
+  if (synta.cmd.HVal(synta.axis()) < (40/synta.scalar())){
+    synta.cmd.HVal(synta.axis(), (40/synta.scalar())); //This will cause a small error on VERY TINY Goto's though in reality should never be an issue.
   }
   gotoPosn[synta.axis()] = synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position
-  /*if(synta.cmd.HVal(synta.axis()) < 124){ //there are 496 steps of decelleration, so we need to find the correct part of the decelleration curve
-    //find point in decelleration curve (timerOVF[synta.axis()] -= 76; for each step)
-    temp = 124 - synta.cmd.HVal(synta.axis()); //number of decelleration steps into the curve
-    temp *= 304;
-    timerOVF[synta.axis()] -= temp;
-  }*/
-  accellerate(accellerateSteps); //accellerate to calculated rate in 64 steps
+  
+  if (synta.cmd.HVal(synta.axis()) < (100/synta.scalar())){
+    synta.cmd.IVal(synta.axis(), 320L);
+    calculateRate();
+    accellerate(20,synta.axis()); //accellerate to calculated rate in 20 steps
+  } else {
+    synta.cmd.IVal(synta.axis(), 176L); //Higher speed slew
+    calculateRate();
+    accellerate(64,synta.axis()); //accellerate to calculated rate in 64 steps
+  }
   synta.cmd.gotoEn(synta.axis(),1);
   if(synta.axis()){
     TCNT4 = timerOVF[synta.axis()];
@@ -396,37 +384,19 @@ void gotoMode(){
   synta.cmd.stopped(synta.axis(),0);
 }
 
-void motorStop(boolean caller){
-      if(synta.axis()){ //switch off correct axis
-        TIMSK4 &= ~(1<<TOIE4); //disable timer
-      } else {
-        TIMSK3 &= ~(1<<TOIE3); //disable timer
-      }
-      synta.cmd.gotoEn(synta.axis(),0); //Cancel goto mode
-      synta.cmd.stopped(synta.axis(),1); //mark as stopped
-      /*
-  if(!synta.cmd.stopped(synta.axis())){ //only has an effect if not already stopped
-    if(!caller && !synta.cmd.gotoEn(synta.axis())){ //If not in goto mode, then decellerate
-      synta.cmd.HVal(synta.axis(), (64997 - timerOVF[synta.axis()])); //work out where in decelleration curve we are to know how many steps to run
-      synta.cmd.HVal(synta.axis(), (synta.cmd.HVal(synta.axis()) / 76)); //19 0.5us's per step
-      synta.cmd.HVal(synta.axis(), (496 - synta.cmd.HVal(synta.axis()))); //find steps
-      gotoPosn[synta.axis()] = synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position
-      synta.cmd.gotoEn(synta.axis(),1); //Enter short goto mode stint
-    } else if (caller){ //otherwise, if decelleration complete, stop.
-      if(synta.axis()){ //switch off correct axis
-        TIMSK4 &= ~(1<<TOIE4); //disable timer
-      } else {
-        TIMSK3 &= ~(1<<TOIE3); //disable timer
-      }
-      synta.cmd.gotoEn(synta.axis(),0); //Cancel goto mode
-      synta.cmd.stopped(synta.axis(),1); //mark as stopped
-    } else if (synta.cmd.gotoEn(synta.axis())){ //otherwise, abort GOTO and decellerate.
-      synta.cmd.HVal(synta.axis(), (64997 - timerOVF[synta.axis()])); //work out where in decelleration curve we are to know how many steps to run
-      synta.cmd.HVal(synta.axis(), (synta.cmd.HVal(synta.axis()) / 76)); //76 0.5us's per step
-      synta.cmd.HVal(synta.axis(), (496 - synta.cmd.HVal(synta.axis()))); //find steps
-      gotoPosn[synta.axis()] =  synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position
-    }
-  }*/
+void motorStop(byte motor){
+  if(motor){ //switch off correct axis
+    TIMSK4 &= ~(1<<TOIE4); //disable timer
+  } else {
+    TIMSK3 &= ~(1<<TOIE3); //disable timer
+  }
+  if (synta.cmd.gotoEn(motor)){
+    synta.cmd.gotoEn(motor,0); //Cancel goto mode
+    decellerate(20,motor); //last 20 steps are decelleration. motorStop() is called 20 steps early to account for this.
+  } else {
+    decellerate(100,motor); //decellerate in 100 steps.
+  }
+  synta.cmd.stopped(motor,1); //mark as stopped
 }
 
 void motorEnable(){
@@ -434,22 +404,70 @@ void motorEnable(){
   synta.cmd.FVal(synta.axis(),1);
 }
 
-void accellerate(byte accellerateSteps){
+void decellerate(byte decellerateSteps, byte motor){
+  //x steps to slow down to minTimerOVF
+  unsigned long rate = 65535L - timerOVF[motor]; //rate is the number of clocks between steps at maximum speed.
+  unsigned long speedPerStep = (timerOVF[motor] - minTimerOVF);
+  speedPerStep /= decellerateSteps;
+  if (synta.cmd.bVal(motor) < 160000){//convert the number of clock cycles into uS.
+    speedPerStep >>= 1;
+  } else {
+    speedPerStep >>= 4;
+  }
+  if (speedPerStep == 0){
+    speedPerStep = 1; //just in case - prevents rounding from resulting in no accelleration at all.
+  }
+  unsigned int microDelay;
+  if (synta.cmd.bVal(motor) < 160000){
+    microDelay = rate >> 1; //number of uS to wait for current speed (rate is in 1/2ths of a microsecond)
+  } else {
+    microDelay = rate >> 4; //number of uS to wait for current speed (rate is in 1/16ths of a microsecond)
+  }
+  for(int i = 0;i < decellerateSteps;i++){
+    delayMicroseconds(microDelay);
+    if(synta.axis()){ //Step
+      writeSTEP2(HIGH);
+      delayMicroseconds(15);
+      writeSTEP2(LOW);
+    } else {
+      writeSTEP1(HIGH);
+      delayMicroseconds(15);
+      writeSTEP1(LOW);
+    }
+    microDelay += speedPerStep;
+  }
+  //Now at minimum speed, so safe to stop.
+}
+  
+void accellerate(byte accellerateSteps, byte motor){
   //x steps to speed up to timerOVF[synta.axis()]
-  unsigned int speedPerStep = (timerOVF[synta.axis()] - 10036L) / accellerateSteps; //Initial Speed is 10036
-  unsigned int microDelay = 27750L; //number of uS to wait for initial speed
+  unsigned long rate = 65535L - minTimerOVF; //rate is the number of clocks between steps at minimum speed.
+  unsigned long speedPerStep = (timerOVF[motor] - minTimerOVF);
+  speedPerStep /= accellerateSteps;
+  if (synta.cmd.bVal(motor) < 160000){//convert the number of clock cycles into uS.
+    speedPerStep >>= 1;
+  } else {
+    speedPerStep >>= 4;
+  }
+  if (speedPerStep == 0){
+    speedPerStep = 1; //just in case - prevents rounding from resulting in no accelleration at all.
+  }
+  unsigned int microDelay;
+  if (synta.cmd.bVal(motor) < 160000){
+    microDelay = rate >> 1; //number of uS to wait for initial speed (rate is in 1/2ths of a microsecond)
+  } else {
+    microDelay = rate >> 4; //number of uS to wait for initial speed (rate is in 1/16ths of a microsecond)
+  }
   for(int i = 0;i < accellerateSteps;i++){
-    for(byte j = 0;j < 2;j++){
-      delayMicroseconds(microDelay - 2);
-      if(synta.axis()){ //Step
-        writeSTEP2(HIGH);
-        delayMicroseconds(2);
-        writeSTEP2(LOW);
-      } else {
-        writeSTEP1(HIGH);
-        delayMicroseconds(2);
-        writeSTEP1(LOW);
-      }
+    delayMicroseconds(microDelay);
+    if(synta.axis()){ //Step
+      writeSTEP2(HIGH);
+      delayMicroseconds(15);
+      writeSTEP2(LOW);
+    } else {
+      writeSTEP1(HIGH);
+      delayMicroseconds(15);
+      writeSTEP1(LOW);
     }
     microDelay -= speedPerStep;
   }
@@ -468,13 +486,30 @@ void configureTimer(){
   //Disable compare interrupt (only interested in overflow)
   TIMSK3 &= ~((1<<OCIE3A) | (1<<OCIE3B) | (1<<OCIE3C));
   TIMSK4 &= ~((1<<OCIE4A) | (1<<OCIE4B) | (1<<OCIE4C));
-  //Set prescaler to F_CPU/1
-  TCCR3B &= ~(1<<CS32); //0
-  TCCR3B |= (1<<CS30);//1
-  TCCR3B &= ~(1<<CS31);//0
-  TCCR4B &= ~(1<<CS42); //0
-  TCCR4B |= (1<<CS40);//1
-  TCCR4B &= ~(1<<CS41);//0
+  if (synta.cmd.bVal(synta.axis()) < 160000){
+    timerCountRate = 200000;
+    //Set prescaler to F_CPU/8
+    TCCR3B &= ~(1<<CS32); //0
+    TCCR3B |= (1<<CS31);//1
+    TCCR3B &= ~(1<<CS30);//0
+    TCCR4B &= ~(1<<CS42); //0
+    TCCR4B |= (1<<CS41);//1
+    TCCR4B &= ~(1<<CS40);//0
+  } else {
+    timerCountRate = 1600000;
+    //Set prescaler to F_CPU/1
+    TCCR3B &= ~(1<<CS32); //0
+    TCCR3B &= ~(1<<CS31);//0
+    TCCR3B |= (1<<CS30);//1
+    TCCR4B &= ~(1<<CS42); //0
+    TCCR4B &= ~(1<<CS41);//0
+    TCCR4B |= (1<<CS40);//1
+  }
+  Serial1.println((unsigned long)timerCountRate);
+  unsigned long rate = timerCountRate * 650L; //min rate of just under the sidereal rate
+  rate /= synta.cmd.bVal(synta.axis());
+  rate *= 10; //corrects for timer count rate being set to 1/10th of the required to prevent numbers getting too big for an unsigned long.
+  minTimerOVF = 65535L - rate;
 }
 
 /*Timer Interrupt Vector*/
@@ -508,10 +543,8 @@ void motorStep(byte motor){
       if(synta.cmd.gotoEn(motor)){
         long stepsLeft = gotoPosn[motor] - synta.cmd.jVal(motor);
         stepsLeft *= synta.cmd.stepDir(motor);
-        if(stepsLeft <= 0){
-          motorStop(1);
-        } else if (stepsLeft < 124){
-          //timerOVF[motor] -= 304; //decelleration region
+        if(stepsLeft <= (20/synta.scalar())){
+          motorStop(motor); //will decellerate the rest of the way
         }
       }
     }
@@ -523,10 +556,8 @@ void motorStep(byte motor){
       if(synta.cmd.gotoEn(motor)){
         long stepsLeft = gotoPosn[motor] - synta.cmd.jVal(motor);
         stepsLeft *= synta.cmd.stepDir(motor);
-        if(stepsLeft <= 0){
-          motorStop(1);
-        } else if (stepsLeft < 124){
-          //timerOVF[motor] -= 304; //decelleration region
+        if(stepsLeft <= (20/synta.scalar())){
+          motorStop(motor);
         }
       }
     }
