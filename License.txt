@@ -1,1 +1,1 @@
-The project is completely open source, so feel free to chop and change it as much as you like, as long as any changes you make are published as open source and are not used for any commercial gain. Also, if possible, links back to the orignal code should be included.
+The project is completely open source, so feel free to chop and change it as much as you like, as long as any changes you make are published as open source and are not used for any commercial gain. Also, links back to my orignal code and this github page (https://github.com/TCWORLD/AstroEQ) should be included.
