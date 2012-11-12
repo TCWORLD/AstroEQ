@@ -56,8 +56,7 @@ const static uint8_t LED_BUILTIN = 13;
 #ifdef ARDUINO_MAIN
 
 // On the Arduino board, digital pins are also used
-// for the analog output (software PWM).  Analog input
-// pins are a separate set.
+// for the analog output (software PWM).
 
 // ATMEL ATMEGA162 / ARDUINO
 //

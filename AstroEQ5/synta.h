@@ -12,6 +12,7 @@
   class Synta{
     public:
       Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal,byte scalar);
+      Synta(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal,byte scalar);
       Commands cmd;
       void assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData);
       char recieveCommand(char* dataPacket, char character);

@@ -10,6 +10,15 @@ Synta::Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,
   cmd.init(eVal, aVal, bVal, gVal, sVal);
 }
 
+Synta::Synta(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal,byte scalar){
+  validPacket = 0;
+  _axis = 0;
+  commandIndex = 0;
+  clearBuffer(commandString,sizeof(commandString));
+  _scalar = scalar;
+  cmd.init(eVal, aVal1, aVal2, bVal1, bVal2, sVal1, sVal2, gVal);
+}
+
 const char Synta::startInChar = ':';
 const char Synta::startOutChar = '=';
 const char Synta::errorChar = '!';

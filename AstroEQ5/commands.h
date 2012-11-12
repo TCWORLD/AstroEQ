@@ -24,6 +24,7 @@
   
   class Commands{
     public:
+      void init(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal);
       void init(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal);
       
       //Command definitions

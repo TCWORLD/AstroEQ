@@ -23,7 +23,24 @@
 #endif
 
 #include "commands.h"
-
+void Commands::init(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal){
+  for(byte i = 0;i < 2;i++){
+    _flag[i] = 0x100;
+    _jVal[i] = 0x800000; //Current position, 0x800000 is the centre
+    _IVal[i] = 0; //Recieved Speed
+    _GVal[i] = 0; //Mode recieved from :G command
+    _HVal[i] = 0; //Value recieved from :H command
+    _eVal[i] = eVal; //version number
+    _gVal[i] = gVal; //High speed scalar
+  }
+  _aVal[0] = aVal1; //steps/axis
+  _aVal[1] = aVal2; //steps/axis
+  _bVal[0] = bVal1; //sidereal rate
+  _bVal[1] = bVal2; //sidereal rate
+  _sVal[0] = sVal1; //steps/worm rotation
+  _sVal[1] = sVal2; //steps/worm rotation
+}
+      
 void Commands::init(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal){ 
   for(byte i = 0;i < 2;i++){
     _flag[i] = 0x100;

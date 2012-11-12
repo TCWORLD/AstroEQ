@@ -100,9 +100,21 @@
 //to make it smaller than that limit. In my case I have chosen 10 as it nicely scales the
 //a and s values. Hence below, I have set scalar to 10.
 
+
+
+
+
 //This is the initialistation code. If using the excel file, replace this line with what it gives.
 //                    aVal    bVal      sVal  scalar
+
+//Example for same ratio per axis
 Synta synta(1281, 13271040, 95493, 16, 92160, 3);
+//Example for different ratio per axis (see excel file).
+//Synta synta(1281, 9024000, 9011200, 64933, 64841, 62667, 62578, 16, 1);
+
+
+
+
 
 //Define the two axes (swap the 0 and 1 if R.A. and Dec. motors are reversed)
 #define RA 0
@@ -400,9 +412,9 @@ void calculateRate(byte motor){
   remainder = (unsigned long)floatRemainder; 
   
   //Now truncate to an unsigned int with a sensible max value (the int is to avoid register issues with the 16 bit timer)
-  if(rate > 64997L){
-    rate = 64997L;
-  } else if (rate < 36L) {
+  if(rate > 64997UL){
+    rate = 64997UL;
+  } else if (rate < 36UL) {
     rate = 36L;
   }
   for (int i = 0; i < distributionWidth[motor]; i++){
