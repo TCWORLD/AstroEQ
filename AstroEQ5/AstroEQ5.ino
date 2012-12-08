@@ -103,7 +103,6 @@
 
 
 
-
 //This is the initialistation code. If using the excel file, replace this line with what it gives.
 //                    aVal    bVal      sVal  scalar
 
@@ -112,9 +111,18 @@ Synta synta(1281, 13271040, 95493, 16, 92160, 3);
 //Example for different ratio per axis (see excel file).
 //Synta synta(1281, 9024000, 9011200, 64933, 64841, 62667, 62578, 16, 1);
 
+//These allow you to configure the speed at which the mount moves when executing goto commands. (Lower is faster)
+//It can be calculated from the value given for speed how fast the mount will move:
+//seconds per revolution = speed * aVal / bVal
+//Or in terms of how many times the sidereal rate it will move
+//ratio = 86164.0905 * (bVal / (aVal * speed))
+//
+//When changing the speed, change the number below, ensuring to suffix it with the letter 'L'
+#define NORMALGGOTOSPEED 320L //This is defined as Speed with the letter 'L' appended
+#define FASTGOTOSPEED 176L
 
-
-
+//This needs to be uncommented for those using the Pololu A4983 Driver board.
+//#define POLOLUDRIVER 1
 
 //Define the two axes (swap the 0 and 1 if R.A. and Dec. motors are reversed)
 #define RA 0
@@ -195,6 +203,16 @@ byte distributionWidth[2] = {64,64};
 
 #endif
 
+#ifdef POLOLUDRIVER
+#define MODE0STATE16 HIGH
+#define MODE0STATE2 LOW
+#else
+#define MODE0STATE16 LOW
+#define MODE0STATE2 HIGH
+#endif
+#define MODE2STATE16 HIGH
+#define MODE2STATE2 LOW
+
 void setup()
 {
   pinMode(oldStepPin1,INPUT); //Set to input for ease of hardware change
@@ -211,8 +229,8 @@ void setup()
 #if defined(__AVR_ATmega162__) || defined(USEHIGHSPEEDMODE)
     pinMode(modePins[i][0],OUTPUT); //enable the mode pins
     pinMode(modePins[i][1],OUTPUT); //enable the mode pins
-    digitalWrite(modePins[i][0],LOW); //default is low
-    digitalWrite(modePins[i][1],HIGH); //default is high
+    digitalWrite(modePins[i][0],MODE0STATE16); //default is low
+    digitalWrite(modePins[i][1],MODE2STATE16); //default is high
 #endif
     pinMode(resetPin[i],OUTPUT); //enable the reset pin
     digitalWrite(resetPin[i],LOW); //active low reset
@@ -454,11 +472,11 @@ void gotoMode(){
     gotoPosn[synta.axis()] = synta.cmd.jVal(synta.axis()) + (synta.cmd.stepDir(synta.axis()) * synta.cmd.HVal(synta.axis())); //current position + distance to travel
     
     if (synta.cmd.HVal(synta.axis()) < (200/synta.scalar())){
-      synta.cmd.IVal(synta.axis(), 320L);
+      synta.cmd.IVal(synta.axis(), NORMALGGOTOSPEED);
       calculateRate(synta.axis());
       motorStart(synta.axis(),20/synta.scalar()); //Begin PWM
     } else {
-      synta.cmd.IVal(synta.axis(), 176L); //Higher speed goto
+      synta.cmd.IVal(synta.axis(), FASTGOTOSPEED); //Higher speed goto
       calculateRate(synta.axis());
       motorStart(synta.axis(),60/synta.scalar()); //Begin PWM
     }
@@ -528,8 +546,8 @@ void decellerate(byte decellerateSteps, byte motor){
   if(highSpeed[motor]){
     //Disable Highspeed mode
     highSpeed[motor] = false;
-    digitalWrite(modePins[motor][0],LOW);
-    digitalWrite(modePins[motor][1],HIGH);
+    digitalWrite(modePins[motor][0],MODE0STATE16);
+    digitalWrite(modePins[motor][1],MODE2STATE16);
     if(motor){
       if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR1B = PULSEWIDTH2; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
@@ -569,8 +587,8 @@ void accellerate(byte accellerateSteps, byte motor){
 #if defined(USEHIGHSPEEDMODE)
   if(highSpeed[motor]){
     //Enable Highspeed mode
-    digitalWrite(modePins[motor][0],HIGH);
-    digitalWrite(modePins[motor][1],LOW); 
+    digitalWrite(modePins[motor][0],MODE0STATE2);
+    digitalWrite(modePins[motor][1],MODE2STATE2); 
     if(motor){
       if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR1B = PULSEWIDTH2F; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
