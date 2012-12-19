@@ -1,7 +1,8 @@
-
 Update: 30/06/2012
 
-In have now uploaded the latest version: AstroEQ5.
+Files can be downloaded as ZIP archives here:
+https://github.com/TCWORLD/AstroEQ/tree/master/Downloads
+
 
 AstroEQ5 has a completely redesigned set of motor functions and rate calculation making it now far more accurate in its tracking speed.
 
@@ -9,7 +10,7 @@ There is also a redesigned set of hardware which no longer requires an Arduino M
 An advantage of this change is that now the board can be built using almost entirely through hole components, and can be made for much cheaper.
 
 In order to suit this design, I plan to sell the motor driver IC's, the Atmega162 with Bootloader, and a PIC preprogrammed as a USB-Serial port. The reason for this is that the motor drivers are very fine pitch ICs, not suitable for DIY, however I have designed a board which will break them out to a DIP package. Also the PIC and Atmega need to be initially programmed, which special programmers are needed for.
-If all goes well, I also plan to make available a kit complete with circuit board, and possibly ready built boards. Currently, with PCB, the estimated cost for a complete board is ~£80. 
+If all goes well, I also plan to make available a kit complete with circuit board, and possibly ready built boards. Currently, with PCB, the estimated cost for a complete board is ~ï¿½80. 
 PLEASE NOTE: In order to do this, there has to be at least 10 people wanting the kits, else it is not economically viable for me to sell them.
 
 Please note that the new software still support boards built with the old hardware design (<5.0), so if you have already built one, you can still take advantage of the new software.
