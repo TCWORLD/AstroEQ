@@ -1,8 +1,0 @@
-The hardware and schematics are for reference only. At the moment, the PCB is untested - though I will be getting one made at some point. 
-
-The motor drivers are Texas Instruments DRV8824PWP, which are surface mount. However, any stepper motor driver IC which uses 1/16th microstepping, and also which uses Step and Direction pins can be used, though it is up to you to modify the circuit accordingly.
-
-If you are going to redesign your own, make sure to use the arduino pins I have used for step, direction, enable. Also use the same arduino pins for reset as I have if your IC has a reset pin.
-The error pin is not so important, as there is nothing in the code which uses it. This may be added at a later date, so again if the error pin exists, connect it to the same arduino pins as I have.
-
-It is possible to use 1/8th stepping, but it will require modification of the source code. If requested, I will add this feature.
