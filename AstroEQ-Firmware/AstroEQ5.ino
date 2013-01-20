@@ -9,15 +9,15 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 5.0
+  Current Verison: 5.4
 */
+
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
 #if defined(__AVR_ATmega162__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 //Just in case it was defined somewhere else, we cant be having that.
 #ifdef USEHIGHSPEEDMODE
 #undef USEHIGHSPEEDMODE
 #endif
-
 
 #include "synta.h" //Synta Communications Protocol.
 
@@ -31,7 +31,8 @@
 //
 //  Format:
 //
-//Synta synta( e [1281],  a,  b,  g [16],  s,  scalar);
+//Synta synta( e [1281],  a,  b,  g [16],  s,  scalar); //same ratio for each axis
+//Synta synta( e [1281],  a RA,  a DEC,  b RA,  b DEC,  g [16],  s RA,  s DEC,  scalar); //different ratio for each axis
 //
 // e = version number (this doesnt need chaning)
 //
@@ -83,50 +84,67 @@
 // sVal = 184320
 // scalar = 10
 //
-// EQ3 Mount upgraded with the Dual motor kit (non Goto)
-// aVal = 23961600
-// bVal = 172418
-// sVal = 184320
-// scalar = 10
+// EQ3-2 Mount upgraded with the Dual motor kit (non Goto)
+// aVal1 = 23961600
+// aVal2 = 11980800
+// bVal1 = 172417
+// bVal2 = 86209
+// sVal1 = 184320
+// sVal2 = 184320
+// scalar = 10 //scales aVal and sVal with no error
 //
 // Other mounts:
 // aVal = 64 * motor steps per revolution * ratio
-// bVal = 620 * aVal / 86164.0905   (round to nearest whole number)
+// bVal = 620 * aVal / 86164.0905   (round UP to nearest whole number)
 // sVal = aVal / Worm Gear Teeth   (round to nearest whole number)
 // scalar = depends on aVal, see notes below
 //
 //Create an instance of the mount
 //If aVal is roughly greater than 10000000 (ten million), the number needs to be scaled down by some factor
 //to make it smaller than that limit. In my case I have chosen 10 as it nicely scales the
-//a and s values. Hence below, I have set scalar to 10.
 
 
-
+//-------------------------------------------------------------
+//INITIALISATION CODE -----------------------------------------
+//-------------------------------------------------------------
 
 //This is the initialistation code. If using the excel file, replace this line with what it gives.
-//                    aVal    bVal      sVal  scalar
 
 //Example for same ratio per axis
-Synta synta(1281, 13271040, 95493, 16, 92160, 3);
+//Synta synta(1281, 9011200, 64841, 16, 31289, 1);
 //Example for different ratio per axis (see excel file).
-//Synta synta(1281, 9024000, 9011200, 64933, 64841, 62667, 62578, 16, 1);
+//Synta synta(1281, 23961600, 11980800, 172417, 86209, 184320, 184320, 16, 10);
+Synta synta(1281, 1664000, 832000, 11974, 5987, 12800, 12800, 16, 1);							
+								
+
+//-------------------------------------------------------------
+//USER CONFIGURATION ------------------------------------------
+//-------------------------------------------------------------
+
+//This is for HARDWARE versions prior to 4.0. This includes all versions using Arduino Mega board.
+//#define LEGACY_MODE 1
 
 //These allow you to configure the speed at which the mount moves when executing goto commands. (Lower is faster)
 //It can be calculated from the value given for speed how fast the mount will move:
 //seconds per revolution = speed * aVal / bVal
 //Or in terms of how many times the sidereal rate it will move
-//ratio = 86164.0905 * (bVal / (aVal * speed))
+//ratio = 620 / speed
 //
 //When changing the speed, change the number below, ensuring to suffix it with the letter 'L'
 #define NORMALGGOTOSPEED 320L //This is defined as Speed with the letter 'L' appended
 #define FASTGOTOSPEED 176L
+//Normally, 'fast' should be the fastest you want the mount to move, and 'normal' should be around half that.
 
-//This needs to be uncommented for those using the Pololu A4983 Driver board.
-//#define POLOLUDRIVER 1
+//This needs to be uncommented for those using the Pololu A4983 Driver board. Otherwise DRV8824 will be assumed.
+//#define POLOLU_A498x 1
 
-//Define the two axes (swap the 0 and 1 if R.A. and Dec. motors are reversed)
+//Define the two axes (change 0 to 1 if R.A. and Dec. motors are swapped - i.e. RA moves instead of DEC and vice versa)
 #define RA 0
-#define DC 1
+#define DC (1 - RA) //dont change this one. If RA=0, then DEC=(1-0)=1. If RA=1, then DEC=(1-1)=0
+
+//If  motors turn in the wrong direction - i.e. a West slew moves East, and a North slew moves South, uncomment the line for the motors to be reversed:
+//#define REVERSEDIRECTION_RA 1
+//#define REVERSEDIRECTION_DEC 1
 
 //Uncomment the following #define to use a Beta function which increases motor torque when moving at highspeed by switching from 16th ustep to half stepping.
 //Note, this is very much a Beta, and requires mode pins M2 and M0 of the DRV8824 chips to be connected to the arduino. 
@@ -135,9 +153,12 @@ Synta synta(1281, 13271040, 95493, 16, 92160, 3);
 //#define USEHIGHSPEEDMODE 1
 
 
+
 //-------------------------------------------------------------
 //DO NOT EDIT ANYTHING BELOW THIS LINE-------------------------
 //-------------------------------------------------------------
+
+//#define DEBUG 1
 
 unsigned long gotoPosn[2] = {0,0}; //where to slew to
 unsigned int timerOVF[2][64]; //Clock section of each of the 64 microsteps
@@ -146,10 +167,33 @@ unsigned long maxTimerOVF; //Minimum allowable clock count
 
 #define PULSEWIDTH16 64
 #define PULSEWIDTH2 8
+#define PULSEWIDTH_25 1
 
 #ifdef USEHIGHSPEEDMODE
 #define PULSEWIDTH16F 8
 #define PULSEWIDTH2F 1
+#define PULSEWIDTH_25F 1
+#endif
+
+#ifdef REVERSEDIRECTION_DEC
+#define DEC_REVERSE HIGH
+#define DEC_FORWARD LOW
+#else
+#define DEC_REVERSE LOW
+#define DEC_FORWARD HIGH
+#endif
+#ifdef REVERSEDIRECTION_RA
+#define RA_REVERSE HIGH
+#define RA_FORWARD LOW
+#else
+#define RA_REVERSE LOW
+#define RA_FORWARD HIGH
+#endif
+
+#if (RA == 0)
+#define ENCODE_DIRECTION_INIT() {{RA_REVERSE,RA_FORWARD},{DEC_REVERSE,DEC_FORWARD}}
+#else
+#define ENCODE_DIRECTION_INIT() {{DEC_REVERSE,DEC_FORWARD},{RA_REVERSE,RA_FORWARD}}
 #endif
 
 #if defined(__AVR_ATmega162__)
@@ -162,20 +206,25 @@ const char dirPin[2] = {3,7};
 const char enablePin[2] = {4,8};
 const char stepPin[2] = {5,30};
 const char oldStepPin1 = 9; //Note this has changed due to a mistake I had made originally. The original will be set as an input so hardware can be corrected by shorting with new pin
+#ifdef LEGACY_MODE
 const char modePins[2][2] = {{16,17},{19,18}};
+#else
+const char modePins[2][3] = {{6,16,17},{10,19,18}};
+#endif
 //Used for direct port register write. Also determines which hardware
-#define STEP1PORT PORTD
-#define _STEP1_HIGH 0b00010000
-#define _STEP1_LOW 0b11101111
-#define STEP2PORT PORTE
-#define _STEP2_HIGH 0b00000100
-#define _STEP2_LOW 0b11111011
+//#define STEP1PORT PORTD
+//#define _STEP1_HIGH 0b00010000
+//#define _STEP1_LOW 0b11101111
+//#define STEP2PORT PORTE
+//#define _STEP2_HIGH 0b00000100
+//#define _STEP2_LOW 0b11111011
 
 boolean highSpeed[2] = {false,false}; //whether number of microsteps is dropped to 8 due to high speed (to increase Torque)
-byte distributionWidth[2] = {64,64};
 
 #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-
+#ifndef LEGACY_MODE
+#define LEGACY_MODE 1
+#endif
 //Pins
 const char statusPin = 13;
 const char resetPin[2] = {A1,A0};
@@ -185,12 +234,12 @@ const char enablePin[2] = {4,8};
 const char stepPin[2] = {5,12};
 const char oldStepPin1 = 9; //Note this has changed due to a mistake I had made originally. The original will be set as an input so hardware can be corrected by shorting with new pin
 //Used for direct port register write. Also determines which hardware
-#define STEP1PORT PORTE
-#define _STEP1_HIGH 0b00001000
-#define _STEP1_LOW 0b11110111
-#define STEP2PORT PORTB
-#define _STEP2_HIGH 0b01000000
-#define _STEP2_LOW 0b10111111
+//#define STEP1PORT PORTE
+//#define _STEP1_HIGH 0b00001000
+//#define _STEP1_LOW 0b11110111
+//#define STEP2PORT PORTB
+//#define _STEP2_HIGH 0b01000000
+//#define _STEP2_LOW 0b10111111
 
 #ifdef USEHIGHSPEEDMODE
 const char modePins[2][2] = {{16,17},{19,18}}; // {RA{Mode0,Mode2}, DEC{Mode0,Mode2}} Modepins, Mode1=leave unconnected.
@@ -199,11 +248,24 @@ boolean highSpeed[2] = {false,false}; //whether number of microsteps is dropped 
                                       //If you want to use it, uncomment the line: '#define USEHIGHSPEEDMODE 1'
                                       //and connect the mode pins of the DRV8824PWP chips to the pins shown
 #endif
-byte distributionWidth[2] = {64,64};
 
 #endif
+const boolean encodeDirection[2][2] = ENCODE_DIRECTION_INIT();
+byte distributionWidth[2] = {64,64};
 
-#ifdef POLOLUDRIVER
+volatile byte* _STEP1_PORT;
+byte _STEP1_HIGH;
+byte _STEP1_LOW;
+#define STEP1PORT *_STEP1_PORT
+volatile byte* _STEP2_PORT;
+byte _STEP2_HIGH;
+byte _STEP2_LOW;
+#define STEP2PORT *_STEP2_PORT
+
+//In order to support both the DRV8824 and A4983 carrier boards from Pololu, the mode positions had to be changed and thus this is different:
+#ifdef LEGACY_MODE
+
+#ifdef POLOLU_A498x
 #define MODE0STATE16 HIGH
 #define MODE0STATE2 LOW
 #else
@@ -213,8 +275,42 @@ byte distributionWidth[2] = {64,64};
 #define MODE2STATE16 HIGH
 #define MODE2STATE2 LOW
 
+#else
+
+#ifdef POLOLU_A498x
+#define MODE0STATE16 HIGH
+#define MODE0STATE2 HIGH
+#define MODE1STATE16 HIGH
+#define MODE1STATE2 LOW
+#define MODE2STATE16 HIGH
+#define MODE2STATE2 LOW
+#else
+#define MODE0STATE16 LOW
+#define MODE0STATE2 HIGH
+#define MODE1STATE16 LOW
+#define MODE1STATE2 LOW
+#define MODE2STATE16 HIGH
+#define MODE2STATE2 LOW
+#endif
+
+#endif
+
+
 void setup()
 {
+  unsigned char STEP1 = digitalPinToPort(stepPin[0]);
+  unsigned char STEP2 = digitalPinToPort(stepPin[1]);
+  _STEP1_PORT = portOutputRegister(STEP1);
+  _STEP2_PORT = portOutputRegister(STEP2);
+  _STEP1_HIGH = digitalPinToBitMask(stepPin[0]);
+  _STEP2_HIGH = digitalPinToBitMask(stepPin[1]);
+  _STEP1_LOW = ~_STEP1_HIGH;
+  _STEP2_LOW = ~_STEP2_HIGH;
+  
+#ifdef DEBUG
+  Serial1.begin(115200);
+#endif
+  
   pinMode(oldStepPin1,INPUT); //Set to input for ease of hardware change
   digitalWrite(oldStepPin1,LOW); //disable internal pullup
   pinMode(statusPin,OUTPUT);
@@ -226,11 +322,22 @@ void setup()
     digitalWrite(stepPin[i],LOW); //default is low
     pinMode(dirPin[i],OUTPUT); //enable the direction pin
     digitalWrite(dirPin[i],LOW); //default is low
+#ifdef LEGACY_MODE
 #if defined(__AVR_ATmega162__) || defined(USEHIGHSPEEDMODE)
     pinMode(modePins[i][0],OUTPUT); //enable the mode pins
     pinMode(modePins[i][1],OUTPUT); //enable the mode pins
     digitalWrite(modePins[i][0],MODE0STATE16); //default is low
     digitalWrite(modePins[i][1],MODE2STATE16); //default is high
+#endif
+#else
+#if defined(__AVR_ATmega162__)
+    pinMode(modePins[i][0],OUTPUT); //enable the mode pins
+    pinMode(modePins[i][1],OUTPUT); //enable the mode pins
+    pinMode(modePins[i][2],OUTPUT); //enable the mode pins
+    digitalWrite(modePins[i][0],MODE0STATE16); //default is low
+    digitalWrite(modePins[i][1],MODE1STATE16); //default is high
+    digitalWrite(modePins[i][2],MODE2STATE16); //default is high
+#endif
 #endif
     pinMode(resetPin[i],OUTPUT); //enable the reset pin
     digitalWrite(resetPin[i],LOW); //active low reset
@@ -254,11 +361,18 @@ void loop(){
   if (Serial.available()) { //is there a byte in buffer
     digitalWrite(statusPin,HIGH); //Turn on the LED to indicate activity.
     char recievedChar = Serial.read(); //get the next character in buffer
+#ifdef DEBUG
+    Serial1.write(recievedChar);
+#endif
     char decoded = synta.recieveCommand(decodedPacket,recievedChar); //once full command packet recieved, decodedPacket returns either error packet, or valid packet
     if (decoded == 1){ //Valid Packet
       decodeCommand(synta.command(),decodedPacket); //decode the valid packet
     } else if (decoded == -1){ //Error
       Serial.print(decodedPacket); //send the error packet (recieveCommand() already generated the error packet, so just need to send it)
+#ifdef DEBUG
+      Serial1.print(" ->Res:");
+      Serial1.println(decodedPacket);
+#endif
     } //otherwise command not yet fully recieved, so wait for next byte
     lastMillis = millis();
     isLedOn = true;
@@ -310,8 +424,8 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         responseData = 0;
         break;
     case 'G': //set mode and direction, return empty response
-        synta.cmd.GVal(synta.axis(), (packetIn[0] - 48)); //Store the current mode for the axis
-        synta.cmd.dir(synta.axis(),(packetIn[1] - 48)); //Store the current direction for that axis
+        synta.cmd.GVal(synta.axis(), (packetIn[0] - '0')); //Store the current mode for the axis
+        synta.cmd.dir(synta.axis(), (packetIn[1] - '0')); //Store the current direction for that axis
         responseData = 0;
         break;
     case 'H': //set goto position, return empty response (this sets the number of steps to move from cuurent position if in goto mode)
@@ -350,6 +464,10 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
   
   synta.assembleResponse(response, command, responseData); //generate correct response (this is required as is)
   Serial.print(response); //send response to the serial port
+#ifdef DEBUG
+  Serial1.print(" ->Res:");
+  Serial1.println(response);
+#endif
   
   if(command == 'J'){ //J tells
     if(synta.cmd.GVal(synta.axis()) & 1){
@@ -485,7 +603,7 @@ void gotoMode(){
 }
 
 void motorStart(byte motor, byte steps){
-  digitalWrite(dirPin[motor],synta.cmd.dir(motor)); //set the direction
+  digitalWrite(dirPin[motor],encodeDirection[motor][synta.cmd.dir(motor)]); //set the direction
   synta.cmd.stopped(motor, 0);
   accellerate(steps * synta.scalar(),motor); //accellerate to calculated rate in given number of steps steps
   synta.cmd.jVal(motor, (synta.cmd.jVal(motor) + (synta.cmd.stepDir(motor) * steps) ) ); //update position to account for accelleration
@@ -546,31 +664,47 @@ void decellerate(byte decellerateSteps, byte motor){
   if(highSpeed[motor]){
     //Disable Highspeed mode
     highSpeed[motor] = false;
+#ifdef LEGACY_MODE
     digitalWrite(modePins[motor][0],MODE0STATE16);
     digitalWrite(modePins[motor][1],MODE2STATE16);
+#else
+    digitalWrite(modePins[motor][0],MODE0STATE16); //default is low
+    digitalWrite(modePins[motor][1],MODE1STATE16); //default is high
+    digitalWrite(modePins[motor][2],MODE2STATE16); //default is high
+#endif
     if(motor){
-      if (synta.cmd.bVal(synta.axis()) < 160000){
+      if (synta.cmd.bVal(synta.axis()) < 20000){
+        OCR1B = PULSEWIDTH_25; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
+        //Set prescaler to F_CPU/64
+        TCCR1B &= ~(1<<CS12); //0xx
+        TCCR1B |= ((1<<CS11) | (1<<CS10));//x11
+      } else if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR1B = PULSEWIDTH2; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/8
         TCCR1B &= ~((1<<CS12) | (1<<CS10)); //0x0
-        TCCR1B |= (1<<CS11);//1
+        TCCR1B |= (1<<CS11);//x1x
       } else {
         OCR1B = PULSEWIDTH16; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/1
         TCCR1B &= ~((1<<CS12) | (1<<CS11));//00x
-        TCCR1B |= (1<<CS10);//1
+        TCCR1B |= (1<<CS10);//xx1
       }
     } else {
-      if (synta.cmd.bVal(synta.axis()) < 160000){
+      if (synta.cmd.bVal(synta.axis()) < 20000){
+        OCR3A = PULSEWIDTH_25; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
+        //Set prescaler to F_CPU/64
+        TCCR3B &= ~(1<<CS32); //0xx
+        TCCR3B |= ((1<<CS31) | (1<<CS30));//x11
+      } else if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR3A = PULSEWIDTH2; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/8
         TCCR3B &= ~((1<<CS32) | (1<<CS30)); //0x0
-        TCCR3B |= (1<<CS31);//1
+        TCCR3B |= (1<<CS31);//x1x
       } else {
         OCR3A = PULSEWIDTH16; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/1
         TCCR3B &= ~((1<<CS32) | (1<<CS31));//00x
-        TCCR3B |= (1<<CS30);//1
+        TCCR3B |= (1<<CS30);//xx1
       }
     }
   }
@@ -587,32 +721,47 @@ void accellerate(byte accellerateSteps, byte motor){
 #if defined(USEHIGHSPEEDMODE)
   if(highSpeed[motor]){
     //Enable Highspeed mode
+#ifdef LEGACY_MODE
     digitalWrite(modePins[motor][0],MODE0STATE2);
-    digitalWrite(modePins[motor][1],MODE2STATE2); 
+    digitalWrite(modePins[motor][1],MODE2STATE2);
+#else
+    digitalWrite(modePins[motor][0],MODE0STATE2); //default is low
+    digitalWrite(modePins[motor][1],MODE1STATE2); //default is high
+    digitalWrite(modePins[motor][2],MODE2STATE2); //default is high
+#endif
     if(motor){
-      if (synta.cmd.bVal(synta.axis()) < 160000){
+      if (synta.cmd.bVal(synta.axis()) < 20000){
+        OCR1B = PULSEWIDTH_25F; //Width of step pulse (equates to ~32uS. DRV8824PWP specifies absolute minimum as ~2uS)
+        //Set prescaler to F_CPU/256
+        TCCR1B |= (1<<CS12); //1xx
+        TCCR1B &= ~((1<<CS11) | (1<<CS10));//x00
+      } else if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR1B = PULSEWIDTH2F; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/64
-        TCCR1B &= ~(1<<CS12); //0
+        TCCR1B &= ~(1<<CS12); //0xx
         TCCR1B |= ((1<<CS11) | (1<<CS10));//x11
-    
       } else {
         OCR1B = PULSEWIDTH16F; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/8
         TCCR1B &= ~((1<<CS12) | (1<<CS10)); //0x0
-        TCCR1B |= (1<<CS11);//1
+        TCCR1B |= (1<<CS11);//x1x
       }
     } else {
-      if (synta.cmd.bVal(synta.axis()) < 160000){
+      if (synta.cmd.bVal(synta.axis()) < 20000){
+        OCR1B = PULSEWIDTH_25F; //Width of step pulse (equates to ~32uS. DRV8824PWP specifies absolute minimum as ~2uS)
+        //Set prescaler to F_CPU/256
+        TCCR3B |= (1<<CS32); //1xx
+        TCCR3B &= ~((1<<CS31) | (1<<CS30));//x00
+      } else if (synta.cmd.bVal(synta.axis()) < 160000){
         OCR3A = PULSEWIDTH2F; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/64
-        TCCR3B &= ~(1<<CS32); //0
+        TCCR3B &= ~(1<<CS32); //0xx
         TCCR3B |= ((1<<CS31) | (1<<CS30));//x11
       } else {
         OCR3A = PULSEWIDTH16F; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
         //Set prescaler to F_CPU/8
         TCCR3B &= ~((1<<CS32) | (1<<CS30)); //0x0
-        TCCR3B |= (1<<CS31);//1
+        TCCR3B |= (1<<CS31);//x1x
       }
     }
   }
@@ -673,22 +822,31 @@ void configureTimer(){
   TCCR3A |= ((1<<WGM31));
   TCCR3A &= ~((1<<WGM30));
   TCCR3B |= ((1<<WGM33) | (1<<WGM32));
-  if (synta.cmd.bVal(synta.axis()) < 160000){
+  if (synta.cmd.bVal(synta.axis()) < 20000){
+    timerCountRate = 25000;
+    //Set prescaler to F_CPU/64
+    TCCR1B &= ~(1<<CS12); //0xx
+    TCCR1B |= ((1<<CS11) | (1<<CS10));//x11
+    TCCR3B &= ~(1<<CS32); //0x0
+    TCCR3B |= ((1<<CS31) | (1<<CS30));//x11
+    OCR1B = PULSEWIDTH_25; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
+    OCR3A = PULSEWIDTH_25;
+  } else if (synta.cmd.bVal(synta.axis()) < 160000){
     timerCountRate = 200000;
     //Set prescaler to F_CPU/8
     TCCR1B &= ~((1<<CS12) | (1<<CS10)); //0x0
-    TCCR1B |= (1<<CS11);//1
+    TCCR1B |= (1<<CS11);//x1x
     TCCR3B &= ~((1<<CS32) | (1<<CS30)); //0x0
-    TCCR3B |= (1<<CS31);//1
+    TCCR3B |= (1<<CS31);//x1x
     OCR1B = PULSEWIDTH2; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
     OCR3A = PULSEWIDTH2;
   } else {
     timerCountRate = 1600000;
     //Set prescaler to F_CPU/1
     TCCR1B &= ~((1<<CS12) | (1<<CS11));//00x
-    TCCR1B |= (1<<CS10);//1
+    TCCR1B |= (1<<CS10);//xx1
     TCCR3B &= ~((1<<CS32) | (1<<CS31));//00x
-    TCCR3B |= (1<<CS30);//1
+    TCCR3B |= (1<<CS30);//xx1
     OCR1B = PULSEWIDTH16; //Width of step pulse (equates to ~4uS. DRV8824PWP specifies absolute minimum as ~2uS)
     OCR3A = PULSEWIDTH16;
   }
