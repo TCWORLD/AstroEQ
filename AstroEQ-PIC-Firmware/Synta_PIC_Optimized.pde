@@ -937,21 +937,26 @@ configureTimer(); //setup the motor pulse timers.
 void loop() {
     char recievedChar;
     char decoded;
-    char decodedPacket[11]; //temporary store for completed command ready to be processed
+    char decodedPacket[11];
+    int time = 0;
+    //temporary store for completed command ready to be processed
 //    Serial.printf("%u\r",div_scalar);
 //    Serial.printf("%i\r",maxTimerOVF);
     if (Serial.available()) { //is there a byte in buffer
         digitalWrite(USERLED,LOW); //Turn on the LED to indicate activity.
         recievedChar = Serial.read(); //get the next character in buffer
         decoded = Synta_recieveCommand(decodedPacket,recievedChar);//once full command packet recieved, decodedPacket returns either error packet, or valid packet
+        time++;
         if (decoded == 1){ //Valid Packet
             decodeCommand(_command,decodedPacket); //decode the valid packet
         } else if (decoded == -1){ //Error
             Serial.printf(decodedPacket); //send the error packet (recieveCommand() already generated the error packet, so just need to send it)
         } //otherwise command not yet fully recieved, so wait for next byte
     } 
+     if (time > 500){
     digitalWrite(USERLED,HIGH); //Turn off the LED to indicate activity.
-   
+    time = 0;
+}  
 }
     
     
