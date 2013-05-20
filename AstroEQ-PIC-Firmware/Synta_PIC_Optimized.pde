@@ -772,6 +772,9 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         case 'G': //set mode and direction, return empty response
             _GVal[_axis]= (packetIn[0] - 48); //Store the current mode for the axis
             dir[_axis]= (packetIn[1] - 48); //Store the current direction for that axis
+            if (dir[_axis] == 0) stepDir[_axis]=1; 
+            else stepDir[_axis]=-1;
+
             //responseData = 0;
             Serial.printf("=\r");
            // Serial.printf("Gval %i\r",_GVal[_axis]);//debug
