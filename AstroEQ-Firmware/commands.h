@@ -14,52 +14,58 @@
 //----------------------------------------------------------------------------
 #ifndef commands_h
 #define commands_h
+  
   #if ARDUINO >= 100
     #include "Arduino.h"
   #else
     #include "WProgram.h"
   #endif
   
-  #define numberOfCommands 17
+  #include "EEPROMReader.h"
+  #include "EEPROMAddresses.h"
   
+  #define numberOfCommands 20
+    
   class Commands{
     public:
-      void init(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal);
-      void init(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal);
+      
+      void init(unsigned long _eVal, byte _gVal);
       
       //Command definitions
       static const char command[numberOfCommands][3];
       
       //Methods for accessing class variables
-      char stepDir(byte target); //Get Method
-      byte dir(byte target, char dir = 2); //Get Method
-      byte stopped(byte target, byte stopped = 2); //Get Method
-      byte gotoEn(byte target, byte gotoEn = 2); //Get Method
-      byte FVal(byte target, byte FVal = 2); //Get Method
-      unsigned int fVal(byte target); //return the flag to main program
-      unsigned long jVal(byte target, unsigned long jVal = 0x01000000); //Get Method
-      unsigned long IVal(byte target, unsigned long IVal = 0x01000000); //Get Method
-      byte GVal(byte target, byte GVal = 4); //Get Method
-      unsigned long HVal(byte target, unsigned long HVal = 0x01000000); //Get Method
-      unsigned long eVal(byte target); //Get Method
-      unsigned long aVal(byte target); //Get Method
-      unsigned long bVal(byte target); //Get Method
-      byte gVal(byte target); //Get Method
-      unsigned long sVal(byte target); //Get Method
+      void setStepLength(byte target, byte stepLength); //in highspeed mode, one step is gVal increments of the jVal.
+      void setDir(byte target, byte _dir); //Get Method
+      void setStopped(byte target, byte _stopped); //Get Method
+      void setGotoEn(byte target, byte _gotoEn); //Set Method
+      void setFVal(byte target, byte _FVal); //Get Method
+      void setjVal(byte target, unsigned long _jVal); //set Method
+      void setIVal(byte target, unsigned int _IVal); //set Method
+      void setHVal(byte target, unsigned long _HVal); //set Method
+      void setGVal(byte target, byte _GVal); //Get Method
       
       char getLength(char cmd, boolean sendRecieve);
       
-    private:
       //class variables
-      unsigned long _jVal[2]; //_jVal: Current position
-      unsigned long _IVal[2]; //_IVal: speed to move if in slew mode
-      byte _GVal[2]; //_GVal: slew/goto mode
-      unsigned long _HVal[2]; //_HVal: steps to move if in goto mode
-      unsigned int _flag[2]; //_fVal: 00ds000g000f; d = dir, s = stopped, g = goto, f = energised
-      unsigned long _eVal[2]; //_eVal: Version number
-      unsigned long _aVal[2]; //_aVal: Steps per axis revolution
-      unsigned long _bVal[2]; //_bVal: Sidereal Rate of axis
-      byte _gVal[2]; //_gVal: Speed scalar for highspeed slew
-      unsigned long _sVal[2]; //_sVal: Steps per worm gear revolution
+      unsigned long jVal[2]; //_jVal: Current position
+      unsigned int IVal[2]; //_IVal: speed to move if in slew mode
+      unsigned int motorSpeed[2]; //speed at which moving. Accelerates to IVal.
+      byte GVal[2]; //_GVal: slew/goto mode
+      unsigned long HVal[2]; //_HVal: steps to move if in goto mode
+      unsigned int fVal(byte target); //_fVal: 00ds000g000f; d = dir, s = stopped, g = goto, f = energised
+      volatile char stepDir[2]; 
+      byte dir[2];
+      byte FVal[2];
+      byte gotoEn[2];
+      byte stopped[2];
+      unsigned long eVal[2]; //_eVal: Version number
+      unsigned long aVal[2]; //_aVal: Steps per axis revolution
+      unsigned long bVal[2]; //_bVal: Sidereal Rate of axis
+      byte gVal[2]; //_gVal: Speed scalar for highspeed slew
+      unsigned long sVal[2]; //_sVal: Steps per worm gear revolution
+      byte stepIncrement[2];
+      unsigned int siderealIVal[2]; //_IVal: at sidereal rate
+              
   };
 #endif

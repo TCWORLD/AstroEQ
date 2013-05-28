@@ -11,21 +11,36 @@
   
   class Synta{
     public:
-      Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal,byte scalar);
-      Synta(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal,byte scalar);
+    
+      static Synta& getInstance(unsigned long version)
+      {
+        static Synta singleton = Synta(version);
+        return singleton;
+      }
+      
       Commands cmd;
       void assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData);
       char recieveCommand(char* dataPacket, char character);
       byte axis(byte axis = 2); //make target readonly to outside world.
-      byte scalar();
       char command(); //make current command readonly to outside world.
       
       unsigned long hexToLong(char* hex);
       void longToHex(char* hex, unsigned long data);
       void intToHex(char* hex, unsigned int data);
       void byteToHex(char* hex, byte data);
+      
+      //byte scalar[2];
     
     private:
+      Synta(unsigned long version) {
+        initialise(version);
+      };
+      //Synta(Synta const&);
+      void operator=(Synta const&);
+      
+      void initialise(unsigned long eVal);
+      
+      
       void clearBuffer(char* buf, byte len);
       void success(char* buf, char data[], byte dataLen);
       void error(char* buf);
@@ -33,11 +48,10 @@
       
       boolean validPacket;
       char commandString[11];
-      char commandIndex;
+      byte commandIndex;
       
       byte _axis;
       char _command;
-      byte _scalar;
       
       static const char startInChar;
       static const char startOutChar;

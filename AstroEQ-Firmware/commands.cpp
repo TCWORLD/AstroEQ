@@ -23,36 +23,28 @@
 #endif
 
 #include "commands.h"
-void Commands::init(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal){
+void Commands::init(unsigned long _eVal, byte _gVal){
+  aVal[0] = EEPROM.readLong(aVal1_Address); //steps/axis
+  aVal[1] = EEPROM.readLong(aVal2_Address); //steps/axis
+  bVal[0] = EEPROM.readLong(bVal1_Address); //sidereal rate
+  bVal[1] = EEPROM.readLong(bVal2_Address); //sidereal rate
+  sVal[0] = EEPROM.readLong(sVal1_Address); //steps/worm rotation
+  sVal[1] = EEPROM.readLong(sVal2_Address); //steps/worm rotation
+  siderealIVal[0] = EEPROM.readInt(IVal1_Address); //steps/worm rotation
+  siderealIVal[1] = EEPROM.readInt(IVal2_Address); //steps/worm rotation
   for(byte i = 0;i < 2;i++){
-    _flag[i] = 0x100;
-    _jVal[i] = 0x800000; //Current position, 0x800000 is the centre
-    _IVal[i] = 0; //Recieved Speed
-    _GVal[i] = 0; //Mode recieved from :G command
-    _HVal[i] = 0; //Value recieved from :H command
-    _eVal[i] = eVal; //version number
-    _gVal[i] = gVal; //High speed scalar
-  }
-  _aVal[0] = aVal1; //steps/axis
-  _aVal[1] = aVal2; //steps/axis
-  _bVal[0] = bVal1; //sidereal rate
-  _bVal[1] = bVal2; //sidereal rate
-  _sVal[0] = sVal1; //steps/worm rotation
-  _sVal[1] = sVal2; //steps/worm rotation
-}
-      
-void Commands::init(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal){ 
-  for(byte i = 0;i < 2;i++){
-    _flag[i] = 0x100;
-    _jVal[i] = 0x800000; //Current position, 0x800000 is the centre
-    _IVal[i] = 0; //Recieved Speed
-    _GVal[i] = 0; //Mode recieved from :G command
-    _HVal[i] = 0; //Value recieved from :H command
-    _eVal[i] = eVal; //version number
-    _aVal[i] = aVal; //steps/axis
-    _bVal[i] = bVal; //sidereal rate
-    _gVal[i] = gVal; //High speed scalar
-    _sVal[i] = sVal; //steps/worm rotation
+    dir[i] = 0;
+    stopped[i] = 1;
+    gotoEn[i] = 0;
+    FVal[i] = 0;
+    jVal[i] = 0x800000; //Current position, 0x800000 is the centre
+    IVal[i] = 0; //Recieved Speed
+    GVal[i] = 0; //Mode recieved from :G command
+    HVal[i] = 0; //Value recieved from :H command
+    eVal[i] = _eVal; //version number
+    gVal[i] = _gVal; //High speed scalar
+    
+    stepIncrement[i] = map(siderealIVal[i],300,1200,4,16);//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
   }
 }
 
@@ -72,7 +64,10 @@ const char Commands::command[numberOfCommands][3] = { {'e', 0, 6},
                                                       {'J', 0, 0},
                                                       {'P', 1, 0},
                                                       {'F', 0, 0},
-                                                      {'L', 0, 0} };
+                                                      {'L', 0, 0},
+                                                      {'A', 6, 0},
+                                                      {'B', 6, 0},
+                                                      {'S', 6, 0} };
 
 char Commands::getLength(char cmd, boolean sendRecieve){
   for(byte i = 0;i < numberOfCommands;i++){
@@ -87,112 +82,54 @@ char Commands::getLength(char cmd, boolean sendRecieve){
   return -1;
 }
 
-unsigned int Commands::fVal(byte target){
-  return _flag[target];
-}
-
-char Commands::stepDir(byte target){ //Get Method
-  char stepDir = 1 - ((_flag[target] >> 8) & 0x02); //get step direction
-  return stepDir;
-}
-
-byte Commands::dir(byte target, char dir){ //Set Method
-  if(dir == 1){
-    //set direction
-    _flag[target] |= (1 << 9); //set bit
-  } else if (dir == 0){
-    _flag[target] &= ~(1 << 9); //unset bit
+void Commands::setStepLength(byte target, byte stepLength) {
+  if (stepDir[target] > 0) {
+    stepDir[target] = stepLength;
   } else {
-    dir = (_flag[target] >> 9) & 0x01; //get direction
+    stepDir[target] = -stepLength;
   }
-  return dir;
 }
 
-byte Commands::stopped(byte target, byte stopped){ //Set Method
-  if(stopped == 1){
-    _flag[target] |= (1 << 8); //set bit
-  } else if (stopped == 0){
-    _flag[target] &= ~(1 << 8); //unset bit
-  } else {
-    stopped = (_flag[target] >> 8) & 0x01;
+void Commands::setDir(byte target, byte _dir){ //Set Method
+  _dir &= 1;
+  //byte sign = _dir ^ target;
+  //if (sign & 1){
+  if(_dir){
+    stepDir[target] = -1; //set step direction
+  } else {//if (dir == 0){}
+    stepDir[target] = 1; //set step direction
   }
-  return stopped;
+  dir[target] = _dir & 1; //set direction
 }
 
-byte Commands::gotoEn(byte target, byte gotoEn){ //Set Method
-  if(gotoEn == 1){
-    _flag[target] |= (1 << 4); //set bit
-  } else if (gotoEn == 0){
-    _flag[target] &= ~(1 << 4); //unset bit
-  } else {
-    gotoEn = (_flag[target] >> 4) & 0x01;
-  }
-  return gotoEn;
+void Commands::setStopped(byte target, byte _stopped){ //Set Method
+  stopped[target] = _stopped & 1;
 }
 
-byte Commands::FVal(byte target, byte FVal){ //Set Method
-  if(FVal == 1){
-    _flag[target] |= (1 << 0); //set bit
-  } else if (FVal == 0){
-    _flag[target] &= ~(1 << 0); //unset bit
-  } else {
-    FVal = (_flag[target] >> 0) & 0x01;
-  }
-  return FVal;
+void Commands::setGotoEn(byte target, byte _gotoEn){ //Set Method
+  gotoEn[target] = _gotoEn & 1;
 }
 
-unsigned long Commands::jVal(byte target, unsigned long jVal){ //Set Method
-  if(jVal < 0x01000000){
-    _jVal[target] = jVal;
-  } else {
-    jVal = _jVal[target];
-  }
-  return jVal;
+void Commands::setFVal(byte target, byte _FVal){ //Set Method
+  FVal[target] = _FVal & 1;
 }
 
-unsigned long Commands::IVal(byte target, unsigned long IVal){ //Set Method
-  if(IVal < 0x01000000){
-    _IVal[target] = IVal;
-  } else {
-    IVal = _IVal[target];
-  }
-  return IVal;
+unsigned int Commands::fVal(byte target){ //_fVal: 00ds000g000f
+  return ((dir[target] << 9)|(stopped[target] << 8)|(gotoEn[target] << 4)|(FVal[target] << 0));
 }
 
-byte Commands::GVal(byte target, byte GVal){ //Set Method
-  if(GVal < 4){
-    _GVal[target] = GVal;
-  } else {
-    GVal = _GVal[target];
-  }
-  return GVal;
+void Commands::setjVal(byte target, unsigned long _jVal){ //Set Method
+  jVal[target] = _jVal;
 }
 
-unsigned long Commands::HVal(byte target, unsigned long HVal){ //Set Method
-  if(HVal < 0x01000000){
-    _HVal[target] = HVal;
-  } else {
-    HVal = _HVal[target];
-  }
-  return HVal;
+void Commands::setIVal(byte target, unsigned int _IVal){ //Set Method
+  IVal[target] = _IVal;
 }
 
-unsigned long Commands::eVal(byte target){
-  return _eVal[target];
+void Commands::setHVal(byte target, unsigned long _HVal){ //Set Method
+  HVal[target] = _HVal;
 }
 
-unsigned long Commands::aVal(byte target){
-  return _aVal[target];
-}
-
-unsigned long Commands::bVal(byte target){
-  return _bVal[target];
-}
-
-byte Commands::gVal(byte target){
-  return _gVal[target];
-}
-
-unsigned long Commands::sVal(byte target){
-  return _sVal[target];
+void Commands::setGVal(byte target, byte _GVal){ //Set Method
+  GVal[target] = _GVal;
 }

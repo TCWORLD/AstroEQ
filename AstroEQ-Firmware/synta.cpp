@@ -1,22 +1,14 @@
 
 #include "synta.h"
 
-Synta::Synta(unsigned long eVal,unsigned long aVal,unsigned long bVal,byte gVal,unsigned long sVal,byte scalar){
+void Synta::initialise(unsigned long eVal){
   validPacket = 0;
   _axis = 0;
   commandIndex = 0;
   clearBuffer(commandString,sizeof(commandString));
-  _scalar = scalar;
-  cmd.init(eVal, aVal, bVal, gVal, sVal);
-}
-
-Synta::Synta(unsigned long eVal,unsigned long aVal1,unsigned long aVal2,unsigned long bVal1,unsigned long bVal2,unsigned long sVal1,unsigned long sVal2,byte gVal,byte scalar){
-  validPacket = 0;
-  _axis = 0;
-  commandIndex = 0;
-  clearBuffer(commandString,sizeof(commandString));
-  _scalar = scalar;
-  cmd.init(eVal, aVal1, aVal2, bVal1, bVal2, sVal1, sVal2, gVal);
+  //scalar[0] = EEPROM.readByte(scalar1_Address) - 1;
+  //scalar[1] = EEPROM.readByte(scalar2_Address) - 1;
+  cmd.init(eVal, 8);
 }
 
 const char Synta::startInChar = ':';
@@ -156,8 +148,4 @@ byte Synta::axis(byte axis){
     _axis = axis;
   }
   return _axis;
-}
-
-byte Synta::scalar(){
-  return _scalar;
 }
