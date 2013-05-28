@@ -4,13 +4,13 @@ Files can be downloaded as ZIP archives here:
 https://github.com/TCWORLD/AstroEQ/tree/master/Downloads
 
 
-AstroEQ5 has a completely redesigned set of motor functions and rate calculation making it now far more accurate in its tracking speed.
+AstroEQ6 has been rebuilt from the ground up to be the best AstroEQ firmware to date.
 
 There is also a redesigned set of hardware which no longer requires an Arduino Mega board to work. Instead it is based around an Atmega162 chip. Although this is not officially supported by the Arduino IDE, I have modified the bootloader to suit.
 An advantage of this change is that now the board can be built using almost entirely through hole components, and can be made for much cheaper.
 
 In order to suit this design, I plan to sell the motor driver IC's, the Atmega162 with Bootloader, and a PIC preprogrammed as a USB-Serial port. The reason for this is that the motor drivers are very fine pitch ICs, not suitable for DIY, however I have designed a board which will break them out to a DIP package. Also the PIC and Atmega need to be initially programmed, which special programmers are needed for.
-If all goes well, I also plan to make available a kit complete with circuit board, and possibly ready built boards. Currently, with PCB, the estimated cost for a complete board is ~�80. 
+If all goes well, I also plan to make available a kit complete with circuit board, and possibly ready built boards. Currently, with PCB, the estimated cost for a complete board is ~£80. 
 PLEASE NOTE: In order to do this, there has to be at least 10 people wanting the kits, else it is not economically viable for me to sell them.
 
 Please note that the new software still support boards built with the old hardware design (<5.0), so if you have already built one, you can still take advantage of the new software.
@@ -26,20 +26,8 @@ AstroEQ is an alternative to the expensive SynScan upgrade. The project acts as 
 
 The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
 
-As of current, I have got the firmware tracking at the correct speed.
-It should work with most EQ mounts, including ones with custom gearing and custom stepper motors.
-
-Getting the mount to track at the correct speed does require some calculation, but all is explained in the arduino file.
-Also included are some example values for different Skywatcher mounts. These are untested, but should work in theory.
-At the moment the only tested mount an EQ5 mount with the dual axis motor upgrade (non goto).
-
-If anyone has success with the example numbers I have provided, please let me know.
-Also if you have problems getting the numbers to work, open an issue thread and I will see if I can help.
-
-
-
   Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Verison: 5.0
+  Current Verison: 6.0
 
 ---------------------------------------------------------------------------------------
