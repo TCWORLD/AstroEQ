@@ -1,7 +1,7 @@
 
 #define EEPROMStart_Address (                      0 )
 #define AstroEQID_Address   (EEPROMStart_Address + 0 )
-//#define AstroEQVer_Address  (EEPROMStart_Address + 8 )
+#define Microstep_Address   (EEPROMStart_Address + 8) //whether to use microstepping.
 #define RAReverse_Address   (EEPROMStart_Address + 9 )
 #define DECReverse_Address  (EEPROMStart_Address + 10)
 #define Driver_Address      (EEPROMStart_Address + 11)

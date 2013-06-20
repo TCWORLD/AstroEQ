@@ -99,7 +99,7 @@ void Commands::setDir(byte target, byte _dir){ //Set Method
   } else {//if (dir == 0){}
     stepDir[target] = 1; //set step direction
   }
-  dir[target] = _dir & 1; //set direction
+  dir[target] = _dir; //set direction
 }
 
 void Commands::setStopped(byte target, byte _stopped){ //Set Method

@@ -23,6 +23,11 @@
 #define stepPin_0_Define 5
 #define stepPin_1_Define 30
 
+#define ST4AddPin_0_Define 34
+#define ST4AddPin_1_Define 33
+#define ST4SubPin_0_Define 31
+#define ST4SubPin_1_Define 32
+
 #ifdef LEGACY_MODE
 #define modePins0_0_Define 16
 #define modePins2_0_Define 17
@@ -58,6 +63,11 @@
 
 #define stepPin_0_Define 5
 #define stepPin_1_Define 12
+
+#define ST4AddPin_0_Define 50
+#define ST4AddPin_1_Define 51
+#define ST4SubPin_0_Define 53
+#define ST4SubPin_1_Define 52
 
 #define modePins0_0_Define 16
 #define modePins2_0_Define 17
@@ -110,6 +120,12 @@
 ((((P) >= 20 && (P) <= 27)) ? &PORTC : \
 ((((P) <= 7)) ? &PORTD :  &PORTE ))))
 
+#define digitalPinToPinReg(P) \
+((((P) >= 14 && (P) <= 17) || ((P) >= 31 && (P) <= 34)) ? &PINA : \
+((((P) >= 8 && (P) <= 13) || ((P) >= 18 && (P) <= 19)) ? &PINB : \
+((((P) >= 20 && (P) <= 27)) ? &PINC : \
+((((P) <= 7)) ? &PIND :  &PINE ))))
+
 #define digitalPinToBit(P) \
 (((P) >=  0 && (P) <=  3) ? (P)      : \
 (((P) >= 10 && (P) <= 13) ? (P) - 6  : \
@@ -140,6 +156,18 @@
 ((((P) >= 6 && (P) <= 9) || (P) == 16 || (P) == 17) ? &PORTH : \
 (((P) == 14 || (P) == 15) ? &PORTJ : \
 (((P) >= 62 && (P) <= 69) ? &PORTK : &PORTL))))))))))
+
+#define digitalPinToPinReg(P) \
+(((P) >= 22 && (P) <= 29) ? &PINA : \
+((((P) >= 10 && (P) <= 13) || ((P) >= 50 && (P) <= 53)) ? &PINB : \
+(((P) >= 30 && (P) <= 37) ? &PINC : \
+((((P) >= 18 && (P) <= 21) || (P) == 38) ? &PIND : \
+((((P) >= 0 && (P) <= 3) || (P) == 5) ? &PINE : \
+(((P) >= 54 && (P) <= 61) ? &PINF : \
+((((P) >= 39 && (P) <= 41) || (P) == 4) ? &PING : \
+((((P) >= 6 && (P) <= 9) || (P) == 16 || (P) == 17) ? &PINH : \
+(((P) == 14 || (P) == 15) ? &PINJ : \
+(((P) >= 62 && (P) <= 69) ? &PINK : &PINL))))))))))
 
 #define digitalPinToBit(P) \
 (((P) >=  7 && (P) <=  9) ? (P) - 3 : \

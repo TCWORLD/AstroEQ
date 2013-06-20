@@ -2,18 +2,7 @@
 #define EEPROM_h
 
 #include "Arduino.h"
-#include <inttypes.h>
-
-typedef union {
-  uint16_t integer;
-  uint8_t array[2];
-} TwoBytes;
-
-typedef union {
-  uint32_t integer;
-  uint16_t array[2];
-  uint8_t bytes[4];
-} FourBytes;
+#include "UnionHelpers.h"
 
 class EEPROMReader
 {

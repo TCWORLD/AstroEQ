@@ -42,7 +42,7 @@
       
       
       void clearBuffer(char* buf, byte len);
-      void success(char* buf, char data[], byte dataLen);
+//      void success(char* buf, char data[], byte dataLen);
       void error(char* buf);
       boolean validateCommand(byte len);
       

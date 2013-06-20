@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 6
+  Current Verison: 6.1
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -34,6 +34,7 @@ Synta synta = Synta::getInstance(1281); //create a mount instance, specify versi
 unsigned int normalGotoSpeed[2];
 unsigned int gotoFactor;
 unsigned int minSpeed[2];
+unsigned int stopSpeed[2];
 
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
 
@@ -61,6 +62,7 @@ const byte errorPin[2] = {errorPin_0_Define,errorPin_1_Define};
 const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
 const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
 const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
+const byte st4Pin[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
 
 #ifdef LEGACY_MODE
 const byte modePins[2][2] = {{modePins0_0_Define,modePins2_0_Define},{modePins0_1_Define,modePins2_1_Define}};
@@ -124,6 +126,11 @@ void systemInitialiser(){
   minSpeed[RA] = synta.cmd.siderealIVal[RA] + ((unsigned int)synta.cmd.stepIncrement[RA] << 2);
   minSpeed[DC] = synta.cmd.siderealIVal[DC] + ((unsigned int)synta.cmd.stepIncrement[DC] << 2);
   
+  highSpeed[RA] = !EEPROM.readByte(Microstep_Address);
+  highSpeed[DC] = highSpeed[RA];
+  distributionWidth[RA] = highSpeed[RA] ? HighspeedDistnWidth : NormalDistnWidth;
+  distributionWidth[DC] = highSpeed[DC] ? HighspeedDistnWidth : NormalDistnWidth;
+  
 #ifdef DEBUG
   Serial1.println();
   Serial1.println(minSpeed[RA]);
@@ -167,20 +174,23 @@ void setup()
     pinMode(modePins[i][0],OUTPUT); //enable the mode pins
     pinMode(modePins[i][1],OUTPUT); //enable the mode pins
     for( byte j = 0; j < 2; j++){
-      digitalWrite(modePins[i][j],modeState[0][j]);
+      digitalWrite(modePins[i][j],modeState[highSpeed[i]][j]);
     }
 #else
     pinMode(modePins[i][0],OUTPUT); //enable the mode pins
     pinMode(modePins[i][1],OUTPUT); //enable the mode pins
     pinMode(modePins[i][2],OUTPUT); //enable the mode pins
     for( byte j = 0; j < 3; j++){
-      digitalWrite(modePins[i][j],modeState[0][j]);
+      digitalWrite(modePins[i][j],modeState[highSpeed[i]][j]);
     }
 #endif
     pinMode(resetPin[i],OUTPUT); //enable the reset pin
     digitalWrite(resetPin[i],LOW); //active low reset
     delay(1); //allow ic to reset
     digitalWrite(resetPin[i],HIGH); //complete reset
+    
+    pinMode(st4Pin[i][0],INPUT_PULLUP);
+    pinMode(st4Pin[i][1],INPUT_PULLUP);
   }
     
   // start Serial port:
@@ -189,8 +199,18 @@ void setup()
     Serial.read(); //Clear the buffer
   }
   
-  
   configureTimer(); //setup the motor pulse timers.
+  
+  //setup interrupt for ST4 connection
+#if defined(__AVR_ATmega162__)
+  PCMSK0 = 0xF0; //PCINT[4..7]
+#define PCICR GICR
+#else
+  PCMSK0 = 0x0F; //PCINT[0..3]
+  PCICR &= ~_BV(PCIE2); //disable PCInt[16..23] vector
+#endif
+  PCICR &= ~_BV(PCIE1); //disable PCInt[8..15] vector
+  PCICR |= _BV(PCIE0); //enable PCInt[0..7] vector
 }
 
 void loop(){
@@ -239,6 +259,7 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
   byte axis = synta.axis();
   unsigned int correction;
   //byte scalar = synta.scalar[axis]+1;
+  uint8_t oldSREG;
   switch(command){
     case 'e': //readonly, return the eVal (version number)
         responseData = synta.cmd.eVal[axis]; //response to the e command is stored in the eVal function for that axis.
@@ -261,7 +282,10 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         responseData = synta.cmd.fVal(axis); //response to the f command is stored in the fVal function for that axis.
         break;
     case 'j': //readonly, return the jVal (current position)
+        oldSREG = SREG; 
+        cli();  //The next bit needs to be atomic, just in case the motors are running
         responseData = synta.cmd.jVal[axis]; //response to the j command is stored in the jVal function for that axis.
+        SREG = oldSREG;
         break;
     case 'K': //stop the motor, return empty response
         motorStop(axis,0); //normal ISR based decelleration trigger.
@@ -285,16 +309,14 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         if (responseData > minSpeed[axis]){
           responseData = minSpeed[axis]; //minimum speed
         }
-        synta.cmd.setIVal(axis, responseData); //set the speed container (convert string to long first)
-        
-        //This will be different if you use a different motor code
-        calculateRate(axis); //Used to convert speed into the number of 0.5usecs per step. Result is stored in TimerOVF
-  
-  
+        synta.cmd.setIVal(axis, responseData); //set the speed container (convert string to long first) 
         responseData = 0;
         break;
     case 'E': //set the current position, return empty response
+        oldSREG = SREG; 
+        cli();  //The next bit needs to be atomic, just in case the motors are running
         synta.cmd.setjVal(axis, synta.hexToLong(packetIn)); //set the current position (used to sync to what EQMOD thinks is the current position at startup
+        SREG = oldSREG;
         break;
     case 'F': //Enable the motor driver, return empty response
         motorEnable(axis); //This enables the motors - gives the motor driver board power
@@ -336,12 +358,13 @@ void calculateRate(byte motor){
   unsigned long remainder;
   float floatRemainder;
   unsigned long divisor = synta.cmd.bVal[motor];
-  byte GVal = synta.cmd.GVal[motor];
-  if((GVal == 2)||(GVal == 1)){ //Normal Speed
-    highSpeed[motor] = false;
+ // byte GVal = synta.cmd.GVal[motor];
+  //if((GVal == 2)||(GVal == 1)){ //Normal Speed}
+  if(!highSpeed[motor]){ //Normal Speed
+  //  highSpeed[motor] = false;
     distributionWidth[motor] = NormalDistnWidth;
   } else { //High Speed
-    highSpeed[motor] = true;
+  //  highSpeed[motor] = true;
     distributionWidth[motor] = HighspeedDistnWidth; //There are 8 times fewer steps over which to distribute extra clock cycles
   }
   
@@ -396,6 +419,7 @@ void calculateRate(byte motor){
 void motorEnable(byte axis){
   digitalWrite(enablePin[axis],LOW);
   synta.cmd.setFVal(axis,1);
+  calculateRate(axis); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
 }
 
 void motorDisable(byte axis){
@@ -432,52 +456,30 @@ void gotoMode(byte axis){
   Serial1.println(decelerationLength);
   Serial1.println(synta.cmd.jVal[axis]);
 #endif
-    gotoPosn[axis] = synta.cmd.jVal[axis] + (synta.cmd.stepDir[axis] * (synta.cmd.HVal[axis] - (unsigned long)decelerationLength)); //current position + relative change - decelleration region
+  gotoPosn[axis] = synta.cmd.jVal[axis] + (synta.cmd.stepDir[axis] * (synta.cmd.HVal[axis] - (unsigned long)decelerationLength)); //current position + relative change - decelleration region
     
 #ifdef DEBUG
   Serial1.println(gotoPosn[axis]);
   Serial1.println();
 #endif
-    synta.cmd.setIVal(axis, gotoSpeed);
-    calculateRate(axis);
-    motorStart(axis,decelerationLength/*decellerateStepsFactor[axis]*/); //Begin PWM
-    synta.cmd.setGotoEn(axis,1);
-  //}
+  synta.cmd.setIVal(axis, gotoSpeed);
+  //calculateRate(axis);
+  motorStart(axis,decelerationLength/*decellerateStepsFactor[axis]*/); //Begin PWM
+  synta.cmd.setGotoEn(axis,1);
 }
-/*
-void normalTorqueTimerEnable(byte motor) {
-//  if(motor){
-//    TCCR1B &= ~((1<<CS12) | (1<<CS11));//00x
-//    TCCR1B |= (1<<CS10);//xx1
-//  } else {
-//    TCCR3B &= ~((1<<CS32) | (1<<CS31));//00x
-//    TCCR3B |= (1<<CS30);//xx1
-//  }
-  //set normal speed mode
-  synta.cmd.setStepLength(motor, 1);
-#ifdef LEGACY_MODE
-  for( byte j = 0; j < 2; j++){
-    digitalWrite(modePins[motor][j],modeState[0][j]);
-  }
-#else
-  for( byte j = 0; j < 3; j++){
-    digitalWrite(modePins[motor][j],modeState[0][j]);
-  }
-#endif
-}*/
 
 void timerEnable(byte motor, byte mode) {
-  if (mode){
+  //if (mode){
     //FCPU/8
-    timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn0)); //0x0
-    timerPrescalarRegister(motor) |= (1<<CSn1);//x1x
-  } else {
+  //  timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn0)); //0x0
+  //  timerPrescalarRegister(motor) |= (1<<CSn1);//x1x
+  //} else {
     //FCPU/1
-    timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn1));//00x
-    timerPrescalarRegister(motor) |= (1<<CSn0);//xx1
-  }
-  synta.cmd.setStepLength(motor, (mode ? synta.cmd.gVal[motor] : 1));
-#ifdef LEGACY_MODE
+  timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn1));//00x
+  timerPrescalarRegister(motor) |= (1<<CSn0);//xx1
+  //}
+  synta.cmd.setStepLength(motor, 1);//(mode ? synta.cmd.gVal[motor] : 1));
+/*#ifdef LEGACY_MODE
   for( byte j = 0; j < 2; j++){
     digitalWrite(modePins[motor][j],modeState[mode][j]);
   }
@@ -485,25 +487,7 @@ void timerEnable(byte motor, byte mode) {
   for( byte j = 0; j < 3; j++){
     digitalWrite(modePins[motor][j],modeState[mode][j]);
   }
-#endif
-//  if(motor){
-//    TCCR1B &= ~((1<<CS12) | (1<<CS10)); //0x0
-//    TCCR1B |= (1<<CS11);//x1x
-//  } else {
-//    TCCR3B &= ~((1<<CS32) | (1<<CS30)); //0x0
-//    TCCR3B |= (1<<CS31);//x1x
-//  }
-  //Enable Highspeed mode
-//  synta.cmd.setStepLength(motor, synta.cmd.gVal[motor]);
-//#ifdef LEGACY_MODE
-//  for( byte j = 0; j < 2; j++){
-//    digitalWrite(modePins[motor][j],modeState[1][j]);
-//  }
-//#else
-//  for( byte j = 0; j < 3; j++){
-//    digitalWrite(modePins[motor][j],modeState[1][j]);
-//  }
-//#endif
+#endif*/
 }
 
 inline void timerDisable(byte motor) {
@@ -516,78 +500,44 @@ void motorStart(byte motor, byte gotoDeceleration){
   synta.cmd.setStopped(motor, 0);
   
 #ifdef DEBUG
-  Serial1.println();
+  Serial1.println(F("IVal:"));
   Serial1.println(synta.cmd.IVal[motor]);
   Serial1.println();
 #endif
   
-//  if(!highSpeed[motor]){ //Normal Speed
-//    normalTorqueTimerEnable(motor);
-//  } else {
-//    highTorqueTimerEnable(motor);
-//  }
+  unsigned int startSpeed = minSpeed[motor];
+  if (synta.cmd.IVal[motor] > minSpeed[motor]){
+    startSpeed = synta.cmd.IVal[motor]; //This is only the case with ST4 on the DEC axis.
+  } else if ((startSpeed > 650) && (synta.cmd.IVal[motor] <= 650)){
+    startSpeed = 650; //if possible start closer to the target speed to avoid *very* long accelleration times. 
+  }
+  stopSpeed[motor] = startSpeed;
+#ifdef DEBUG
+  Serial1.println(F("StartSpeed:"));
+  Serial1.println(startSpeed);
+  Serial1.println();
+#endif
   
   interruptCount(motor) = 1;
-  currentMotorSpeed(motor) = minSpeed[motor];
+  currentMotorSpeed(motor) = startSpeed;//minSpeed[motor];
   distributionSegment(motor) = 0;
   decelerationSteps(motor) = -gotoDeceleration;
   timerCountRegister(motor) = 0;
   interruptControlRegister(motor) |= interruptControlBitMask(motor);
   interruptOVFCount(motor) = timerOVF[motor][0];
   timerEnable(motor,highSpeed[motor]);
-//  if(motor == DC){
-//    ICR1 = timerOVF[motor][0];
-//    interruptCount(DC) = 1;//synta.cmd.IVal[motor];
-//    currentMotorSpeed(DC) = 640;//synta.cmd.IVal[motor];
-//    TCNT1 = 0;
-//    distributionSegment(DC) = 0;
-//    decelerationSteps(DC) = -gotoDeceleration; //inform goto of how many decelleration steps to use (ignored if slew)
-//    TCCR1A |= (1<<COM1B1); //Set port operation to fast PWM
-//#if defined(__AVR_ATmega162__)
-//    TIMSK |= (1<<TICIE1); //Enable timer interrupt
-//#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-//    TIMSK1 |= (1<<ICIE1); //Enable timer interrupt
-//#endif
-//  } else {
-//    ICR3 = timerOVF[motor][0];
-//    OCR1B = 1;//synta.cmd.IVal[motor];
-//    OCR3B = 640;//synta.cmd.IVal[motor];
-//    TCNT3 = 0;
-//    distributionSegment(RA) = 0;
-//    PORTC = -gotoDeceleration; //inform goto of how many decelleration steps to use (ignored if slew)
-//    TCCR3A |= (1<<COM3A1); //Set port operation to fast PWM
-//#if defined(__AVR_ATmega162__)
-//    ETIMSK |= (1<<TICIE3); //Enable timer interrupt
-//#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-//    TIMSK3 |= (1<<ICIE3); //Enable timer interrupt
-//#endif
-//  }
 }
 
 void motorStop(byte motor, byte emergency){
   if (emergency) {
     //trigger instant shutdown of the motor in an emergency.
-    //interruptControlRegister(motor) &= ~interruptControlBitMask(motor);
-//    if(motor){
-//#if defined(__AVR_ATmega162__)
-//      TIMSK &= ~(1<<TICIE1); //Disable timer interrupt
-//#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-//      TIMSK1 &= ~(1<<ICIE1); //Disable timer interrupt
-//#endif
-//    } else {
-//#if defined(__AVR_ATmega162__)
-//      ETIMSK &= ~(1<<TICIE3); //Disable timer interrupt
-//#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-//      TIMSK3 &= ~(1<<ICIE3); //Disable timer interrupt
-//#endif
-//    }
     synta.cmd.setGotoEn(motor,0); //Not in goto mode.
     synta.cmd.setStopped(motor,1); //mark as stopped
     timerDisable(motor);
     
   } else if (!synta.cmd.stopped[motor]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
     //trigger ISR based decelleration
-    synta.cmd.IVal[motor] = minSpeed[motor] + synta.cmd.stepIncrement[motor]; 
+    synta.cmd.IVal[motor] = stopSpeed[motor] + synta.cmd.stepIncrement[motor]; 
   }
 }
 
@@ -599,17 +549,6 @@ void configureTimer(){
 #else
   interruptControlRegister(RA) = 0;
 #endif
-//#if defined(__AVR_ATmega162__)
-//  TIMSK &= ~(1<<TOIE1); //disable timer so it can be configured
-//  ETIMSK &= ~(1<<TOIE3); //disable timer so it can be configured
-//  TIMSK &= ~((1<<OCIE1A) | (1<<OCIE1B));
-//  ETIMSK &= ~((1<<OCIE3A) | (1<<OCIE3B));
-//#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-//  TIMSK1 &= ~(1<<TOIE1); //disable timer so it can be configured
-//  TIMSK3 &= ~(1<<TOIE3); //disable timer so it can be configured
-//  TIMSK1 &= ~((1<<OCIE1A) | (1<<OCIE1B) | (1<<OCIE1C));
-//  TIMSK3 &= ~((1<<OCIE3A) | (1<<OCIE3B) | (1<<OCIE3C));
-//#endif
   //set to ctc mode (0100)
   TCCR1A = 0;//~((1<<WGM11) | (1<<WGM10));
   TCCR1B = ((1<<WGM12) | (1<<WGM13));
@@ -618,6 +557,112 @@ void configureTimer(){
 }
 
 
+unsigned int divu3b(unsigned int n) { //accurate for  n < 0x7FFF
+  unsigned long b = n+1;
+  n = ((b * 0x5555) >> 16);
+  return n;
+}
+unsigned int divu5b(unsigned int n) { //accurate for n < 0x7FFF
+  unsigned long b = n+1;
+  n = ((b * 0x3333) >> 16);
+  return n = b >> 16;
+}
+
+ISR(PCINT0_vect) {
+  //ST4 Pin Change Interrupt Handler.
+  byte stopped;
+  if(!synta.cmd.gotoEn[RA]){
+    //Only allow when not it goto mode.
+    stopped = synta.cmd.stopped[RA];
+    unsigned int newSpeed = synta.cmd.siderealIVal[RA];
+    if (synta.cmd.dir[RA] && !stopped) {
+      goto ignoreRAST4; //if travelling in the wrong direction, then ignore.
+    }
+    byte multiplier;
+    if (!(*digitalPinToPinReg(st4Pin[RA][1]) & _BV(digitalPinToBit(st4Pin[RA][1])))) {
+      //RA-
+      multiplier = 0x55; //------------ 0.75x sidereal rate
+      goto setRASpeed;
+    } else if (!(*digitalPinToPinReg(st4Pin[RA][0]) & _BV(digitalPinToBit(st4Pin[RA][0])))) {
+      //RA+
+      multiplier = 0x33; //------------ 1.25x sidereal rate
+setRASpeed:
+      unsigned long working = multiplier;
+      newSpeed = newSpeed << 2;
+      asm volatile( //This is a division by 5, or by 3. Which depends on multiplier (0x55 = /3, 0x33 = /5)
+        "subi r18, 0xFF \n\t"  //n++
+        "sbci r19, 0xFF \n\t"
+        "mul  %A0, %A2  \n\t"  //A * X
+        "mov  %B2,  r1  \n\t"
+        
+        "add  %B2,  r0  \n\t"  //A* X'
+        "adc  %C2,  r1  \n\t"
+        
+        "mul  %B0, %A1  \n\t"
+        "add  %B2,  r0  \n\t"  //A* X'
+        "adc  %C2,  r1  \n\t"
+        "adc  %D2, %D2  \n\t"  //D0 is known 0, we need to grab the carry
+        
+        "add  %C2,  r0  \n\t"  //A* X'
+        "adc  %D2,  r1  \n\t"
+        
+        "eor   r1,  r1  \n\t"
+        
+        "movw %A0, %C2  \n\t"  // >> 16
+        
+        : "=r" (newSpeed)
+        : "0" (newSpeed), "r" (working)
+        : "r1", "r0"
+      );
+      synta.cmd.IVal[RA] = newSpeed;
+      if (stopped) {
+        synta.cmd.dir[RA] = 0; //set direction
+        register byte one asm("r22");
+        asm volatile(
+          "ldi %0,0x01  \n\t"
+          : "=r" (one)
+          : "0" (one)
+          :
+        );
+        synta.cmd.stepDir[RA] = one; //set step direction
+        synta.cmd.GVal[RA] = one; //slew mode
+        //calculateRate(RA);
+        motorStart(RA,one);
+      } else {
+        if (stopSpeed[RA] < synta.cmd.IVal[RA]) {
+          stopSpeed[RA] = synta.cmd.IVal[RA]; //ensure that RA doesn't stop.
+        }
+      }
+    } else {
+ignoreRAST4:
+      synta.cmd.IVal[RA] = newSpeed;
+    }
+  }
+  if(!synta.cmd.gotoEn[DC]){
+    //Only allow when not it goto mode.
+    byte dir;
+    byte stepDir;
+    if (!(*digitalPinToPinReg(st4Pin[DC][1]) & _BV(digitalPinToBit(st4Pin[DC][1])))) {
+      //DEC-
+      dir = 1;
+      stepDir = -1;
+      goto setDECSpeed;
+    } else if (!(*digitalPinToPinReg(st4Pin[DC][0]) & _BV(digitalPinToBit(st4Pin[DC][0])))) {
+      //DEC+
+      dir = 0;
+      stepDir = 1;
+setDECSpeed:
+      synta.cmd.stepDir[DC] = stepDir; //set step direction
+      synta.cmd.dir[DC] = dir; //set direction
+      synta.cmd.IVal[DC] = (synta.cmd.siderealIVal[RA] << 2); //move at 0.25x sidereal rate
+      synta.cmd.GVal[DC] = 1; //slew mode
+      //calculateRate(DC);
+      motorStart(DC,1);
+    } else {
+      synta.cmd.IVal[DC] = stopSpeed[DC] + synta.cmd.stepIncrement[DC];
+    }
+  }
+}
 
 /*Timer Interrupt Vector*/
 ISR(TIMER3_CAPT_vect) {
@@ -671,13 +716,13 @@ ISR(TIMER3_CAPT_vect) {
             );
             //-----------------------------------------------------------------------------------------
             decelerationSteps(DC) = 0; //say we are stopping
-            synta.cmd.IVal[DC] = minSpeed[DC]; //decellerate to min speed. This is possible in at most 80 steps.
+            synta.cmd.IVal[DC] = stopSpeed[DC]; //decellerate to min speed. This is possible in at most 80 steps.
           } else {
             goto stopMotorISR3;
           }
         }
       } 
-      if (currentMotorSpeed(DC) > minSpeed[DC]) {
+      if (currentMotorSpeed(DC) > stopSpeed[DC]) {
 stopMotorISR3:
         synta.cmd.gotoEn[DC] = 0; //Not in goto mode.
         synta.cmd.stopped[DC] = 1; //mark as stopped
@@ -779,13 +824,13 @@ ISR(TIMER1_CAPT_vect) {
               :
             );
             decelerationSteps(RA) = 0; //say we are stopping
-            synta.cmd.IVal[RA] = minSpeed[RA]; //decellerate to min speed. This is possible in at most 80 steps.
+            synta.cmd.IVal[RA] = stopSpeed[RA]; //decellerate to min speed. This is possible in at most 80 steps.
           } else {
             goto stopMotorISR1;
           }
         }
       } 
-      if (currentMotorSpeed(RA) > minSpeed[RA]) {
+      if (currentMotorSpeed(RA) > stopSpeed[RA]) {
 stopMotorISR1:
         //interruptControlRegister(RA) &= ~interruptControlBitMask(RA);
         synta.cmd.gotoEn[RA] = 0; //Not in goto mode.
