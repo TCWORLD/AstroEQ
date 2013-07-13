@@ -32,7 +32,7 @@ Synta synta = Synta::getInstance(1281); //create a mount instance, specify versi
 
 //#define DEBUG 1
 unsigned int normalGotoSpeed[2];
-unsigned int gotoFactor;
+unsigned int gotoFactor[2];
 unsigned int minSpeed[2];
 unsigned int stopSpeed[2];
 
@@ -119,10 +119,10 @@ void systemInitialiser(){
   modeState[STATE16][MODE1] = modeState[STATE16][MODE0];
 #endif
   
-  gotoFactor = EEPROM.readByte(RAGoto_Address);
-  normalGotoSpeed[RA] = synta.cmd.stepIncrement[RA] * gotoFactor + 1;
-  gotoFactor = EEPROM.readByte(DECGoto_Address);
-  normalGotoSpeed[DC] = synta.cmd.stepIncrement[DC] * gotoFactor + 1;
+  gotoFactor[RA] = EEPROM.readByte(RAGoto_Address);
+  normalGotoSpeed[RA] = synta.cmd.stepIncrement[RA] * gotoFactor[RA] + 1;
+  gotoFactor[DC] = EEPROM.readByte(DECGoto_Address);
+  normalGotoSpeed[DC] = synta.cmd.stepIncrement[DC] * gotoFactor[DC] + 1;
   
   minSpeed[RA] = synta.cmd.siderealIVal[RA] + ((unsigned int)synta.cmd.stepIncrement[RA] << 2);
   minSpeed[DC] = synta.cmd.siderealIVal[DC] + ((unsigned int)synta.cmd.stepIncrement[DC] << 2);
@@ -442,10 +442,10 @@ void gotoMode(byte axis){
   byte decelerationLength;
   if (halfHVal < 80) {
     decelerationLength = (byte)halfHVal;
-    if (gotoFactor < 4) {
+    if (gotoFactor[axis] < 4) {
       gotoSpeed += synta.cmd.stepIncrement[axis];
     }
-    if (gotoFactor < 8) {
+    if (gotoFactor[axis] < 8) {
       gotoSpeed += synta.cmd.stepIncrement[axis]; //for short goto's when goto speed is very high, use a slower target speed.
     }
   } else {
