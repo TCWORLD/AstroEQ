@@ -44,7 +44,7 @@ void Commands::init(unsigned long _eVal, byte _gVal){
     eVal[i] = _eVal; //version number
     gVal[i] = _gVal; //High speed scalar
     
-    stepIncrement[i] = map(siderealIVal[i],300,1200,4,16);//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
+    stepIncrement[i] = siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
   }
 }
 

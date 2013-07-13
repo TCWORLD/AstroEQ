@@ -119,8 +119,9 @@ void systemInitialiser(){
   modeState[STATE16][MODE1] = modeState[STATE16][MODE0];
 #endif
   
-  gotoFactor = EEPROM.readInt(NormalGoto_Address);
+  gotoFactor = EEPROM.readByte(RAGoto_Address);
   normalGotoSpeed[RA] = synta.cmd.stepIncrement[RA] * gotoFactor + 1;
+  gotoFactor = EEPROM.readByte(DECGoto_Address);
   normalGotoSpeed[DC] = synta.cmd.stepIncrement[DC] * gotoFactor + 1;
   
   minSpeed[RA] = synta.cmd.siderealIVal[RA] + ((unsigned int)synta.cmd.stepIncrement[RA] << 2);
