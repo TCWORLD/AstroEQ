@@ -1,0 +1,19 @@
+If you are building an AstroEQ from scratch, a special bootloader has to be programmed to the Atmega162 IC in order for the configuration utility to be able download the lastest version of the firmware and configure the mount.
+
+The bootloader HEX file is included in this folder.
+
+If you have bought a Kit or ready assembled AstroEQ board directly from me, the bootloader has already been installed. You can skip this step and move on to the config utility.
+If you are using an Arduino Mega board, you can also skip this step as they already have a compatible bootloader installed.
+If neither of the above apply, please read on...
+
+You will need to connect your programmer to the ISP pins which are shown in the schematic (The ISP header)
+You will then need to the software that came with your programmer to download the hex file and set the fuses.
+
+The following fuse settings should be used:
+
+High Fuse: 0xD8
+Low Fuse: 0xFF
+Extended Fuse*: 0xFB   
+(*If you programmer flags up an error on the extended fuse, use 0x1A instead)
+
+I use 'avrdude' to program hex files. You can find a good tutorial for that here: http://www.ladyada.net/learn/avr/avrdude.html
