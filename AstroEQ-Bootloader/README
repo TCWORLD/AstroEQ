@@ -11,7 +11,7 @@ You will then need to the software that came with your programmer to download th
 
 The following fuse settings should be used:
 
-High Fuse: 0xD8
+High Fuse: 0xDC
 Low Fuse: 0xFF
 Extended Fuse*: 0xFB   
 (*If you programmer flags up an error on the extended fuse, use 0x1A instead)
