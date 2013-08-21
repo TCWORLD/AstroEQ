@@ -1,19 +1,14 @@
-Last Updated: 06/07/2013
+Last Updated: 21/08/2013
 
-Files can be downloaded as ZIP archives here:
-https://github.com/TCWORLD/AstroEQ/tree/master/Downloads
-
+A small number of AstroEQ controllers are available to purchase. These can be bought from me on the AstronomyShed forum. 
+Just send me a PM on Astronomy Shed (http://www.astronomyshed.co.uk/forum/memberlist.php?mode=viewprofile&u=2603).
 
 AstroEQ6 has been rebuilt from the ground up to be the best AstroEQ firmware to date.
 
 There is also a redesigned set of hardware which no longer requires an Arduino Mega board to work. Instead it is based around an Atmega162 chip. Although this is not officially supported by the Arduino IDE, I have modified the bootloader to suit.
 An advantage of this change is that now the board can be built using almost entirely through hole components, and can be made for much cheaper.
 
-In order to suit this design, I plan to sell the motor driver IC's, the Atmega162 with Bootloader, and a PIC preprogrammed as a USB-Serial port. The reason for this is that the motor drivers are very fine pitch ICs, not suitable for DIY, however I have designed a board which will break them out to a DIP package. Also the PIC and Atmega need to be initially programmed, which special programmers are needed for.
-If all goes well, I also plan to make available a kit complete with circuit board, and possibly ready built boards. Currently, with PCB, the estimated cost for a complete board is ~£80. 
-PLEASE NOTE: In order to do this, there has to be at least 10 people wanting the kits, else it is not economically viable for me to sell them.
-
-Please note that the new software still support boards built with the old hardware design (<5.0), so if you have already built one, you can still take advantage of the new software.
+Please note that the new software still support boards built with the old hardware design (<4.0), so if you have already built one, you can still take advantage of the new software.
 
 -------------------------------------------------------------------------------------
 
@@ -28,6 +23,7 @@ The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
 
   Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Verison: 6.0
+  Current Software Verison: 6.2
+  Current Hardware Version: 4.1
 
 ---------------------------------------------------------------------------------------
