@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 6.1
+  Current Verison: 6.2
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -30,7 +30,7 @@ Synta synta = Synta::getInstance(1281); //create a mount instance, specify versi
 #define RA 0 //Right Ascension is AstroEQ axis 0 (Synta axis '1')
 #define DC 1 //Declination is AstroEQ axis 1 (Synta axis '2')
 
-//#define DEBUG 1
+#define DEBUG 2
 unsigned int normalGotoSpeed[2];
 unsigned int gotoFactor[2];
 unsigned int minSpeed[2];
@@ -58,7 +58,6 @@ byte distributionWidth[2] = {NormalDistnWidth,NormalDistnWidth};
 //Pins
 const byte statusPin = statusPin_Define;
 const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
-const byte errorPin[2] = {errorPin_0_Define,errorPin_1_Define};
 const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
 const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
 const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
@@ -164,25 +163,33 @@ void setup()
   
   pinMode(statusPin,OUTPUT);
   for(byte i = 0;i < 2;i++){ //for each motor...
-    pinMode(errorPin[i],INPUT); //enable the Error pin
     pinMode(enablePin[i],OUTPUT); //enable the Enable pin
     digitalWrite(enablePin[i],HIGH); //IC disabled
     pinMode(stepPin[i],OUTPUT); //enable the step pin
     digitalWrite(stepPin[i],LOW); //default is low
     pinMode(dirPin[i],OUTPUT); //enable the direction pin
     digitalWrite(dirPin[i],LOW); //default is low
+    const byte* modePin = modePins[i];
+    const byte* state = modeState[highSpeed[i]];
 #ifdef LEGACY_MODE
-    pinMode(modePins[i][0],OUTPUT); //enable the mode pins
-    pinMode(modePins[i][1],OUTPUT); //enable the mode pins
-    for( byte j = 0; j < 2; j++){
-      digitalWrite(modePins[i][j],modeState[highSpeed[i]][j]);
+    for(byte j = 0; j < 2; j++){
+      pinMode(modePin[j],OUTPUT);
+      digitalWrite(modePin[j],state[j]);
     }
+//    pinMode(modePins[i][0],OUTPUT); //enable the mode pins
+//    pinMode(modePins[i][1],OUTPUT); //enable the mode pins
+//    digitalWrite(modePins[i][0],modeState[highSpeed[i]][0]);
+//    digitalWrite(modePins[i][1],modeState[highSpeed[i]][1]);
 #else
-    pinMode(modePins[i][0],OUTPUT); //enable the mode pins
-    pinMode(modePins[i][1],OUTPUT); //enable the mode pins
-    pinMode(modePins[i][2],OUTPUT); //enable the mode pins
-    for( byte j = 0; j < 3; j++){
-      digitalWrite(modePins[i][j],modeState[highSpeed[i]][j]);
+    for(byte j = 0; j < 3; j++){
+      pinMode(modePin[j],OUTPUT);
+      digitalWrite(modePin[j],state[j]);
+//      pinMode(modePins[i][0],OUTPUT); //enable the mode pins
+//      pinMode(modePins[i][1],OUTPUT); //enable the mode pins
+//      pinMode(modePins[i][2],OUTPUT); //enable the mode pins
+//      digitalWrite(modePins[i][0],modeState[highSpeed[i]][0]);
+//      digitalWrite(modePins[i][1],modeState[highSpeed[i]][1]);
+//      digitalWrite(modePins[i][2],modeState[highSpeed[i]][2]);
     }
 #endif
     pinMode(resetPin[i],OUTPUT); //enable the reset pin
@@ -307,9 +314,9 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         break;
     case 'I': //set slew speed, return empty response (this sets the speed to move at if in slew mode)
         responseData = synta.hexToLong(packetIn);
-        if (responseData > minSpeed[axis]){
-          responseData = minSpeed[axis]; //minimum speed
-        }
+        //if (responseData > minSpeed[axis]){
+        //  responseData = minSpeed[axis]; //minimum speed limit <- if it is slower than this, there will be no acelleration.
+        //}
         synta.cmd.setIVal(axis, responseData); //set the speed container (convert string to long first) 
         responseData = 0;
         break;
@@ -329,8 +336,14 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
   synta.assembleResponse(response, command, responseData); //generate correct response (this is required as is)
   Serial.print(response); //send response to the serial port
 #ifdef DEBUG
-  Serial1.print(F(" ->Res:"));
-  Serial1.println(response);
+
+#if DEBUG == 2
+  if (command != 'j')
+#endif
+  {
+    Serial1.print(F(" ->Res:"));
+    Serial1.println(response);
+  }
 #endif
   
   if(command == 'J'){ //J tells

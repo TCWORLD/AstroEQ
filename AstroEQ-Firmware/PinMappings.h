@@ -11,9 +11,6 @@
 #define resetPin_0_Define 15
 #define resetPin_1_Define 14
 
-#define errorPin_0_Define 2
-#define errorPin_1_Define 6
-
 #define dirPin_0_Define 3
 #define dirPin_1_Define 7
 
@@ -51,9 +48,6 @@
 
 #define resetPin_0_Define A1
 #define resetPin_1_Define A0
-
-#define errorPin_0_Define 2
-#define errorPin_1_Define 6
 
 #define dirPin_0_Define 3
 #define dirPin_1_Define 7
