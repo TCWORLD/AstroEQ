@@ -100,9 +100,9 @@ ServiceBinary=%12%\%DRIVERFILENAME%.sys
 [Strings]
 MFGFILENAME="mchpcdc"
 DRIVERFILENAME ="usbser"
-MFGNAME="Microchip Technology, Inc."
+MFGNAME="Tom Carpenter - AstroEQ"
 INSTDISK="Microchip Technology, Inc. Installation Disc"
-DESCRIPTION="USB Communications Port"
+DESCRIPTION="AstroEQ Mount Controller"
 SERVICE="USB RS-232 Emulation Driver"
 
 
