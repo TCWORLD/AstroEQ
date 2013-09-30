@@ -36,14 +36,14 @@
       
       //Methods for accessing class variables
       void setStepLength(byte target, byte stepLength); //in highspeed mode, one step is gVal increments of the jVal.
-      void setDir(byte target, byte _dir); //Get Method
-      void setStopped(byte target, byte _stopped); //Get Method
+      void setDir(byte target, byte _dir); //Set Method
+      void setStopped(byte target, byte _stopped); //Set Method
       void setGotoEn(byte target, byte _gotoEn); //Set Method
-      void setFVal(byte target, byte _FVal); //Get Method
-      void setjVal(byte target, unsigned long _jVal); //set Method
-      void setIVal(byte target, unsigned int _IVal); //set Method
-      void setHVal(byte target, unsigned long _HVal); //set Method
-      void setGVal(byte target, byte _GVal); //Get Method
+      void setFVal(byte target, byte _FVal); //Set Method
+      void setjVal(byte target, unsigned long _jVal); //Set Method
+      void setIVal(byte target, unsigned int _IVal); //Set Method
+      void setHVal(byte target, unsigned long _HVal); //Set Method
+      void setGVal(byte target, byte _GVal); //Set Method
       
       char getLength(char cmd, boolean sendRecieve);
       

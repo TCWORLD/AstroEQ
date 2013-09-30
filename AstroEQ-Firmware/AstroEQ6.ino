@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts (Not EQ3-2, they have a different gear ratio)
  
-  Current Verison: 6.2
+  Current Verison: 6.3
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -30,7 +30,7 @@ Synta synta = Synta::getInstance(1281); //create a mount instance, specify versi
 #define RA 0 //Right Ascension is AstroEQ axis 0 (Synta axis '1')
 #define DC 1 //Declination is AstroEQ axis 1 (Synta axis '2')
 
-#define DEBUG 2
+//#define DEBUG 1
 unsigned int normalGotoSpeed[2];
 unsigned int gotoFactor[2];
 unsigned int minSpeed[2];
@@ -344,6 +344,11 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
     Serial1.print(F(" ->Res:"));
     Serial1.println(response);
   }
+#if DEBUG == 2
+  else {
+    Serial.println(); 
+  }
+#endif
 #endif
   
   if(command == 'J'){ //J tells
@@ -511,7 +516,6 @@ inline void timerDisable(byte motor) {
 
 void motorStart(byte motor, byte gotoDeceleration){
   digitalWrite(dirPin[motor],encodeDirection[motor]^synta.cmd.dir[motor]); //set the direction
-  synta.cmd.setStopped(motor, 0);
   
 #ifdef DEBUG
   Serial1.println(F("IVal:"));
@@ -526,6 +530,11 @@ void motorStart(byte motor, byte gotoDeceleration){
     startSpeed = 650; //if possible start closer to the target speed to avoid *very* long accelleration times. 
   }
   stopSpeed[motor] = startSpeed;
+  if(!synta.cmd.stopped[motor]){
+    //if we are still running, then we have been caught in the middle of decelleration.
+    startSpeed = currentMotorSpeed(motor); //so make the start speed our current speed. This means we will continue decellerating to new speed.
+    //note that stopSpeed[] does not get changed.
+  }
 #ifdef DEBUG
   Serial1.println(F("StartSpeed:"));
   Serial1.println(startSpeed);
@@ -536,10 +545,13 @@ void motorStart(byte motor, byte gotoDeceleration){
   currentMotorSpeed(motor) = startSpeed;//minSpeed[motor];
   distributionSegment(motor) = 0;
   decelerationSteps(motor) = -gotoDeceleration;
-  timerCountRegister(motor) = 0;
-  interruptControlRegister(motor) |= interruptControlBitMask(motor);
-  interruptOVFCount(motor) = timerOVF[motor][0];
-  timerEnable(motor,highSpeed[motor]);
+  if(synta.cmd.stopped[motor]){ //if not stopped, then timer is already enabled
+    timerCountRegister(motor) = 0;
+    interruptControlRegister(motor) |= interruptControlBitMask(motor);
+    interruptOVFCount(motor) = timerOVF[motor][0];
+    timerEnable(motor,highSpeed[motor]);
+  }
+  synta.cmd.setStopped(motor, 0);
 }
 
 void motorStop(byte motor, byte emergency){
