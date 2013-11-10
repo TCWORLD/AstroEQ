@@ -1,7 +1,7 @@
 //command Structures ---------------------------------------------------------
 //
 // Definition of the commands used by the Synta protocol, and variables in which responses
-// are stored
+// are storedz
 //
 // Data structure of flag Flag:
 //   flag = xxxx00ds000g000f where bits:
@@ -43,8 +43,8 @@ void Commands::init(unsigned long _eVal, byte _gVal){
     HVal[i] = 0; //Value recieved from :H command
     eVal[i] = _eVal; //version number
     gVal[i] = _gVal; //High speed scalar
-    
-    stepIncrement[i] = siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
+       
+    stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
   }
 }
 
@@ -82,24 +82,33 @@ char Commands::getLength(char cmd, boolean sendRecieve){
   return -1;
 }
 
-void Commands::setStepLength(byte target, byte stepLength) {
-  if (stepDir[target] > 0) {
-    stepDir[target] = stepLength;
-  } else {
-    stepDir[target] = -stepLength;
-  }
-}
+//void Commands::setStepLength(byte target, byte stepLength) {
+//  if (stepDir[target] > 0) {
+//    stepDir[target] = stepLength;
+//  } else {
+//    stepDir[target] = -stepLength;
+//  }
+//}
 
 void Commands::setDir(byte target, byte _dir){ //Set Method
   _dir &= 1;
   //byte sign = _dir ^ target;
   //if (sign & 1){
+//  if(_dir){
+//    stepDir[target] = -1; //set step direction
+//  } else {//if (dir == 0){}
+//    stepDir[target] = 1; //set step direction
+//  }
+  dir[target] = _dir; //set direction
+}
+
+void Commands::updateStepDir(byte target){
+  byte _dir = dir[target];
   if(_dir){
     stepDir[target] = -1; //set step direction
   } else {//if (dir == 0){}
     stepDir[target] = 1; //set step direction
   }
-  dir[target] = _dir; //set direction
 }
 
 void Commands::setStopped(byte target, byte _stopped){ //Set Method

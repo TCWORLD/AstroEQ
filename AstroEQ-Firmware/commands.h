@@ -35,7 +35,8 @@
       static const char command[numberOfCommands][3];
       
       //Methods for accessing class variables
-      void setStepLength(byte target, byte stepLength); //in highspeed mode, one step is gVal increments of the jVal.
+      //void setStepLength(byte target, byte stepLength); //in highspeed mode, one step is gVal increments of the jVal.
+      void updateStepDir(byte target); //Update current direction to match required.
       void setDir(byte target, byte _dir); //Set Method
       void setStopped(byte target, byte _stopped); //Set Method
       void setGotoEn(byte target, byte _gotoEn); //Set Method
@@ -64,8 +65,9 @@
       unsigned long bVal[2]; //_bVal: Sidereal Rate of axis
       byte gVal[2]; //_gVal: Speed scalar for highspeed slew
       unsigned long sVal[2]; //_sVal: Steps per worm gear revolution
-      byte stepIncrement[2];
+      byte stepRepeat[2];
       unsigned int siderealIVal[2]; //_IVal: at sidereal rate
+      unsigned int currentIVal[2]; //_IVal: this will be upldated to match the requested IVal once the motors are stopped.
               
   };
 #endif
