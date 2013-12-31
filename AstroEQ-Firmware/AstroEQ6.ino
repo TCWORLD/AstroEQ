@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts
  
-  Current Verison: 6.5
+  Current Verison: 6.7
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -145,8 +145,8 @@ void systemInitialiser(){
   if(!checkEEPROM()){
     while(1); //prevent AstroEQ startup if EEPROM is blank.
   }
-  minSpeed[RA] = synta.cmd.siderealIVal[RA]+1;//+(synta.cmd.siderealIVal[RA]>>4);
-  minSpeed[DC] = synta.cmd.siderealIVal[DC]+1;//+(synta.cmd.siderealIVal[DC]>>4);
+  minSpeed[RA] = synta.cmd.siderealIVal[RA]>>1;//2x sidereal rate.
+  minSpeed[DC] = synta.cmd.siderealIVal[DC]>>1;//[minspeed is the point at which acceleration curves are enabled]
   calculateRate(RA); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
   calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
   gotoDecelerationLength[RA] = calculateDecelerationLength(RA);
@@ -198,20 +198,10 @@ int main(void)
       pinMode(modePin[j],OUTPUT);
       digitalWrite(modePin[j],state[j]);
     }
-//    pinMode(modePins[i][0],OUTPUT); //enable the mode pins
-//    pinMode(modePins[i][1],OUTPUT); //enable the mode pins
-//    digitalWrite(modePins[i][0],modeState[highSpeed[i]][0]);
-//    digitalWrite(modePins[i][1],modeState[highSpeed[i]][1]);
 #else
     for(byte j = 0; j < 3; j++){
       pinMode(modePin[j],OUTPUT);
       digitalWrite(modePin[j],state[j]);
-//      pinMode(modePins[i][0],OUTPUT); //enable the mode pins
-//      pinMode(modePins[i][1],OUTPUT); //enable the mode pins
-//      pinMode(modePins[i][2],OUTPUT); //enable the mode pins
-//      digitalWrite(modePins[i][0],modeState[highSpeed[i]][0]);
-//      digitalWrite(modePins[i][1],modeState[highSpeed[i]][1]);
-//      digitalWrite(modePins[i][2],modeState[highSpeed[i]][2]);
     }
 #endif
     pinMode(resetPin[i],OUTPUT); //enable the reset pin
@@ -548,7 +538,7 @@ void gotoMode(byte axis){
   gotoRunning[axis] = 1; //start the goto.
 }
 
-void timerEnable(byte motor, byte mode) {
+inline void timerEnable(byte motor, byte mode) {
   //if (mode){
     //FCPU/8
   //  timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn0)); //0x0
@@ -575,50 +565,59 @@ inline void timerDisable(byte motor) {
   timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0));//00x
 }
 
+//As there is plenty of FLASH left, then to improve speed, I have created two motorStart functions (one for RA and one for DEC)
 void motorStart(byte motor, unsigned int gotoDeceleration){
+  if (motor == RA) {
+    motorStartRA(gotoDeceleration);
+  } else {
+    motorStartDC(gotoDeceleration);
+  }
+}
+void motorStartRA(unsigned int gotoDeceleration){
+  unsigned int IVal = synta.cmd.IVal[RA];
+  unsigned int currentIVal;
+  interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+  currentIVal = currentMotorSpeed(RA);
+  interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
 #ifdef DEBUG
   Serial1.println(F("IVal:"));
-  Serial1.println(synta.cmd.IVal[motor]);
+  Serial1.println(IVal);
   Serial1.println();
 #endif
-  
-  unsigned int startSpeed = minSpeed[motor];
-  if(synta.cmd.stopped[motor]) {
-    if (synta.cmd.IVal[motor] > startSpeed){ //With guiding running this may occur as minSpeed is just slower than sidereal speed.
-      startSpeed = synta.cmd.IVal[motor];
-    }
+  unsigned int startSpeed;
+  unsigned int stoppingSpeed;
+  if (IVal > minSpeed[RA]){
+    stoppingSpeed = IVal;
   } else {
-    if ((synta.cmd.IVal[motor] > startSpeed) || (synta.cmd.currentIVal[motor] > startSpeed)){ //With guiding running this may occur as minSpeed is just slower than sidereal speed.
-      if (synta.cmd.IVal[motor] > synta.cmd.currentIVal[motor]){
-        startSpeed = synta.cmd.IVal[motor];
-      } else {
-        startSpeed = synta.cmd.currentIVal[motor];
-      }
+    stoppingSpeed = minSpeed[RA];
+  }
+  if(synta.cmd.stopped[RA]) {
+    startSpeed = stoppingSpeed;
+  } else {
+    if (currentIVal < minSpeed[RA]) {
+      startSpeed = currentIVal;
+    } else {
+      startSpeed = stoppingSpeed;
     }
   }
  
-  /*else if ((startSpeed > 650) && (synta.cmd.currentIVal[motor] <= 650)){
-    startSpeed = 650; //if possible start closer to the target speed to avoid *very* long accelleration times. 
-  }*/
-  byte oldSREG = SREG;
-  cli();
-  stopSpeed[motor] = startSpeed;
-  synta.cmd.currentIVal[motor] = synta.cmd.IVal[motor];
-  SREG = oldSREG;
-  if(synta.cmd.stopped[motor]) { //if stopped, configure timers
-    digitalWrite(dirPin[motor],encodeDirection[motor]^synta.cmd.dir[motor]); //set the direction
-    stepIncrementRepeat[motor] = 0;
-    interruptCount(motor) = 1;
-    currentMotorSpeed(motor) = startSpeed;//minSpeed[motor];
-    distributionSegment(motor) = 0;
-    int* decelerationSteps = (int*)&decelerationStepsLow(motor); //low and high are in sequential registers so we can treat them as an int in the sram.
+  interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+  synta.cmd.currentIVal[RA] = synta.cmd.IVal[RA];
+  currentMotorSpeed(RA) = startSpeed;
+  stopSpeed[RA] = stoppingSpeed;
+  interruptCount(RA) = 1;
+  if(synta.cmd.stopped[RA]) { //if stopped, configure timers
+    digitalWrite(dirPin[RA],encodeDirection[RA]^synta.cmd.dir[RA]); //set the direction
+    stepIncrementRepeat[RA] = 0;
+    distributionSegment(RA) = 0;
+    int* decelerationSteps = (int*)&decelerationStepsLow(RA); //low and high are in sequential registers so we can treat them as an int in the sram.
     *decelerationSteps = -gotoDeceleration;
-    timerCountRegister(motor) = 0;
-    interruptControlRegister(motor) |= interruptControlBitMask(motor);
-    interruptOVFCount(motor) = timerOVF[motor][0];
-    timerEnable(motor,highSpeed[motor]);
-    synta.cmd.setStopped(motor, 0);
+    timerCountRegister(RA) = 0;
+    interruptOVFCount(RA) = timerOVF[RA][0];
+    timerEnable(RA,highSpeed[RA]);
+    synta.cmd.setStopped(RA, 0);
   }
+  interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
 #ifdef DEBUG
   Serial1.println(F("StartSpeed:"));
   Serial1.println(startSpeed);
@@ -626,25 +625,116 @@ void motorStart(byte motor, unsigned int gotoDeceleration){
 #endif
 }
 
+void motorStartDC(unsigned int gotoDeceleration){
+  unsigned int IVal = synta.cmd.IVal[DC];
+  unsigned int currentIVal;
+  interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+  currentIVal = currentMotorSpeed(DC);
+  interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
+#ifdef DEBUG
+  Serial1.println(F("IVal:"));
+  Serial1.println(IVal);
+  Serial1.println();
+#endif
+  unsigned int startSpeed;
+  unsigned int stoppingSpeed;
+  if (IVal > minSpeed[DC]){
+    stoppingSpeed = IVal;
+  } else {
+    stoppingSpeed = minSpeed[DC];
+  }
+  if(synta.cmd.stopped[DC]) {
+    startSpeed = stoppingSpeed;
+  } else {
+    if (currentIVal < minSpeed[DC]) {
+      startSpeed = currentIVal;
+    } else {
+      startSpeed = stoppingSpeed;
+    }
+  }
+ 
+  interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+  synta.cmd.currentIVal[DC] = synta.cmd.IVal[DC];
+  currentMotorSpeed(DC) = startSpeed;
+  stopSpeed[DC] = stoppingSpeed;
+  interruptCount(DC) = 1;
+  if(synta.cmd.stopped[DC]) { //if stopped, configure timers
+    digitalWrite(dirPin[DC],encodeDirection[DC]^synta.cmd.dir[DC]); //set the direction
+    stepIncrementRepeat[DC] = 0;
+    distributionSegment(DC) = 0;
+    int* decelerationSteps = (int*)&decelerationStepsLow(DC); //low and high are in sequential registers so we can treat them as an int in the sram.
+    *decelerationSteps = -gotoDeceleration;
+    timerCountRegister(DC) = 0;
+    interruptOVFCount(DC) = timerOVF[DC][0];
+    timerEnable(DC,highSpeed[DC]);
+    synta.cmd.setStopped(DC, 0);
+  }
+  interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
+#ifdef DEBUG
+  Serial1.println(F("StartSpeed:"));
+  Serial1.println(startSpeed);
+  Serial1.println();
+#endif
+}
+
+//As there is plenty of FLASH left, then to improve speed, I have created two motorStop functions (one for RA and one for DEC)
 void motorStop(byte motor, byte emergency){
+  if (motor == RA) {
+    motorStopRA(emergency);
+  } else {
+    motorStopDC(emergency);
+  }
+}
+
+void motorStopRA(byte emergency){
   if (emergency) {
     //trigger instant shutdown of the motor in an emergency.
-    timerDisable(motor);
-    synta.cmd.setGotoEn(motor,0); //Not in goto mode.
-    synta.cmd.setStopped(motor,1); //mark as stopped
-    readyToGo[motor] = 0;
-    gotoRunning[motor] = 0;
-  } else if (!synta.cmd.stopped[motor]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
+    timerDisable(RA);
+    synta.cmd.setGotoEn(RA,0); //Not in goto mode.
+    synta.cmd.setStopped(RA,1); //mark as stopped
+    readyToGo[RA] = 0;
+    gotoRunning[RA] = 0;
+  } else if (!synta.cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
+    //trigger ISR based decelleration
+    //readyToGo[RA] = 0;
+    synta.cmd.setGotoEn(RA,0); //No longer in goto mode.
+    gotoRunning[RA] = 0;
+    interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+    if(synta.cmd.currentIVal[RA] < minSpeed[RA]){
+      if(stopSpeed[RA] > minSpeed[RA]){
+        stopSpeed[RA] = minSpeed[RA];
+      }
+    }/* else {
+      stopSpeed[RA] = synta.cmd.currentIVal[RA];
+    }*/
+    synta.cmd.currentIVal[RA] = stopSpeed[RA] + 1;//synta.cmd.stepIncrement[motor];
+    interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
+  }
+}
+
+void motorStopDC(byte emergency){
+  if (emergency) {
+    //trigger instant shutdown of the motor in an emergency.
+    timerDisable(DC);
+    synta.cmd.setGotoEn(DC,0); //Not in goto mode.
+    synta.cmd.setStopped(DC,1); //mark as stopped
+    readyToGo[DC] = 0;
+    gotoRunning[DC] = 0;
+  } else if (!synta.cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
     //trigger ISR based decelleration
     //readyToGo[motor] = 0;
-    synta.cmd.setGotoEn(motor,0); //No longer in goto mode.
-    gotoRunning[motor] = 0;
-    interruptControlRegister(motor) &= ~interruptControlBitMask(motor); //Disable timer interrupt
-    if(stopSpeed[motor] > minSpeed[motor]){
-      stopSpeed[motor] = minSpeed[motor];
-    }
-    synta.cmd.currentIVal[motor] = stopSpeed[motor] + 1;//synta.cmd.stepIncrement[motor];
-    interruptControlRegister(motor) |= interruptControlBitMask(motor); //enable timer interrupt
+    synta.cmd.setGotoEn(DC,0); //No longer in goto mode.
+    gotoRunning[DC] = 0;
+    interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+    if(synta.cmd.currentIVal[DC] < minSpeed[DC]){
+      if(stopSpeed[DC] > minSpeed[DC]){
+        stopSpeed[DC] = minSpeed[DC];
+      }
+    }/* else {
+      stopSpeed[DC] = synta.cmd.currentIVal[DC];
+    }*/
+    synta.cmd.currentIVal[DC] = stopSpeed[DC] + 1;//synta.cmd.stepIncrement[motor];
+    interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
   }
 }
 

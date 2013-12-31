@@ -9,7 +9,7 @@ void Synta::initialise(unsigned long eVal){
   clearBuffer(commandString,sizeof(commandString));
   //scalar[0] = EEPROM.readByte(scalar1_Address) - 1;
   //scalar[1] = EEPROM.readByte(scalar2_Address) - 1;
-  cmd.init(eVal, 8);
+  cmd.init(eVal, 1);
 }
 
 const char Synta::startInChar = ':';

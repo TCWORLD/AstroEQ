@@ -1,8 +1,8 @@
-AstroEQArduinoMega1280(Legacy)	6.5
-AstroEQArduinoMega2560(Legacy)	6.5
-AstroEQATMega162Based(Legacy)	6.5
-AstroEQV4-EQ5Board	6.5
-AstroEQV4-DIYBoard(includingKits)	6.5
+AstroEQArduinoMega1280(Legacy)	6.7
+AstroEQArduinoMega2560(Legacy)	6.7
+AstroEQATMega162Based(Legacy)	6.7
+AstroEQV4-EQ5Board	6.7
+AstroEQV4-DIYBoard(includingKits)	6.7
 AstroEQArduinoMega1280(Legacy)EEPROMReader	1.2
 AstroEQArduinoMega2560(Legacy)EEPROMReader	1.2
 AstroEQATMega162Based(Legacy)EEPROMReader	1.2
