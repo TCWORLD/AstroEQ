@@ -48,6 +48,12 @@ typedef union InterMaker{
   InterMaker(unsigned long _integer){
     integer = _integer;
   }
+  InterMaker(byte _top, byte _high, byte _mid, byte _low){
+    low = _low;
+    mid = _mid;
+    high = _high;
+    top = _top;
+  }
 } Inter;
 
 typedef union{
@@ -57,6 +63,10 @@ typedef union{
     unsigned int mid:4;
     unsigned int high:4;
     unsigned int:4;
+  };
+  struct {
+    Nibbler lowNibbler;
+    Nibbler highNibbler;
   };
 } DoubleNibbler;
 

@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts
  
-  Current Verison: 6.7
+  Current Verison: 6.8
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -522,9 +522,9 @@ void gotoMode(byte axis){
   Serial1.println(synta.cmd.jVal[axis]);
 #endif
   HVal -= decelerationLength;
-  if (axis == RA){
+  /*if (axis == RA){
     HVal += (decelerationLength>>2);
-  }
+  }*/
   gotoPosn[axis] = synta.cmd.jVal[axis] + (synta.cmd.stepDir[axis] * HVal); //current position + relative change - decelleration region
     
 #ifdef DEBUG
@@ -606,8 +606,13 @@ void motorStartRA(unsigned int gotoDeceleration){
   currentMotorSpeed(RA) = startSpeed;
   stopSpeed[RA] = stoppingSpeed;
   interruptCount(RA) = 1;
+  if (encodeDirection[RA]^synta.cmd.dir[RA]) {
+    *digitalPinToPortReg(dirPin[RA]) |= _BV(digitalPinToBit(dirPin[RA]));
+  } else {
+    *digitalPinToPortReg(dirPin[RA]) &= ~_BV(digitalPinToBit(dirPin[RA]));
+  }
   if(synta.cmd.stopped[RA]) { //if stopped, configure timers
-    digitalWrite(dirPin[RA],encodeDirection[RA]^synta.cmd.dir[RA]); //set the direction
+    //digitalWrite(dirPin[RA],encodeDirection[RA]^synta.cmd.dir[RA]); //set the direction
     stepIncrementRepeat[RA] = 0;
     distributionSegment(RA) = 0;
     int* decelerationSteps = (int*)&decelerationStepsLow(RA); //low and high are in sequential registers so we can treat them as an int in the sram.
@@ -658,8 +663,13 @@ void motorStartDC(unsigned int gotoDeceleration){
   currentMotorSpeed(DC) = startSpeed;
   stopSpeed[DC] = stoppingSpeed;
   interruptCount(DC) = 1;
+  if (encodeDirection[DC]^synta.cmd.dir[DC]) {
+    *digitalPinToPortReg(dirPin[DC]) |= _BV(digitalPinToBit(dirPin[DC]));
+  } else {
+    *digitalPinToPortReg(dirPin[DC]) &= ~_BV(digitalPinToBit(dirPin[DC]));
+  }
   if(synta.cmd.stopped[DC]) { //if stopped, configure timers
-    digitalWrite(dirPin[DC],encodeDirection[DC]^synta.cmd.dir[DC]); //set the direction
+    //digitalWrite(dirPin[DC],encodeDirection[DC]^synta.cmd.dir[DC]); //set the direction
     stepIncrementRepeat[DC] = 0;
     distributionSegment(DC) = 0;
     int* decelerationSteps = (int*)&decelerationStepsLow(DC); //low and high are in sequential registers so we can treat them as an int in the sram.

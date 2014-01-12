@@ -34,17 +34,87 @@ void Synta::clearBuffer(char* buf, byte len){
 //  buf[dataLen + 1] = 0;
 //}
 
+
+
+
+//const char hexLookup[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+inline void nibbleToHex(char* hex/*, const byte offset*/, byte nibble) {
+//  char hexChar;
+//  asm volatile(
+//    "movw   Y, %1  \n\t"
+//    "add  r28, %2  \n\t"
+//    "adc  r29, r1  \n\t"
+//    "ld    %0, Y   \n\t"
+//    : "=r" (hexChar) //goto selects r18:r21. This adds sts commands for all 4 bytes
+//    : "e" (hexLookup),"r" (nibble)       //stepDir is in r19 to match second byte of goto.
+//    : "r28","r29"
+//  );
+//  hex[offset] = hexChar;
+  if (nibble > 9){
+    nibble += (('A'-'0')-0xA);
+  }
+  *hex = (nibble + '0');
+  //char hexChar = hexLookup[nibble];
+  //hex[offset] = hexChar;
+}
+inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
+  nibbleToHex(lower, nibbler.low);
+  nibbleToHex(upper, nibbler.high);
+}
+/*
+inline void longToHex(char* hex, unsigned long data){  
+  Inter inter = Inter(data);
+  private_byteToHex(hex+5,hex+4,inter.highByter.lowNibbler);
+  private_byteToHex(hex+3,hex+2,inter.lowByter.highNibbler);
+  private_byteToHex(hex+1,hex+0,inter.lowByter.lowNibbler);
+  hex[6] = 0;
+}
+
+inline void intToHex(char* hex, unsigned int data){
+  DoubleNibbler nibble = {data};
+  hex[3] = 0;
+  nibbleToHex(hex+2, nibble.low);
+  nibbleToHex(hex+1, nibble.mid);
+  nibbleToHex(hex+0, nibble.high);
+}
+
+inline void byteToHex(char* hex, byte data){
+  Nibbler nibble = {data};
+  hex[2] = 0;
+  private_byteToHex(hex+1,hex+0,nibble);
+}*/
+
+
+
+
 void Synta::assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData){
   char replyLength = cmd.getLength(commandOrError,0); //get the number of data bytes for response
   
   //char tempStr[11];
   if (replyLength == -1) {
+    replyLength++;
     dataPacket[0] = errorChar;  
   } else {
     dataPacket[0] = startOutChar;
-  }
-  dataPacket++;
   
+    if (replyLength == 2) {
+      Nibbler nibble = {responseData};
+      private_byteToHex(dataPacket+2,dataPacket+1,nibble);
+    } else if (replyLength == 3) {
+      DoubleNibbler nibble = {responseData};
+      nibbleToHex(dataPacket+3, nibble.low);
+      nibbleToHex(dataPacket+2, nibble.mid);
+      nibbleToHex(dataPacket+1, nibble.high);
+    } else if (replyLength == 6) {
+      Inter inter = Inter(responseData);
+      private_byteToHex(dataPacket+6,dataPacket+5,inter.highByter.lowNibbler);
+      private_byteToHex(dataPacket+4,dataPacket+3,inter.lowByter.highNibbler);
+      private_byteToHex(dataPacket+2,dataPacket+1,inter.lowByter.lowNibbler);
+    }
+  
+  }
+  /*
+  dataPacket++;
   switch (replyLength){
     case -1:
         //error(dataPacket); //In otherwords, invalid command, so send error
@@ -62,10 +132,10 @@ void Synta::assembleResponse(char* dataPacket, char commandOrError, unsigned lon
     case 6:
         longToHex(dataPacket,responseData);
         break;
-  }
+  }*/
   
-  dataPacket[(byte)replyLength] = endChar;
-  dataPacket[(byte)replyLength + 1] = 0;  
+  dataPacket[(byte)replyLength + 1] = endChar;
+  dataPacket[(byte)replyLength + 2] = 0;  
   //success(dataPacket,tempStr,replyLength + 1); //compile response
   return;
 }
@@ -122,15 +192,18 @@ error:
   return -1;
 }
 
-byte hexToNibbler(char hex) {
+inline byte hexToNibbler(char hex) {
   if (hex > '9'){
     hex -= (('A'-'0')-0xA); //even if hex is lower case (e.g. 'a'), the lower nibble will have the correct value as (('a'-'A')&0x0F) = 0.
   }
   return (hex - '0'); //as we are keeping the lower nibble, the -'0' gets optimised away.
 }
-void hexToByte(char* hex, Nibbler &nibble){
-  nibble.low = hexToNibbler(hex[1]);
-  nibble.high = hexToNibbler(hex[0]);
+inline byte hexToByte(char* hex){
+  //nibble.low = hexToNibbler(hex[1]);
+  //nibble.high = hexToNibbler(hex[0]);
+  Nibbler low = {hexToNibbler(hex[1])};
+  Nibbler high = {hexToNibbler(hex[0])<<4};
+  return ((high.high<<4)|low.low);
 }
 unsigned long Synta::hexToLong(char* hex){
 //  char *boo; //waste point for strtol
@@ -141,54 +214,8 @@ unsigned long Synta::hexToLong(char* hex){
 //  str[6] = 0;
 //  return strtol(str,&boo,16); //convert hex to long integer
 
-  Inter inter = Inter(0); //create a blank inter 
-  hexToByte(hex+4,inter.highByter.lowNibbler);
-  hexToByte(hex+2,inter.lowByter.highNibbler);
-  hexToByte(hex,inter.lowByter.lowNibbler);
-  return inter.integer;
-}
-
-const char hexLookup[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-void nibbleToHex(char* hex, byte offset, byte nibble) {
-//  char hexChar;
-//  asm volatile(
-//    "movw   Y, %1  \n\t"
-//    "add  r28, %2  \n\t"
-//    "adc  r29, r1  \n\t"
-//    "ld    %0, Y   \n\t"
-//    : "=r" (hexChar) //goto selects r18:r21. This adds sts commands for all 4 bytes
-//    : "e" (hexLookup),"r" (nibble)       //stepDir is in r19 to match second byte of goto.
-//    : "r28","r29"
-//  );
-//  hex[offset] = hexChar;
-  char hexChar = hexLookup[nibble];
-  hex[offset] = hexChar;
-}
-void private_byteToHex(char* hex, Nibbler nibbler){
-  nibbleToHex(hex,1, nibbler.low);
-  nibbleToHex(hex,0, nibbler.high);
-}
-
-void Synta::longToHex(char* hex, unsigned long data){  
-  Inter inter = Inter(data);
-  private_byteToHex(hex+4,inter.highByter.lowNibbler);
-  private_byteToHex(hex+2,inter.lowByter.highNibbler);
-  private_byteToHex(hex,inter.lowByter.lowNibbler);
-  hex[6] = 0;
-}
-
-void Synta::intToHex(char* hex, unsigned int data){
-  DoubleNibbler nibble = {data};
-  hex[3] = 0;
-  nibbleToHex(hex,2, nibble.low);
-  nibbleToHex(hex,1, nibble.mid);
-  nibbleToHex(hex,0, nibble.high);
-}
-
-void Synta::byteToHex(char* hex, byte data){
-  Nibbler nibble = {data};
-  hex[2] = 0;
-  private_byteToHex(hex,nibble);
+  Inter inter = Inter(0,hexToByte(hex+4),hexToByte(hex+2),hexToByte(hex)); //create an inter 
+  return inter.integer; //and convert it to an integer
 }
 
 char Synta::command(){

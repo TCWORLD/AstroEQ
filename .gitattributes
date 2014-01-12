@@ -1,0 +1,14 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.hex binary
+*.zip binary
+*.sch binary
+*.brd binary
+*.epf binary
+*.lbr binary
+*.deb binary

@@ -35,16 +35,52 @@
       static const char command[numberOfCommands][3];
       
       //Methods for accessing class variables
-      //void setStepLength(byte target, byte stepLength); //in highspeed mode, one step is gVal increments of the jVal.
-      void updateStepDir(byte target); //Update current direction to match required.
-      void setDir(byte target, byte _dir); //Set Method
-      void setStopped(byte target, byte _stopped); //Set Method
-      void setGotoEn(byte target, byte _gotoEn); //Set Method
-      void setFVal(byte target, byte _FVal); //Set Method
-      void setjVal(byte target, unsigned long _jVal); //Set Method
-      void setIVal(byte target, unsigned int _IVal); //Set Method
-      void setHVal(byte target, unsigned long _HVal); //Set Method
-      void setGVal(byte target, byte _GVal); //Set Method
+      inline void setDir(byte target, byte _dir){ //Set Method
+        _dir &= 1;
+        dir[target] = _dir; //set direction
+      }
+      
+      inline void updateStepDir(byte target){
+        byte _dir = dir[target];
+        if(_dir){
+          stepDir[target] = -1; //set step direction
+        } else {
+          stepDir[target] = 1; //set step direction
+        }
+      }
+
+      inline unsigned int fVal(byte target){ //_fVal: 00ds000g000f; d = dir, s = stopped, g = goto, f = energised
+        return ((dir[target] << 9)|(stopped[target] << 8)|(gotoEn[target] << 4)|(FVal[target] << 0));
+      }
+
+      inline void setStopped(byte target, byte _stopped){ //Set Method
+        stopped[target] = _stopped & 1;
+      }
+      
+      inline void setGotoEn(byte target, byte _gotoEn){ //Set Method
+        gotoEn[target] = _gotoEn & 1;
+      }
+      
+      inline void setFVal(byte target, byte _FVal){ //Set Method
+        FVal[target] = _FVal & 1;
+      }
+      
+      inline void setjVal(byte target, unsigned long _jVal){ //Set Method
+        jVal[target] = _jVal;
+      }
+      
+      inline void setIVal(byte target, unsigned int _IVal){ //Set Method
+        IVal[target] = _IVal;
+      }
+      
+      inline void setHVal(byte target, unsigned long _HVal){ //Set Method
+        HVal[target] = _HVal;
+      }
+      
+      inline void setGVal(byte target, byte _GVal){ //Set Method
+        GVal[target] = _GVal;
+      }
+      
       
       char getLength(char cmd, boolean sendRecieve);
       
@@ -54,7 +90,6 @@
       unsigned int motorSpeed[2]; //speed at which moving. Accelerates to IVal.
       byte GVal[2]; //_GVal: slew/goto mode
       unsigned long HVal[2]; //_HVal: steps to move if in goto mode
-      unsigned int fVal(byte target); //_fVal: 00ds000g000f; d = dir, s = stopped, g = goto, f = energised
       volatile char stepDir[2]; 
       byte dir[2];
       byte FVal[2];

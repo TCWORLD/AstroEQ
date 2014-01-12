@@ -25,9 +25,9 @@
       char command(); //make current command readonly to outside world.
       
       unsigned long hexToLong(char* hex);
-      void longToHex(char* hex, unsigned long data);
-      void intToHex(char* hex, unsigned int data);
-      void byteToHex(char* hex, byte data);
+      //void longToHex(char* hex, unsigned long data);
+      //void intToHex(char* hex, unsigned int data);
+      //void byteToHex(char* hex, byte data);
       
       //byte scalar[2];
     
