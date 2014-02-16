@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts
  
-  Current Verison: 6.8
+  Current Verison: 7.0
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -111,11 +111,15 @@ void systemInitialiser(){
   
 
 #ifdef LEGACY_MODE
-  modeState[STATE16][MODE0] = !EEPROM.readByte(Driver_Address);
-  modeState[STATE2][MODE0] =  !modeState[STATE16][MODE0];
+  //modeState[STATE2][MODE0] =  EEPROM.readByte(Driver_Address);
+  //modeState[STATE16][MODE0] = !modeState[STATE2][MODE0];
+  modeState[STATE2][MODE0] =  EEPROM.readByte(Driver_Address);
 #else
+  //modeState[STATE16][MODE1] = !EEPROM.readByte(Driver_Address);
+  //modeState[STATE16][MODE0] = modeState[STATE16][MODE1];
   modeState[STATE16][MODE0] = !EEPROM.readByte(Driver_Address);
-  modeState[STATE16][MODE1] = modeState[STATE16][MODE0];
+  modeState[STATE2][MODE0] = modeState[STATE16][MODE0];
+  modeState[STATE2][MODE1] = !modeState[STATE16][MODE0];
 #endif
   
   unsigned int multiplierRA = synta.cmd.siderealIVal[RA]/75;

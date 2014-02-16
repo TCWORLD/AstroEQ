@@ -1,7 +1,8 @@
-Last Updated: 31/12/2013
+Last Updated: 16/02/2014
 
-A small number of AstroEQ controllers are available to purchase. These can be bought from me on the AstronomyShed forum. 
-Just send me a PM on Astronomy Shed (http://www.astronomyshed.co.uk/forum/memberlist.php?mode=viewprofile&u=2603).
+Version 7 includes a change to the microstepping mode being used. AstroEQ now uses 1/4 and 1/32th stepping modes for the DRV8825 chip. If you have legacy hardware, please read the "Upgrading from 6.x to 7.x firmware" file.
+
+A small number of AstroEQ controllers are available to purchase. These can be bought from me on my website (http://www.astroeq.co.uk).
 
 AstroEQ6 has been rebuilt from the ground up to be the best AstroEQ firmware to date.
 
@@ -23,7 +24,7 @@ The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
 
   Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Software Verison: 6.8
+  Current Software Verison: 7.0
   Current Hardware Version: 4.3
 
 ---------------------------------------------------------------------------------------

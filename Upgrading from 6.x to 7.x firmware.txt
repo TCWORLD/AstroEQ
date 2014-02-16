@@ -1,0 +1,29 @@
+Upgrading to 7.x from 6.x:
+
+If you have a non-legacy controller, i.e. one which does not have '(legacy)' written next to it in the configuration utility, then refer to section 'A'.
+If you have a legacy controller, refer to section 'B'
+
+
+
+Section 'A':
+
+As of version 7, AstroEQ now uses 1/4 and 1/32th stepping for the DRV8824/5 driver boards. The change does not affect the A498x driver boards as they do not support 1/32th stepping mode.
+
+To account for these changes, please download and run the new configuration utility. Enter your step angle and gear ratios as normal and click 'Update'. That is all.
+
+
+
+Section 'B':
+
+As of version 7, AstroEQ now uses 1/4 and 1/32th stepping for the DRV8824/5 driver boards. The change does not affect the A498x driver boards as they do not support 1/32th stepping mode.
+
+For legacy controllers, only two pins are used to select the step mode. Because of this, one of the mode pins for each driver board is wired to a supply rail. 
+
+If you have a A498x board, you do not need to make any hardware changes. Simply download and run the new config utility, enter your gear ratios/step angles and proceed as normal.
+
+If you have a DRV8824/5 board, you need to make some changes. Essentially you need to swap the pins on the driver boards labelled 'M0' and 'M1'. Once the changes are made, download and run the new config utility, enter your gear ratios/step angles and proceed as normal.
+
+
+
+While I know this is an inconvenience it is a necessary evil to improve the performance of AstroEQ.
+
