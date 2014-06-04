@@ -1,4 +1,4 @@
-Last Updated: 16/02/2014
+Last Updated: 04/06/2014
 
 Version 7 includes a change to the microstepping mode being used. AstroEQ now has a user selectable stepping modes allowing used of all modes supported by the DRV8825 and A4988 chips. If you have legacy hardware, please read the "Upgrading from 6.x to 7.x firmware" file. The Arduino Mega variant of the design has been adjusted as described in the upgrade file to bring it up to date and as such, it is no longer considered legacy hardware.
 
@@ -22,7 +22,7 @@ The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
 
   Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Software Verison: 7.2
+  Current Software Verison: 7.3
   Current Hardware Version: 4.5
 
 ---------------------------------------------------------------------------------------
