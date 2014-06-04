@@ -1,9 +1,6 @@
 
 #if defined(__AVR_ATmega162__)
 
-//This is for HARDWARE versions prior to 4.0. This includes all versions using Arduino Mega board.
-//#define LEGACY_MODE 1
-
 //----- User Configurable Pin Definitions for ATMega162 Variants -----
 //Warning: D20 to D27 inclusive are NOT allowed
 #define statusPin_Define 13 
@@ -25,19 +22,12 @@
 #define ST4SubPin_0_Define 31
 #define ST4SubPin_1_Define 32
 
-#ifdef LEGACY_MODE
-#define modePins0_0_Define 16
-#define modePins2_0_Define 17
-#define modePins0_1_Define 19
-#define modePins2_1_Define 18
-#else
 #define modePins0_0_Define 6
 #define modePins1_0_Define 17
 #define modePins2_0_Define 16
 #define modePins0_1_Define 10
 #define modePins1_1_Define 18
 #define modePins2_1_Define 19
-#endif
 
 
 #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
@@ -46,8 +36,8 @@
 //Warning: D30 to D37 inclusive are NOT allowed
 #define statusPin_Define 13
 
-#define resetPin_0_Define A1
-#define resetPin_1_Define A0
+#define resetPin_0_Define 55
+#define resetPin_1_Define 54
 
 #define dirPin_0_Define 3
 #define dirPin_1_Define 7
@@ -63,9 +53,11 @@
 #define ST4SubPin_0_Define 53
 #define ST4SubPin_1_Define 52
 
-#define modePins0_0_Define 16
+#define modePins0_0_Define 15
+#define modePins1_0_Define 16
 #define modePins2_0_Define 17
-#define modePins0_1_Define 19
+#define modePins0_1_Define 20
+#define modePins1_1_Define 19
 #define modePins2_1_Define 18
 
 
@@ -93,8 +85,11 @@
 
 #if defined(__AVR_ATmega162__)
 
+//Pick some registers we are not going use for GPIOR
 #define GPIOR0 TCNT2
 #define GPIOR1 OCR2
+#define GPIOR2 SPCR
+
 #ifndef TIMSK3
 #define TIMSK3 ETIMSK
 #endif
@@ -107,12 +102,21 @@
 #ifndef ICIE1
 #define ICIE1 TICIE1
 #endif
+#ifndef OCR0A
+#define OCR0A OCR0
+#endif
 
 #define digitalPinToPortReg(P) \
 ((((P) >= 14 && (P) <= 17) || ((P) >= 31 && (P) <= 34)) ? &PORTA : \
 ((((P) >= 8 && (P) <= 13) || ((P) >= 18 && (P) <= 19)) ? &PORTB : \
 ((((P) >= 20 && (P) <= 27)) ? &PORTC : \
 ((((P) <= 7)) ? &PORTD :  &PORTE ))))
+
+#define digitalPinToDirectionReg(P) \
+((((P) >= 14 && (P) <= 17) || ((P) >= 31 && (P) <= 34)) ? &DDRA : \
+((((P) >= 8 && (P) <= 13) || ((P) >= 18 && (P) <= 19)) ? &DDRB : \
+((((P) >= 20 && (P) <= 27)) ? &DDRC : \
+((((P) <= 7)) ? &DDRD :  &DDRE ))))
 
 #define digitalPinToPinReg(P) \
 ((((P) >= 14 && (P) <= 17) || ((P) >= 31 && (P) <= 34)) ? &PINA : \
@@ -150,6 +154,18 @@
 ((((P) >= 6 && (P) <= 9) || (P) == 16 || (P) == 17) ? &PORTH : \
 (((P) == 14 || (P) == 15) ? &PORTJ : \
 (((P) >= 62 && (P) <= 69) ? &PORTK : &PORTL))))))))))
+
+#define digitalPinToDirectionReg(P) \
+(((P) >= 22 && (P) <= 29) ? &DDRA : \
+((((P) >= 10 && (P) <= 13) || ((P) >= 50 && (P) <= 53)) ? &DDRB : \
+(((P) >= 30 && (P) <= 37) ? &DDRC : \
+((((P) >= 18 && (P) <= 21) || (P) == 38) ? &DDRD : \
+((((P) >= 0 && (P) <= 3) || (P) == 5) ? &DDRE : \
+(((P) >= 54 && (P) <= 61) ? &DDRF : \
+((((P) >= 39 && (P) <= 41) || (P) == 4) ? &DDRG : \
+((((P) >= 6 && (P) <= 9) || (P) == 16 || (P) == 17) ? &DDRH : \
+(((P) == 14 || (P) == 15) ? &DDRJ : \
+(((P) >= 62 && (P) <= 69) ? &DDRK : &DDRL))))))))))
 
 #define digitalPinToPinReg(P) \
 (((P) >= 22 && (P) <= 29) ? &PINA : \

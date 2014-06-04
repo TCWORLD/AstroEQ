@@ -1,58 +1,55 @@
 
 #include <avr/eeprom.h>
-#include "Arduino.h"
 #include "EEPROMReader.h"
  
-uint8_t EEPROMReader::readByte(byte address)
+byte EEPROM_readByte(byte address)
 {
-  return eeprom_read_byte((unsigned char *) address);
+  return eeprom_read_byte((byte*) address);
 }
 
-uint16_t EEPROMReader::readInt(byte address)
+unsigned int EEPROM_readInt(byte address)
 {
   TwoBytes fetcher;
-  fetcher.array[0] = readByte(address);
-  fetcher.array[1] = readByte(address+1);
+  fetcher.array[0] = EEPROM_readByte(address);
+  fetcher.array[1] = EEPROM_readByte(address+1);
   return fetcher.integer;
 }
-uint32_t EEPROMReader::readLong(byte address)
+unsigned long EEPROM_readLong(byte address)
 {
   FourBytes fetcher;
-  fetcher.array[0] = readInt(address);
-  fetcher.array[1] = readInt(address+2);
+  fetcher.array[0] = EEPROM_readInt(address);
+  fetcher.array[1] = EEPROM_readInt(address+2);
   return fetcher.integer;
 }
 
-void EEPROMReader::readString(char* string, byte len, byte address)
+void EEPROM_readString(char* string, byte len, byte address)
 {
   for(byte i = 0; i < len; i++) {
-    string[i] = readByte(address++);
+    string[i] = EEPROM_readByte(address++);
   }
 }
 
-void EEPROMReader::writeByte(uint8_t val, byte address)
+void EEPROM_writeByte(byte val, byte address)
 {
-  return eeprom_write_byte((unsigned char *) address, val);
+  return eeprom_update_byte((byte*) address, val);
 }
 
-void EEPROMReader::writeInt(uint16_t val, byte address)
+void EEPROM_writeInt(unsigned int val, byte address)
 {
   TwoBytes storer = {val};
-  writeByte(storer.array[0], address);
-  writeByte(storer.array[1], address+1);
+  EEPROM_writeByte(storer.array[0], address);
+  EEPROM_writeByte(storer.array[1], address+1);
 }
-void EEPROMReader::writeLong(uint32_t val, byte address)
+void EEPROM_writeLong(unsigned long val, byte address)
 {
   FourBytes storer = {val};
-  writeInt(storer.array[0], address);
-  writeInt(storer.array[1], address+2);
+  EEPROM_writeInt(storer.array[0], address);
+  EEPROM_writeInt(storer.array[1], address+2);
 }
-void EEPROMReader::writeString(const char* string, byte len, byte address)
+void EEPROM_writeString(const char* string, byte len, byte address)
 {
   for(byte i = 0; i < len; i++) {
-    writeByte(string[i], address+i);
+    EEPROM_writeByte(string[i], address+i);
   }
 }
-
-EEPROMReader EEPROM;
 

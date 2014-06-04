@@ -1,15 +1,13 @@
 Last Updated: 16/02/2014
 
-Version 7 includes a change to the microstepping mode being used. AstroEQ now uses 1/4 and 1/32th stepping modes for the DRV8825 chip. If you have legacy hardware, please read the "Upgrading from 6.x to 7.x firmware" file.
+Version 7 includes a change to the microstepping mode being used. AstroEQ now has a user selectable stepping modes allowing used of all modes supported by the DRV8825 and A4988 chips. If you have legacy hardware, please read the "Upgrading from 6.x to 7.x firmware" file. The Arduino Mega variant of the design has been adjusted as described in the upgrade file to bring it up to date and as such, it is no longer considered legacy hardware.
 
 A small number of AstroEQ controllers are available to purchase. These can be bought from me on my website (http://www.astroeq.co.uk).
 
-AstroEQ6 has been rebuilt from the ground up to be the best AstroEQ firmware to date.
+AstroEQ has been rebuilt from the ground up to be the best AstroEQ firmware to date.
 
 There is also a redesigned set of hardware which no longer requires an Arduino Mega board to work. Instead it is based around an Atmega162 chip. Although this is not officially supported by the Arduino IDE, I have modified the bootloader to suit.
-An advantage of this change is that now the board can be built using almost entirely through hole components, and can be made for much cheaper.
-
-Please note that the new software still support boards built with the old hardware design (<4.0), so if you have already built one, you can still take advantage of the new software.
+An advantage of this change is that now the board can be built using entirely through hole components, and can be made for much cheaper.
 
 -------------------------------------------------------------------------------------
 
@@ -24,7 +22,7 @@ The EQMOD Project can be found at: http://eq-mod.sourceforge.net/
 
   Works with EQ3, EQ5, HEQ5, and EQ6 mounts. Along With custom mounts.
  
-  Current Software Verison: 7.0
-  Current Hardware Version: 4.3
+  Current Software Verison: 7.2
+  Current Hardware Version: 4.5
 
 ---------------------------------------------------------------------------------------

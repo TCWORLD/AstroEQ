@@ -1,12 +1,12 @@
 
 #define EEPROMStart_Address (                      0 )
 #define AstroEQID_Address   (EEPROMStart_Address + 0 )
-#define Microstep_Address   (EEPROMStart_Address + 8) //whether to use microstepping.
+#define Microstep_Address   (EEPROMStart_Address + 8 ) //whether to use microstepping.
 #define RAReverse_Address   (EEPROMStart_Address + 9 )
 #define DECReverse_Address  (EEPROMStart_Address + 10)
 #define Driver_Address      (EEPROMStart_Address + 11)
-#define RAGoto_Address      (EEPROMStart_Address + 12) //and 13
-#define DECGoto_Address     (EEPROMStart_Address + 13) //and 13
+#define RAGoto_Address      (EEPROMStart_Address + 12)
+#define DECGoto_Address     (EEPROMStart_Address + 13)
 #define aVal1_Address       (EEPROMStart_Address + 14) //steps/axis
 #define aVal2_Address       (EEPROMStart_Address + 18) //steps/axis
 #define bVal1_Address       (EEPROMStart_Address + 22) //sidereal rate

@@ -16,66 +16,76 @@
 //
 //----------------------------------------------------------------------------
 
-#if ARDUINO >= 100
-  #include "Arduino.h"
-#else
-  #include "WProgram.h"
-#endif
-
 #include "commands.h"
-void Commands::init(unsigned long _eVal, byte _gVal){
-  aVal[0] = EEPROM.readLong(aVal1_Address); //steps/axis
-  aVal[1] = EEPROM.readLong(aVal2_Address); //steps/axis
-  bVal[0] = EEPROM.readLong(bVal1_Address); //sidereal rate
-  bVal[1] = EEPROM.readLong(bVal2_Address); //sidereal rate
-  sVal[0] = EEPROM.readLong(sVal1_Address); //steps/worm rotation
-  sVal[1] = EEPROM.readLong(sVal2_Address); //steps/worm rotation
-  siderealIVal[0] = EEPROM.readInt(IVal1_Address); //steps/worm rotation
-  siderealIVal[1] = EEPROM.readInt(IVal2_Address); //steps/worm rotation
+
+Commands cmd = {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
+
+void Commands_init(unsigned long _eVal, byte _gVal){
+  cmd.aVal[0] = EEPROM_readLong(aVal1_Address); //steps/axis
+  cmd.aVal[1] = EEPROM_readLong(aVal2_Address); //steps/axis
+  cmd.bVal[0] = EEPROM_readLong(bVal1_Address); //sidereal rate
+  cmd.bVal[1] = EEPROM_readLong(bVal2_Address); //sidereal rate
+  cmd.sVal[0] = EEPROM_readLong(sVal1_Address); //steps/worm rotation
+  cmd.sVal[1] = EEPROM_readLong(sVal2_Address); //steps/worm rotation
+  cmd.siderealIVal[0] = EEPROM_readInt(IVal1_Address); //steps/worm rotation
+  cmd.siderealIVal[1] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
   for(byte i = 0;i < 2;i++){
-    dir[i] = 0;
-    stopped[i] = 1;
-    gotoEn[i] = 0;
-    FVal[i] = 0;
-    jVal[i] = 0x800000; //Current position, 0x800000 is the centre
-    IVal[i] = 0; //Recieved Speed
-    GVal[i] = 0; //Mode recieved from :G command
-    HVal[i] = 0; //Value recieved from :H command
-    eVal[i] = _eVal; //version number
-    gVal[i] = _gVal; //High speed scalar
+    cmd.dir[i] = 0;
+    cmd.stopped[i] = 1;
+    cmd.gotoEn[i] = 0;
+    cmd.FVal[i] = 0;
+    cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
+    cmd.IVal[i] = 0; //Recieved Speed
+    cmd.GVal[i] = 0; //Mode recieved from :G command
+    cmd.HVal[i] = 0; //Value recieved from :H command
+    cmd.eVal[i] = _eVal; //version number
+    cmd.gVal[i] = _gVal; //High speed scalar
        
-    stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
+    cmd.stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
   }
 }
 
-const char Commands::command[numberOfCommands][3] = { {'e', 0, 6},
-                                                      {'a', 0, 6},
-                                                      {'b', 0, 6},
-                                                      {'g', 0, 2},
-                                                      {'s', 0, 6},
-                                                      {'K', 0, 0},
-                                                      {'E', 6, 0},
-                                                      {'j', 0, 6},
-                                                      {'f', 0, 3},
-                                                      {'G', 2, 0},
-                                                      {'H', 6, 0},
-                                                      {'M', 6, 0},
-                                                      {'I', 6, 0},
-                                                      {'J', 0, 0},
-                                                      {'P', 1, 0},
-                                                      {'F', 0, 0},
-                                                      {'L', 0, 0},
-                                                      {'A', 6, 0},
-                                                      {'B', 6, 0},
-                                                      {'S', 6, 0} };
+const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in order of most frequently used to reduce searching time.
+                                                 {'f', 0, 3},
+                                                 {'I', 6, 0},
+                                                 {'G', 2, 0},
+                                                 {'J', 0, 0},
+                                                 {'K', 0, 0},
+                                                 {'H', 6, 0},
+                                                 {'M', 6, 0},
+                                                 {'e', 0, 6},
+                                                 {'a', 0, 6},
+                                                 {'b', 0, 6},
+                                                 {'g', 0, 2},
+                                                 {'s', 0, 6},
+                                                 {'E', 6, 0},
+                                                 {'P', 1, 0},
+                                                 {'F', 0, 0},
+                                                 {'L', 0, 0},
+                                                 //Programmer Commands
+                                                 {'A', 6, 0},
+                                                 {'B', 6, 0},
+                                                 {'S', 6, 0},
+                                                 {'n', 0, 6},
+                                                 {'N', 6, 0},
+                                                 {'D', 2, 0},
+                                                 {'d', 0, 2},
+                                                 {'C', 1, 0},
+                                                 {'c', 0, 2},
+                                                 {'Z', 2, 0},
+                                                 {'z', 0, 2},
+                                                 {'O', 1, 0},
+                                                 {'T', 0, 0},
+                                                 {'R', 0, 0}
+                                               };
 
-char Commands::getLength(char cmd, boolean sendRecieve){
+char Commands_getLength(char cmd, bool sendRecieve){
   for(byte i = 0;i < numberOfCommands;i++){
-    if(command[i][0] == cmd){
+    if(cmd_commands[i][0] == cmd){
       if(sendRecieve){
-        return command[i][1];
+        return cmd_commands[i][1];
       } else {
-        return command[i][2];
+        return cmd_commands[i][2];
       }
     }
   }

@@ -1,6 +1,9 @@
 
-#ifndef UnionHelpers_h
-#define UnionHelpers_h
+#ifndef __UNION_HELPERS_H__
+#define __UNION_HELPERS_H__
+
+#include <inttypes.h>
+typedef uint8_t byte;
 
 typedef union {
   uint16_t integer;
@@ -70,4 +73,4 @@ typedef union{
   };
 } DoubleNibbler;
 
-#endif
+#endif //__UNION_HELPERS_H__

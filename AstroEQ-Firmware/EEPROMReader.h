@@ -1,22 +1,15 @@
-#ifndef EEPROM_h
-#define EEPROM_h
+#ifndef __EEPROM_H__
+#define __EEPROM_H__
 
-#include "Arduino.h"
-#include "UnionHelpers.h"
+#include "AstroEQ.h"
 
-class EEPROMReader
-{
-  public:
-    uint8_t readByte(byte);
-    uint16_t readInt(byte);
-    uint32_t readLong(byte);
-    void readString(char* string, byte len, byte address);
-    void writeByte(uint8_t,byte);
-    void writeInt(uint16_t,byte);
-    void writeLong(uint32_t,byte);
-    void writeString(const char* string, byte len, byte address);
-};
+byte EEPROM_readByte(byte);
+unsigned int EEPROM_readInt(byte);
+unsigned long EEPROM_readLong(byte);
+void EEPROM_readString(char* string, byte len, byte address);
+void EEPROM_writeByte(byte,byte);
+void EEPROM_writeInt(unsigned int,byte);
+void EEPROM_writeLong(unsigned long,byte);
+void EEPROM_writeString(const char* string, byte len, byte address);
 
-extern EEPROMReader EEPROM;
-
-#endif
+#endif //__EEPROM_H__
