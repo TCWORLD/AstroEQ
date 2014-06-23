@@ -31,7 +31,7 @@ void EEPROM_readString(char* string, byte len, byte address)
 
 void EEPROM_writeByte(byte val, byte address)
 {
-  return eeprom_update_byte((byte*) address, val);
+  return eeprom_write_byte((byte*) address, val);
 }
 
 void EEPROM_writeInt(unsigned int val, byte address)
