@@ -1,13 +1,16 @@
-Last Updated: 04/06/2014
+Last Updated: 11/11/2014
 
 Version 7 includes a change to the microstepping mode being used. AstroEQ now has a user selectable stepping modes allowing used of all modes supported by the DRV8825 and A4988 chips. If you have legacy hardware, please read the "Upgrading from 6.x to 7.x firmware" file. The Arduino Mega variant of the design has been adjusted as described in the upgrade file to bring it up to date and as such, it is no longer considered legacy hardware.
 
 A small number of AstroEQ controllers are available to purchase. These can be bought from me on my website (http://www.astroeq.co.uk).
 
-AstroEQ has been rebuilt from the ground up to be the best AstroEQ firmware to date.
+If you have any questions or need support, I have opened an AstroEQ Forum which can be found at http://www.astroeq.co.uk/forum/
 
-There is also a redesigned set of hardware which no longer requires an Arduino Mega board to work. Instead it is based around an Atmega162 chip. Although this is not officially supported by the Arduino IDE, I have modified the bootloader to suit.
-An advantage of this change is that now the board can be built using entirely through hole components, and can be made for much cheaper.
+The AstroEQ Firmware is currently proving to be very stable. If you do happen across any glitches, let me know as I can usually fix them fairly quickly.
+
+There are two hardware options. Firstly to use an Arduino Mega (Uno is not supported), which requires only two DRV8825 or A4988 driver boards and a couple of capacitors to build.
+The second option which is used for purchased controllers is a completely custom hardware which is based around an Atmega162 chip. Although this is not officially supported by the Arduino IDE, I have modified the bootloader to suit.
+Schematic and PCB Layout designs are available in this repo for the second option. For the Mega, refer to the PinAssignments.h file for the digital pin numbers to connect the driver boards.
 
 -------------------------------------------------------------------------------------
 
