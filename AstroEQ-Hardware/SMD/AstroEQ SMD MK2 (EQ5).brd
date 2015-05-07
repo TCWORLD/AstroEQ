@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.2">
+<eagle version="6.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1486,8 +1486,7 @@ http://catalog.tycoelectronics.com&lt;br&gt;
 <rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
 </package>
 <package name="R0603">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
-chip</description>
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
 <wire x1="-0.432" y1="-0.356" x2="0.432" y2="-0.356" width="0.1524" layer="51"/>
 <wire x1="0.432" y1="0.356" x2="-0.432" y2="0.356" width="0.1524" layer="51"/>
 <wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
@@ -1496,8 +1495,8 @@ chip</description>
 <wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
 <smd name="1" x="-0.85" y="0" dx="1" dy="1.1" layer="1"/>
 <smd name="2" x="0.85" y="0" dx="1" dy="1.1" layer="1"/>
-<text x="-0.889" y="0.889" size="1.27" layer="25">&gt;NAME</text>
-<text x="-0.889" y="-2.032" size="1.27" layer="27">&gt;VALUE</text>
+<text x="-0.635" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-0.635" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
 <rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
 <rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
@@ -1811,7 +1810,7 @@ Based on the following sources:
 <clearance class="3" value="0.2032"/>
 </class>
 </classes>
-<designrules>
+<designrules name="default">
 <description language="de">&lt;b&gt;EAGLE Design Rules&lt;/b&gt;
 &lt;p&gt;
 Die Standard-Design-Rules sind so gewählt, dass sie für 
@@ -2061,7 +2060,7 @@ design rules under a new name.</description>
 <attribute name="MF" value="MURATA" x="7.9375" y="24.13" size="1.778" layer="27" display="off"/>
 <attribute name="MPN" value="GRM188R61C474KA93D" x="7.9375" y="24.13" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R15" library="SmartPrj" package="R0603" value="1k" x="1.27" y="25.0825" smashed="yes" rot="R90">
+<element name="R15" library="rcl" package="R0603" value="1k" x="1.27" y="25.0825" smashed="yes" rot="R90">
 <attribute name="NAME" x="0.73025" y="23.4315" size="1.016" layer="25" font="vector" ratio="15" rot="R270"/>
 <attribute name="OC_FARNELL" value="2059601" x="1.27" y="25.0825" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="PANASONIC" x="1.27" y="25.0825" size="1.778" layer="27" rot="R90" display="off"/>
