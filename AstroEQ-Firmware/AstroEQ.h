@@ -60,6 +60,8 @@ typedef uint8_t byte;
 #define RA 0 //Right Ascension is AstroEQ axis 0 (Synta axis '1')
 #define DC 1 //Declination is AstroEQ axis 1 (Synta axis '2')
 
+#define MIN_IVAL 50
+
 bool checkEEPROM();
 void buildEEPROM();
 void storeEEPROM();

@@ -18,29 +18,35 @@
 
 #include "commands.h"
 
-Commands cmd = {{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}};
+Commands cmd = {0};
 
 void Commands_init(unsigned long _eVal, byte _gVal){
-  cmd.aVal[0] = EEPROM_readLong(aVal1_Address); //steps/axis
-  cmd.aVal[1] = EEPROM_readLong(aVal2_Address); //steps/axis
-  cmd.bVal[0] = EEPROM_readLong(bVal1_Address); //sidereal rate
-  cmd.bVal[1] = EEPROM_readLong(bVal2_Address); //sidereal rate
-  cmd.sVal[0] = EEPROM_readLong(sVal1_Address); //steps/worm rotation
-  cmd.sVal[1] = EEPROM_readLong(sVal2_Address); //steps/worm rotation
-  cmd.siderealIVal[0] = EEPROM_readInt(IVal1_Address); //steps/worm rotation
-  cmd.siderealIVal[1] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
+  cmd.aVal[RA] = EEPROM_readLong(aVal1_Address); //steps/axis
+  cmd.aVal[DC] = EEPROM_readLong(aVal2_Address); //steps/axis
+  cmd.bVal[RA] = EEPROM_readLong(bVal1_Address); //sidereal rate
+  cmd.bVal[DC] = EEPROM_readLong(bVal2_Address); //sidereal rate
+  cmd.sVal[RA] = EEPROM_readLong(sVal1_Address); //steps/worm rotation
+  cmd.sVal[DC] = EEPROM_readLong(sVal2_Address); //steps/worm rotation
+  cmd.siderealIVal[RA] = EEPROM_readInt(IVal1_Address); //steps/worm rotation
+  cmd.siderealIVal[DC] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
+  cmd.normalGotoSpeed[RA] = EEPROM_readByte(RAGoto_Address); //IVal for normal goto speed
+  cmd.normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address); //IVal for normal goto speed
   for(byte i = 0;i < 2;i++){
     cmd.dir[i] = 0;
+    cmd.stepDir[i] = 1; //1-dir*2
     cmd.stopped[i] = 1;
     cmd.gotoEn[i] = 0;
     cmd.FVal[i] = 0;
     cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
-    cmd.IVal[i] = 0; //Recieved Speed
+    cmd.IVal[i] = cmd.siderealIVal[i]; //Recieved Speed will be set by :I command.
     cmd.GVal[i] = 0; //Mode recieved from :G command
     cmd.HVal[i] = 0; //Value recieved from :H command
     cmd.eVal[i] = _eVal; //version number
     cmd.gVal[i] = _gVal; //High speed scalar
-       
+    cmd.minSpeed[i] = cmd.siderealIVal[i]>>1;//2x sidereal rate. [minspeed is the point at which acceleration curves are enabled]
+    cmd.stopSpeed[i] = cmd.minSpeed[i];
+    cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
+    cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
     cmd.stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
   }
 }

@@ -25,9 +25,6 @@
 #include <avr/wdt.h>
 
 byte stepIncrement[2];
-unsigned int normalGotoSpeed[2];
-unsigned int minSpeed[2];
-unsigned int stopSpeed[2];
 byte readyToGo[2] = {0,0};
 volatile byte gotoRunning[2] = {0,0};
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
@@ -135,16 +132,16 @@ bool checkEEPROM(){
   } else if (!driverVersion && microstepConf > 16){
     return false; //invalid value.
   }
-  if ((cmd.siderealIVal[RA] > 1200) || (cmd.siderealIVal[RA] < 300)) {
+  if ((cmd.siderealIVal[RA] > 1200) || (cmd.siderealIVal[RA] < MIN_IVAL)) {
     return false; //invalid value.
   }
-  if ((cmd.siderealIVal[DC] > 1200) || (cmd.siderealIVal[DC] < 300)) {
+  if ((cmd.siderealIVal[DC] > 1200) || (cmd.siderealIVal[DC] < MIN_IVAL)) {
     return false; //invalid value.
   }
-  if(normalGotoSpeed[RA] == 0){
+  if(cmd.normalGotoSpeed[RA] == 0){
     return false; //invalid value.
   }
-  if(normalGotoSpeed[DC] == 0){
+  if(cmd.normalGotoSpeed[DC] == 0){
     return false; //invalid value.
   }
   return true;
@@ -165,8 +162,8 @@ void storeEEPROM(){
   EEPROM_writeByte(encodeDirection[DC],DECReverse_Address);
   EEPROM_writeByte(driverVersion,Driver_Address);
   EEPROM_writeByte(microstepConf,Microstep_Address);
-  EEPROM_writeByte(normalGotoSpeed[RA],RAGoto_Address);
-  EEPROM_writeByte(normalGotoSpeed[DC],DECGoto_Address);
+  EEPROM_writeByte(cmd.normalGotoSpeed[RA],RAGoto_Address);
+  EEPROM_writeByte(cmd.normalGotoSpeed[DC],DECGoto_Address);
   EEPROM_writeInt(cmd.siderealIVal[RA],IVal1_Address);
   EEPROM_writeInt(cmd.siderealIVal[DC],IVal2_Address);
 }
@@ -178,10 +175,7 @@ void systemInitialiser(){
   encodeDirection[DC] = EEPROM_readByte(DECReverse_Address); //reverse the declination if 1
   
   driverVersion = EEPROM_readByte(Driver_Address);
-  
-  normalGotoSpeed[RA] = EEPROM_readByte(RAGoto_Address);
-  normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address);
-  
+    
   microstepConf = EEPROM_readByte(Microstep_Address);
   buildModeMapping(microstepConf, driverVersion);
   
@@ -190,8 +184,6 @@ void systemInitialiser(){
   if(!checkEEPROM()){
     progMode = 1; //prevent AstroEQ startup if EEPROM is blank.
   }
-  minSpeed[RA] = cmd.siderealIVal[RA]>>1;//2x sidereal rate.
-  minSpeed[DC] = cmd.siderealIVal[DC]>>1;//[minspeed is the point at which acceleration curves are enabled]
   calculateRate(RA); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
   calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
   gotoDecelerationLength[RA] = calculateDecelerationLength(RA);
@@ -199,8 +191,8 @@ void systemInitialiser(){
 }
 
 unsigned int calculateDecelerationLength (byte axis){
-  unsigned int currentSpeed = normalGotoSpeed[axis];
-  unsigned int stoppingSpeed = minSpeed[axis];
+  unsigned int currentSpeed = cmd.normalGotoSpeed[axis];
+  unsigned int stoppingSpeed = cmd.minSpeed[axis];
   unsigned int stepRepeat = cmd.stepRepeat[axis] + 1;
   unsigned int numberOfSteps = 0;
   while(currentSpeed < stoppingSpeed) {
@@ -309,13 +301,21 @@ int main(void)
   //setup interrupt for ST4 connection
 #if defined(__AVR_ATmega162__)
   PCMSK0 = 0xF0; //PCINT[4..7]
-#define PCICR GICR
-#else
-  PCMSK0 = 0x0F; //PCINT[0..3]
-  PCICR &= ~_BV(PCIE2); //disable PCInt[16..23] vector
-#endif
   PCICR &= ~_BV(PCIE1); //disable PCInt[8..15] vector
   PCICR |= _BV(PCIE0); //enable PCInt[0..7] vector
+#else  
+  #ifdef ALTERNATE_ST4
+    PCMSK2 = 0x0F; //PCINT[16..23]
+    PCICR |= _BV(PCIE2); //enable PCInt[16..23] vector
+    PCICR &= ~_BV(PCIE1); //disable PCInt[8..15] vector
+    PCICR &= ~_BV(PCIE0); //disable PCInt[0..7] vector
+  #else
+    PCMSK0 = 0x0F; //PCINT[0..3]
+    PCICR &= ~_BV(PCIE2); //disable PCInt[16..23] vector
+    PCICR &= ~_BV(PCIE1); //disable PCInt[8..15] vector
+    PCICR |= _BV(PCIE0); //enable PCInt[0..7] vector
+  #endif
+#endif
   char recievedChar = 0;
   signed char decoded = 0;
   for(;;){ //loop
@@ -545,10 +545,10 @@ void decodeCommand(char command, char* packetIn){ //each command is axis specifi
         }
         break;
     case 'z': //return the Goto speed
-        responseData = normalGotoSpeed[axis];
+        responseData = cmd.normalGotoSpeed[axis];
         break;
     case 'Z': //return the Goto speed factor
-        normalGotoSpeed[axis] = synta_hexToByte(packetIn); //store the goto speed factor
+        cmd.normalGotoSpeed[axis] = synta_hexToByte(packetIn); //store the goto speed factor
         break;
     case 'c': //return the axisDirectionReverse
         responseData = encodeDirection[axis];
@@ -696,7 +696,7 @@ void gotoMode(byte axis){
   //decelleration length is here a multiple of stepDir.
   unsigned long HVal = cmd.HVal[axis];
   unsigned long halfHVal = (HVal >> 1) + 1; //make deceleration slightly longer than acceleration
-  unsigned int gotoSpeed = normalGotoSpeed[axis];
+  unsigned int gotoSpeed = cmd.normalGotoSpeed[axis];
   if(dirMagnitude == 8){
     HVal &= 0xFFFFFFF8; //clear the lower bits to avoid overshoot.
   }
@@ -747,15 +747,15 @@ void motorStartRA(signed int gotoDeceleration){
   interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
   unsigned int startSpeed;
   unsigned int stoppingSpeed;
-  if (IVal > minSpeed[RA]){
+  if (IVal > cmd.minSpeed[RA]){
     stoppingSpeed = IVal;
   } else {
-    stoppingSpeed = minSpeed[RA];
+    stoppingSpeed = cmd.minSpeed[RA];
   }
   if(cmd.stopped[RA]) {
     startSpeed = stoppingSpeed;
   } else {
-    if (currentIVal < minSpeed[RA]) {
+    if (currentIVal < cmd.minSpeed[RA]) {
       startSpeed = currentIVal;
     } else {
       startSpeed = stoppingSpeed;
@@ -765,7 +765,7 @@ void motorStartRA(signed int gotoDeceleration){
   interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
   cmd.currentIVal[RA] = cmd.IVal[RA];
   currentMotorSpeed(RA) = startSpeed;
-  stopSpeed[RA] = stoppingSpeed;
+  cmd.stopSpeed[RA] = stoppingSpeed;
   interruptCount(RA) = 1;
   if (encodeDirection[RA]^cmd.dir[RA]) {
     *digitalPinToPortReg(dirPin[RA]) |= _BV(digitalPinToBit(dirPin[RA]));
@@ -794,15 +794,15 @@ void motorStartDC(signed int gotoDeceleration){
 
   unsigned int startSpeed;
   unsigned int stoppingSpeed;
-  if (IVal > minSpeed[DC]){
+  if (IVal > cmd.minSpeed[DC]){
     stoppingSpeed = IVal;
   } else {
-    stoppingSpeed = minSpeed[DC];
+    stoppingSpeed = cmd.minSpeed[DC];
   }
   if(cmd.stopped[DC]) {
     startSpeed = stoppingSpeed;
   } else {
-    if (currentIVal < minSpeed[DC]) {
+    if (currentIVal < cmd.minSpeed[DC]) {
       startSpeed = currentIVal;
     } else {
       startSpeed = stoppingSpeed;
@@ -812,7 +812,7 @@ void motorStartDC(signed int gotoDeceleration){
   interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
   cmd.currentIVal[DC] = cmd.IVal[DC];
   currentMotorSpeed(DC) = startSpeed;
-  stopSpeed[DC] = stoppingSpeed;
+  cmd.stopSpeed[DC] = stoppingSpeed;
   interruptCount(DC) = 1;
   if (encodeDirection[DC]^cmd.dir[DC]) {
     *digitalPinToPortReg(dirPin[DC]) |= _BV(digitalPinToBit(dirPin[DC]));
@@ -855,14 +855,14 @@ void motorStopRA(byte emergency){
     cmd_setGotoEn(RA,0); //No longer in goto mode.
     gotoRunning[RA] = 0;
     interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
-    if(cmd.currentIVal[RA] < minSpeed[RA]){
-      if(stopSpeed[RA] > minSpeed[RA]){
-        stopSpeed[RA] = minSpeed[RA];
+    if(cmd.currentIVal[RA] < cmd.minSpeed[RA]){
+      if(cmd.stopSpeed[RA] > cmd.minSpeed[RA]){
+        cmd.stopSpeed[RA] = cmd.minSpeed[RA];
       }
     }/* else {
       stopSpeed[RA] = cmd.currentIVal[RA];
     }*/
-    cmd.currentIVal[RA] = stopSpeed[RA] + 1;//cmd.stepIncrement[motor];
+    cmd.currentIVal[RA] = cmd.stopSpeed[RA] + 1;//cmd.stepIncrement[motor];
     interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
   }
 }
@@ -881,14 +881,14 @@ void motorStopDC(byte emergency){
     cmd_setGotoEn(DC,0); //No longer in goto mode.
     gotoRunning[DC] = 0;
     interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
-    if(cmd.currentIVal[DC] < minSpeed[DC]){
-      if(stopSpeed[DC] > minSpeed[DC]){
-        stopSpeed[DC] = minSpeed[DC];
+    if(cmd.currentIVal[DC] < cmd.minSpeed[DC]){
+      if(cmd.stopSpeed[DC] > cmd.minSpeed[DC]){
+        cmd.stopSpeed[DC] = cmd.minSpeed[DC];
       }
     }/* else {
       stopSpeed[DC] = cmd.currentIVal[DC];
     }*/
-    cmd.currentIVal[DC] = stopSpeed[DC] + 1;//cmd.stepIncrement[motor];
+    cmd.currentIVal[DC] = cmd.stopSpeed[DC] + 1;//cmd.stepIncrement[motor];
     interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
   }
 }
@@ -909,7 +909,12 @@ void configureTimer(){
   
 }
 
-ISR(PCINT0_vect) {
+#ifdef ALTERNATE_ST4
+ISR(PCINT2_vect)
+#else
+ISR(PCINT0_vect)
+#endif
+{
   //ST4 Pin Change Interrupt Handler.
   byte stopped;
   if(!cmd.gotoEn[RA]){
@@ -970,8 +975,8 @@ setRASpeed:
         //calculateRate(RA);
         motorStart(RA,one);
       } else {
-        if (stopSpeed[RA] < cmd.currentIVal[RA]) {
-          stopSpeed[RA] = cmd.currentIVal[RA]; //ensure that RA doesn't stop.
+        if (cmd.stopSpeed[RA] < cmd.currentIVal[RA]) {
+          cmd.stopSpeed[RA] = cmd.currentIVal[RA]; //ensure that RA doesn't stop.
         }
       }
     } else {
@@ -1000,7 +1005,7 @@ setDECSpeed:
       //calculateRate(DC);
       motorStart(DC,1);
     } else {
-      cmd.currentIVal[DC] = stopSpeed[DC] + 1;//make our target >stopSpeed so that ISRs bring us to a halt.
+      cmd.currentIVal[DC] = cmd.stopSpeed[DC] + 1;//make our target >stopSpeed so that ISRs bring us to a halt.
     }
   }
 }
@@ -1082,13 +1087,13 @@ ISR(TIMER3_CAPT_vect, ISR_NAKED) {
             gotoPosn[DC] = newGotoPosn;
             //-----------------------------------------------------------------------------------------
             gotoCompleteRegister &= ~gotoCompleteBitMask(DC); //say we are stopping
-            cmd.currentIVal[DC] = stopSpeed[DC]; //decellerate to min speed.
+            cmd.currentIVal[DC] = cmd.stopSpeed[DC]; //decellerate to min speed.
           } else {
             goto stopMotorISR3;
           }
         }
       }
-      if (currentMotorSpeed(DC) > stopSpeed[DC]) {
+      if (currentMotorSpeed(DC) > cmd.stopSpeed[DC]) {
 stopMotorISR3:
         if(gotoRunning[DC]){ //if we are currently running a goto then 
           cmd.gotoEn[DC] = 0; //Goto mode complete
@@ -1110,7 +1115,7 @@ stopMotorISR3:
         if (repeat == port){
           register byte increment asm("r0");// = cmd.stepIncrement[DC];
           /*
-            stepIncrement[DC] = (startVal >> 5) + 1;
+            stepIncrement[DC] = max(255,(startVal >> 5) + 1);
           */
           asm volatile(
             "mov   %1,%A2  \n\t"
@@ -1234,7 +1239,7 @@ ISR(TIMER1_CAPT_vect, ISR_NAKED) {
       jVal = jVal + cmd.stepDir[RA];
       cmd.jVal[RA] = jVal;
       if(gotoRunning[RA]){
-        if (jVal == gotoPosn[RA]){ //reached the decelleration marker
+        if (gotoPosn[RA] == jVal){ //reached the decelleration marker
           //will decellerate the rest of the way. So first move gotoPosn[] to end point.
           if (gotoCompleteRegister & gotoCompleteBitMask(RA)) {
             /*
@@ -1266,13 +1271,13 @@ ISR(TIMER1_CAPT_vect, ISR_NAKED) {
             );
             gotoPosn[RA] = newGotoPosn;
             gotoCompleteRegister &= ~gotoCompleteBitMask(RA); //say we are stopping
-            cmd.currentIVal[RA] = stopSpeed[RA]; //decellerate to min speed. This is possible in at most 80 steps.
+            cmd.currentIVal[RA] = cmd.stopSpeed[RA]; //decellerate to min speed. This is possible in at most 80 steps.
           } else {
             goto stopMotorISR1;
           }
         }
       }
-      if (currentMotorSpeed(RA) > stopSpeed[RA]) {
+      if (currentMotorSpeed(RA) > cmd.stopSpeed[RA]) {
 stopMotorISR1:
         if(gotoRunning[RA]){ //if we are currently running a goto then 
           cmd.gotoEn[RA] = 0; //Goto mode complete
@@ -1294,7 +1299,7 @@ stopMotorISR1:
         if (repeat == port){
           register byte increment asm("r0");// = cmd.stepIncrement[RA];
           /*
-            stepIncrement[RA] = (startVal >> 5) + 1;
+            stepIncrement[RA] = max(255,(startVal >> 5) + 1);
           */
           asm volatile(
             "mov   %1,%A2  \n\t"

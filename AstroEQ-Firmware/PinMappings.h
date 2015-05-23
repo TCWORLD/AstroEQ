@@ -36,8 +36,8 @@
 //Warning: D30 to D37 inclusive are NOT allowed
 #define statusPin_Define 13
 
-#define resetPin_0_Define 55
-#define resetPin_1_Define 54
+#define resetPin_0_Define 55 //Analog 1
+#define resetPin_1_Define 54 //Analog 0
 
 #define dirPin_0_Define 3
 #define dirPin_1_Define 7
@@ -48,10 +48,22 @@
 #define stepPin_0_Define 5
 #define stepPin_1_Define 12
 
+//#define ALTERNATE_ST4 //Uncomment this line to use the alternate mapping for the ST4 port, using A8 to A11 instead of 50 to 53
+
+//You only have a choice between two locations for the ST4 pins as controlled by the above #define.
+//It is possible to rearrange the pin within the set groups, e.g. you could switch 50 and 51, but
+//all the ST4 pins must remain within either group of four as shown below.
+#ifdef ALTERNATE_ST4
+#define ST4AddPin_0_Define 62 //Analog 8
+#define ST4AddPin_1_Define 63 //Analog 9
+#define ST4SubPin_0_Define 64 //Analog 10
+#define ST4SubPin_1_Define 65 //Analog 11
+#else
 #define ST4AddPin_0_Define 50
 #define ST4AddPin_1_Define 51
 #define ST4SubPin_0_Define 53
 #define ST4SubPin_1_Define 52
+#endif
 
 #define modePins0_0_Define 15
 #define modePins1_0_Define 16
@@ -89,6 +101,8 @@
 #define GPIOR0 TCNT2
 #define GPIOR1 OCR2
 #define GPIOR2 SPCR
+
+#define PCICR GICR
 
 #ifndef TIMSK3
 #define TIMSK3 ETIMSK

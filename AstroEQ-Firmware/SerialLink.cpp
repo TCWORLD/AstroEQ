@@ -4,10 +4,10 @@
 #include <avr/interrupt.h>
 
 #ifndef USART0_TX_vect
-#defin USART0_TX_vect USART0_TXC_vect
+#define USART0_TX_vect USART0_TXC_vect
 #endif
 #ifndef USART0_RX_vect
-#defin USART0_RX_vect USART0_RXC_vect
+#define USART0_RX_vect USART0_RXC_vect
 #endif
 
 typedef struct {
