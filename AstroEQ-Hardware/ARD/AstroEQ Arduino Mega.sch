@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.6.0">
+<eagle version="6.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -8,24 +8,24 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
-<layer number="2" name="Route2" color="1" fill="3" visible="yes" active="no"/>
-<layer number="3" name="Route3" color="4" fill="3" visible="yes" active="no"/>
-<layer number="14" name="Route14" color="1" fill="6" visible="yes" active="no"/>
-<layer number="15" name="Route15" color="4" fill="6" visible="yes" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
-<layer number="25" name="tNames" color="15" fill="1" visible="yes" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
-<layer number="27" name="tValues" color="15" fill="1" visible="yes" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
+<layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
+<layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
+<layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
+<layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
+<layer number="25" name="tNames" color="15" fill="1" visible="no" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
+<layer number="27" name="tValues" color="15" fill="1" visible="no" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -34,8 +34,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -43,16 +43,16 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="15" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="15" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
-<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="yes" active="no"/>
-<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="yes" active="no"/>
-<layer number="56" name="wert" color="7" fill="1" visible="yes" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
+<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="no" active="no"/>
+<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="no" active="no"/>
+<layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="93" name="Pins" color="2" fill="1" visible="no" active="yes"/>
@@ -16063,24 +16063,26 @@ Based on the following sources:
 <wire x1="-20.32" y1="-17.78" x2="10.16" y2="-17.78" width="0.254" layer="94"/>
 <wire x1="10.16" y1="-17.78" x2="10.16" y2="5.08" width="0.254" layer="94"/>
 <wire x1="10.16" y1="5.08" x2="-20.32" y2="5.08" width="0.254" layer="94"/>
-<text x="-20.32" y="7.62" size="1.778" layer="95">&gt;NAME</text>
+<text x="-20.32" y="7.62" size="1.778" layer="95" rot="R180" align="bottom-right">&gt;NAME</text>
 <pin name="!EN" x="-22.86" y="2.54" length="short" direction="in"/>
-<pin name="MS1" x="-22.86" y="0" length="short" direction="in"/>
-<pin name="MS2" x="-22.86" y="-2.54" length="short" direction="in"/>
-<pin name="MS3" x="-22.86" y="-5.08" length="short" direction="in"/>
-<pin name="!RESET" x="-22.86" y="-7.62" length="short" direction="in"/>
-<pin name="!SLEEP" x="-22.86" y="-10.16" length="short" direction="in"/>
+<pin name="MS1(M0)" x="-22.86" y="0" length="short" direction="in"/>
+<pin name="MS2(M1)" x="-22.86" y="-2.54" length="short" direction="in"/>
+<pin name="MS3(M2)" x="-22.86" y="-5.08" length="short" direction="in"/>
+<pin name="!RST" x="-22.86" y="-7.62" length="short" direction="in"/>
+<pin name="!SLP" x="-22.86" y="-10.16" length="short" direction="in"/>
 <pin name="STEP" x="-22.86" y="-12.7" length="short" direction="in"/>
 <pin name="DIR" x="-22.86" y="-15.24" length="short" direction="in"/>
 <pin name="GND2" x="12.7" y="-15.24" length="short" direction="pwr" rot="R180"/>
-<pin name="VDD" x="12.7" y="-12.7" length="short" direction="pwr" rot="R180"/>
-<pin name="1B" x="12.7" y="-10.16" length="short" direction="out" rot="R180"/>
-<pin name="1A" x="12.7" y="-7.62" length="short" direction="out" rot="R180"/>
-<pin name="2A" x="12.7" y="-5.08" length="short" direction="out" rot="R180"/>
-<pin name="2B" x="12.7" y="-2.54" length="short" direction="out" rot="R180"/>
+<pin name="VDD(FLT)" x="12.7" y="-12.7" length="short" direction="pwr" rot="R180"/>
+<pin name="1B(A2)" x="12.7" y="-10.16" length="short" direction="out" rot="R180"/>
+<pin name="1A(A1)" x="12.7" y="-7.62" length="short" direction="out" rot="R180"/>
+<pin name="2A(B1)" x="12.7" y="-5.08" length="short" direction="out" rot="R180"/>
+<pin name="2B(B2)" x="12.7" y="-2.54" length="short" direction="out" rot="R180"/>
 <pin name="GND" x="12.7" y="0" length="short" direction="pwr" rot="R180"/>
 <pin name="VMOT" x="12.7" y="2.54" length="short" direction="pwr" rot="R180"/>
-<text x="-20.32" y="-22.86" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-20.32" y="-20.32" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-20.32" y="-27.94" size="1.778" layer="97">A498x (DRV882x)</text>
+<text x="-20.32" y="-25.4" size="1.778" layer="97">Pin name format:</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -16092,20 +16094,20 @@ Based on the following sources:
 <device name="" package="DIP16-W">
 <connects>
 <connect gate="G$1" pin="!EN" pad="1"/>
-<connect gate="G$1" pin="!RESET" pad="5"/>
-<connect gate="G$1" pin="!SLEEP" pad="6"/>
-<connect gate="G$1" pin="1A" pad="12"/>
-<connect gate="G$1" pin="1B" pad="11"/>
-<connect gate="G$1" pin="2A" pad="13"/>
-<connect gate="G$1" pin="2B" pad="14"/>
+<connect gate="G$1" pin="!RST" pad="5"/>
+<connect gate="G$1" pin="!SLP" pad="6"/>
+<connect gate="G$1" pin="1A(A1)" pad="12"/>
+<connect gate="G$1" pin="1B(A2)" pad="11"/>
+<connect gate="G$1" pin="2A(B1)" pad="13"/>
+<connect gate="G$1" pin="2B(B2)" pad="14"/>
 <connect gate="G$1" pin="DIR" pad="8"/>
 <connect gate="G$1" pin="GND" pad="15"/>
 <connect gate="G$1" pin="GND2" pad="9"/>
-<connect gate="G$1" pin="MS1" pad="2"/>
-<connect gate="G$1" pin="MS2" pad="3"/>
-<connect gate="G$1" pin="MS3" pad="4"/>
+<connect gate="G$1" pin="MS1(M0)" pad="2"/>
+<connect gate="G$1" pin="MS2(M1)" pad="3"/>
+<connect gate="G$1" pin="MS3(M2)" pad="4"/>
 <connect gate="G$1" pin="STEP" pad="7"/>
-<connect gate="G$1" pin="VDD" pad="10"/>
+<connect gate="G$1" pin="VDD(FLT)" pad="10"/>
 <connect gate="G$1" pin="VMOT" pad="16"/>
 </connects>
 <technologies>
@@ -17237,9 +17239,9 @@ distributor Schukat</description>
 <segment>
 <pinref part="P+8" gate="1" pin="+5V"/>
 <wire x1="154.94" y1="106.68" x2="154.94" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="M0" gate="G$1" pin="!SLEEP"/>
+<pinref part="M0" gate="G$1" pin="!SLP"/>
 <wire x1="154.94" y1="73.66" x2="167.64" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="M1" gate="G$1" pin="!SLEEP"/>
+<pinref part="M1" gate="G$1" pin="!SLP"/>
 <wire x1="167.64" y1="22.86" x2="154.94" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="154.94" y1="22.86" x2="154.94" y2="73.66" width="0.1524" layer="91"/>
 <junction x="154.94" y="73.66"/>
@@ -17247,7 +17249,7 @@ distributor Schukat</description>
 <label x="157.48" y="22.86" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="M1" gate="G$1" pin="VDD"/>
+<pinref part="M1" gate="G$1" pin="VDD(FLT)"/>
 <wire x1="220.98" y1="20.32" x2="203.2" y2="20.32" width="0.1524" layer="91"/>
 <pinref part="C1" gate="G$1" pin="1"/>
 <wire x1="220.98" y1="15.24" x2="220.98" y2="20.32" width="0.1524" layer="91"/>
@@ -17257,7 +17259,7 @@ distributor Schukat</description>
 </segment>
 <segment>
 <pinref part="P+15" gate="1" pin="+5V"/>
-<pinref part="M0" gate="G$1" pin="VDD"/>
+<pinref part="M0" gate="G$1" pin="VDD(FLT)"/>
 <wire x1="220.98" y1="88.9" x2="220.98" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="220.98" y1="71.12" x2="203.2" y2="71.12" width="0.1524" layer="91"/>
 <junction x="220.98" y="71.12"/>
@@ -17333,7 +17335,7 @@ distributor Schukat</description>
 </net>
 <net name="!RST-1" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="!RESET"/>
+<pinref part="M1" gate="G$1" pin="!RST"/>
 <wire x1="167.64" y1="25.4" x2="149.86" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="149.86" y1="25.4" x2="149.86" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="149.86" y1="2.54" x2="38.1" y2="2.54" width="0.1524" layer="91"/>
@@ -17346,7 +17348,7 @@ distributor Schukat</description>
 </net>
 <net name="MS3-0" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="MS3"/>
+<pinref part="M0" gate="G$1" pin="MS3(M2)"/>
 <label x="157.48" y="78.74" size="1.778" layer="95"/>
 <label x="99.06" y="68.58" size="1.778" layer="95"/>
 <wire x1="167.64" y1="78.74" x2="134.62" y2="78.74" width="0.1524" layer="91"/>
@@ -17357,7 +17359,7 @@ distributor Schukat</description>
 </net>
 <net name="MS2-0" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="MS2"/>
+<pinref part="M0" gate="G$1" pin="MS2(M1)"/>
 <label x="157.48" y="81.28" size="1.778" layer="95"/>
 <label x="99.06" y="71.12" size="1.778" layer="95"/>
 <wire x1="96.52" y1="71.12" x2="132.08" y2="71.12" width="0.1524" layer="91"/>
@@ -17370,7 +17372,7 @@ distributor Schukat</description>
 <segment>
 <wire x1="111.76" y1="66.04" x2="111.76" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="111.76" y1="27.94" x2="167.64" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="M1" gate="G$1" pin="MS3"/>
+<pinref part="M1" gate="G$1" pin="MS3(M2)"/>
 <label x="157.48" y="27.94" size="1.778" layer="95"/>
 <label x="99.06" y="66.04" size="1.778" layer="95"/>
 <pinref part="ARDUINO_MEGA" gate="G$1" pin="18(TX1)"/>
@@ -17379,7 +17381,7 @@ distributor Schukat</description>
 </net>
 <net name="MS2-1" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="MS2"/>
+<pinref part="M1" gate="G$1" pin="MS2(M1)"/>
 <wire x1="96.52" y1="63.5" x2="109.22" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="109.22" y1="63.5" x2="109.22" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="109.22" y1="30.48" x2="167.64" y2="30.48" width="0.1524" layer="91"/>
@@ -17390,7 +17392,7 @@ distributor Schukat</description>
 </net>
 <net name="!RST-0" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="!RESET"/>
+<pinref part="M0" gate="G$1" pin="!RST"/>
 <wire x1="167.64" y1="76.2" x2="147.32" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="76.2" x2="147.32" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="40.64" y1="5.08" x2="147.32" y2="5.08" width="0.1524" layer="91"/>
@@ -17433,7 +17435,7 @@ distributor Schukat</description>
 </net>
 <net name="DEC-1B" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="1B"/>
+<pinref part="M1" gate="G$1" pin="1B(A2)"/>
 <wire x1="203.2" y1="22.86" x2="243.84" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="DEC" gate="G$1" pin="2"/>
 <label x="233.68" y="22.86" size="1.778" layer="95"/>
@@ -17441,7 +17443,7 @@ distributor Schukat</description>
 </net>
 <net name="DEC-1A" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="1A"/>
+<pinref part="M1" gate="G$1" pin="1A(A1)"/>
 <wire x1="203.2" y1="25.4" x2="226.06" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="25.4" x2="231.14" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="30.48" x2="243.84" y2="30.48" width="0.1524" layer="91"/>
@@ -17451,7 +17453,7 @@ distributor Schukat</description>
 </net>
 <net name="DEC-2B" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="2B"/>
+<pinref part="M1" gate="G$1" pin="2B(B2)"/>
 <wire x1="203.2" y1="30.48" x2="228.6" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="30.48" x2="231.14" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="27.94" x2="243.84" y2="27.94" width="0.1524" layer="91"/>
@@ -17461,7 +17463,7 @@ distributor Schukat</description>
 </net>
 <net name="DEC-2A" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="2A"/>
+<pinref part="M1" gate="G$1" pin="2A(B1)"/>
 <wire x1="203.2" y1="27.94" x2="226.06" y2="27.94" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="27.94" x2="228.6" y2="25.4" width="0.1524" layer="91"/>
 <pinref part="DEC" gate="G$1" pin="3"/>
@@ -17471,7 +17473,7 @@ distributor Schukat</description>
 </net>
 <net name="RA-1B" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="1B"/>
+<pinref part="M0" gate="G$1" pin="1B(A2)"/>
 <wire x1="203.2" y1="73.66" x2="243.84" y2="73.66" width="0.1524" layer="91"/>
 <pinref part="RA" gate="G$1" pin="2"/>
 <label x="233.68" y="73.66" size="1.778" layer="95"/>
@@ -17479,7 +17481,7 @@ distributor Schukat</description>
 </net>
 <net name="RA-1A" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="1A"/>
+<pinref part="M0" gate="G$1" pin="1A(A1)"/>
 <wire x1="203.2" y1="76.2" x2="226.06" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="76.2" x2="231.14" y2="81.28" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="81.28" x2="243.84" y2="81.28" width="0.1524" layer="91"/>
@@ -17489,7 +17491,7 @@ distributor Schukat</description>
 </net>
 <net name="RA-2A" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="2A"/>
+<pinref part="M0" gate="G$1" pin="2A(B1)"/>
 <wire x1="203.2" y1="78.74" x2="226.06" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="78.74" x2="228.6" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="RA" gate="G$1" pin="3"/>
@@ -17500,7 +17502,7 @@ distributor Schukat</description>
 <net name="RA-2B" class="0">
 <segment>
 <pinref part="RA" gate="G$1" pin="4"/>
-<pinref part="M0" gate="G$1" pin="2B"/>
+<pinref part="M0" gate="G$1" pin="2B(B2)"/>
 <label x="233.68" y="78.74" size="1.778" layer="95"/>
 <wire x1="243.84" y1="78.74" x2="231.14" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="78.74" x2="228.6" y2="81.28" width="0.1524" layer="91"/>
@@ -17509,7 +17511,7 @@ distributor Schukat</description>
 </net>
 <net name="MS1-1" class="0">
 <segment>
-<pinref part="M1" gate="G$1" pin="MS1"/>
+<pinref part="M1" gate="G$1" pin="MS1(M0)"/>
 <wire x1="106.68" y1="60.96" x2="106.68" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="106.68" y1="33.02" x2="167.64" y2="33.02" width="0.1524" layer="91"/>
 <label x="157.48" y="33.02" size="1.778" layer="95"/>
@@ -17520,7 +17522,7 @@ distributor Schukat</description>
 </net>
 <net name="MS1-0" class="0">
 <segment>
-<pinref part="M0" gate="G$1" pin="MS1"/>
+<pinref part="M0" gate="G$1" pin="MS1(M0)"/>
 <wire x1="96.52" y1="73.66" x2="129.54" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="129.54" y1="73.66" x2="129.54" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="129.54" y1="83.82" x2="167.64" y2="83.82" width="0.1524" layer="91"/>
@@ -17583,10 +17585,10 @@ distributor Schukat</description>
 </sheets>
 <errors>
 <approved hash="104,1,203.2,17.78,M1,GND2,GND,,,"/>
-<approved hash="104,1,203.2,20.32,M1,VDD,+5V,,,"/>
+<approved hash="104,1,203.2,20.32,M1,VDD(FLT),+5V,,,"/>
 <approved hash="104,1,203.2,35.56,M1,VMOT,V+,,,"/>
 <approved hash="104,1,203.2,68.58,M0,GND2,GND,,,"/>
-<approved hash="104,1,203.2,71.12,M0,VDD,+5V,,,"/>
+<approved hash="104,1,203.2,71.12,M0,VDD(FLT),+5V,,,"/>
 <approved hash="104,1,203.2,86.36,M0,VMOT,V+,,,"/>
 <approved hash="105,1,100.33,33.02,!NOT-ALLOWED!,,,,,"/>
 </errors>
