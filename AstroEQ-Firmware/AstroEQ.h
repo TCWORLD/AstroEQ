@@ -4,12 +4,12 @@
   With thanks Chris over at the EQMOD Yahoo group for explaining the Skywatcher protocol
   
   
-  Equatorial mount tracking system for integration with EQMOD using the Skywatcher/Syntia
+  Equatorial mount tracking system for integration with EQMOD using the Skywatcher/Synta
   communication protocol.
  
-  Works with EQ5, HEQ5, and EQ6 mounts
+  Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Verison: 7.2
+  Current Verison: 7.5
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -42,8 +42,21 @@ extern "C"{
   #define cbi(r,b) r &= ~_BV(b)
 #endif
 
+#define FLOAT (1<<3)
 #define HIGH 1
 #define LOW 0
+
+#define OUTPUT 1
+#define INPUT 0
+
+#define A498x 0
+#define DRV882x 1
+#define DRV8834 2
+
+#define REBUILDMODE 3
+#define STOREMODE 2
+#define PROGMODE 1
+#define RUNMODE 0
 
 #ifdef abs
 #undef abs
@@ -74,16 +87,14 @@ void motorEnable(byte axis);
 void motorDisable(byte axis);
 void slewMode(byte axis);
 void gotoMode(byte axis);
-extern inline void timerEnable(byte motor);
-extern inline void timerDisable(byte motor);
-void motorStart(byte motor, signed int gotoDeceleration);
-void motorStartRA(signed int gotoDeceleration);
-void motorStartDC(signed int gotoDeceleration);
+void motorStart(byte motor);
+void motorStartRA();
+void motorStartDC();
 void motorStop(byte motor, byte emergency);
 void motorStopRA(byte emergency);
 void motorStopDC(byte emergency);
 void configureTimer();
-void buildModeMapping(byte microsteps, bool driverVersion);
+void buildModeMapping(byte microsteps, byte driverVersion);
 
 
 #ifdef __cplusplus
