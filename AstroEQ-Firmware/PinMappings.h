@@ -3,8 +3,18 @@
 
 //----- User Configurable Pin Definitions for ATMega162 Variants -----
 //Warning: D20 to D27 inclusive are NOT allowed
+
+//GPIO Header:
+                             //VCC (Header Pin 5)
+#define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - Interrupt Capable
+#define gpioPin_1_Define 29  //IO1 (Header Pin 3) [ATMega PE1] - GPIO Pin
+#define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin
+                             //GND (Header Pin 1)
+
+//Status Pins:
 #define statusPin_Define 13 
 
+//Motor Driver Pins:
 #define resetPin_0_Define 15
 #define resetPin_1_Define 14
 
@@ -17,11 +27,6 @@
 #define stepPin_0_Define 5
 #define stepPin_1_Define 30
 
-#define ST4AddPin_0_Define 34
-#define ST4AddPin_1_Define 33
-#define ST4SubPin_0_Define 31
-#define ST4SubPin_1_Define 32
-
 #define modePins0_0_Define 6
 #define modePins1_0_Define 17
 #define modePins2_0_Define 16
@@ -29,13 +34,27 @@
 #define modePins1_1_Define 18
 #define modePins2_1_Define 19
 
+//ST4 Pins:
+#define ST4AddPin_0_Define 34
+#define ST4AddPin_1_Define 33
+#define ST4SubPin_0_Define 31
+#define ST4SubPin_1_Define 32
+
 
 #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
 //---- User Configurable Pin Definitions for ATMegaXXX0 Variants -----
 //Warning: D30 to D37 inclusive are NOT allowed
+
+//GPIO Pins:
+#define gpioPin_0_Define 21  //IO0 [ATMega PD0] - Interrupt Capable
+#define gpioPin_1_Define 22  //IO1 [ATMega PA0] - GPIO Pin
+#define gpioPin_2_Define 23  //IO2 [ATMega PA1] - GPIO Pin
+
+//Status Pins:
 #define statusPin_Define 13
 
+//Motor Driver Pins:
 #define resetPin_0_Define 55 //Analog 1
 #define resetPin_1_Define 54 //Analog 0
 
@@ -48,6 +67,14 @@
 #define stepPin_0_Define 5
 #define stepPin_1_Define 12
 
+#define modePins0_0_Define 15
+#define modePins1_0_Define 16
+#define modePins2_0_Define 17
+#define modePins0_1_Define 20
+#define modePins1_1_Define 19
+#define modePins2_1_Define 18
+
+//ST4 Pins:
 //#define ALTERNATE_ST4 //Uncomment this line to use the alternate mapping for the ST4 port, using A8 to A11 instead of 50 to 53
 
 //You only have a choice between two locations for the ST4 pins as controlled by the above #define.
@@ -64,13 +91,6 @@
 #define ST4SubPin_0_Define 53
 #define ST4SubPin_1_Define 52
 #endif
-
-#define modePins0_0_Define 15
-#define modePins1_0_Define 16
-#define modePins2_0_Define 17
-#define modePins0_1_Define 20
-#define modePins1_1_Define 19
-#define modePins2_1_Define 18
 
 
 
