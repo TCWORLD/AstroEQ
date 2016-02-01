@@ -97,6 +97,21 @@
 
 #if defined(__AVR_ATmega162__)
 
+
+#ifndef USART0_TX_vect
+#define USART0_TX_vect USART0_TXC_vect
+#endif
+#ifndef USART0_RX_vect
+#define USART0_RX_vect USART0_RXC_vect
+#endif
+
+#ifndef USART1_TX_vect
+#define USART1_TX_vect USART1_TXC_vect
+#endif
+#ifndef USART1_RX_vect
+#define USART1_RX_vect USART1_RXC_vect
+#endif
+
 //Pick some registers we are not going use for GPIOR
 #define GPIOR0 TCNT2
 #define GPIOR1 OCR2
