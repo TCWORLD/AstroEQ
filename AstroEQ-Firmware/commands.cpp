@@ -1,4 +1,4 @@
-//command Structures ---------------------------------------------------------
+//Command Structures ---------------------------------------------------------
 //
 // Definition of the commands used by the Synta protocol, and variables in which responses
 // are storedz
@@ -21,34 +21,57 @@
 Commands cmd = {0};
 
 void Commands_init(unsigned long _eVal, byte _gVal){
-  cmd.aVal[RA] = EEPROM_readLong(aVal1_Address); //steps/axis
-  cmd.aVal[DC] = EEPROM_readLong(aVal2_Address); //steps/axis
-  cmd.bVal[RA] = EEPROM_readLong(bVal1_Address); //sidereal rate
-  cmd.bVal[DC] = EEPROM_readLong(bVal2_Address); //sidereal rate
-  cmd.sVal[RA] = EEPROM_readLong(sVal1_Address); //steps/worm rotation
-  cmd.sVal[DC] = EEPROM_readLong(sVal2_Address); //steps/worm rotation
-  cmd.siderealIVal[RA] = EEPROM_readInt(IVal1_Address); //steps/worm rotation
-  cmd.siderealIVal[DC] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
-  cmd.normalGotoSpeed[RA] = EEPROM_readByte(RAGoto_Address); //IVal for normal goto speed
-  cmd.normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address); //IVal for normal goto speed
-  for(byte i = 0;i < 2;i++){
-    cmd.dir[i] = 0;
-    cmd.stepDir[i] = 1; //1-dir*2
-    cmd.stopped[i] = 1;
-    cmd.gotoEn[i] = 0;
-    cmd.FVal[i] = 0;
-    cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
-    cmd.IVal[i] = cmd.siderealIVal[i]; //Recieved Speed will be set by :I command.
-    cmd.GVal[i] = 0; //Mode recieved from :G command
-    cmd.HVal[i] = 0; //Value recieved from :H command
-    cmd.eVal[i] = _eVal; //version number
-    cmd.gVal[i] = _gVal; //High speed scalar
-    cmd.minSpeed[i] = cmd.siderealIVal[i]>>1;//2x sidereal rate. [minspeed is the point at which acceleration curves are enabled]
-    cmd.stopSpeed[i] = cmd.minSpeed[i];
-    cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
-    cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
-    cmd.stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
-  }
+    cmd.aVal[RA] = EEPROM_readLong(aVal1_Address); //steps/axis
+    cmd.aVal[DC] = EEPROM_readLong(aVal2_Address); //steps/axis
+    cmd.bVal[RA] = EEPROM_readLong(bVal1_Address); //sidereal rate
+    cmd.bVal[DC] = EEPROM_readLong(bVal2_Address); //sidereal rate
+    cmd.sVal[RA] = EEPROM_readLong(sVal1_Address); //steps/worm rotation
+    cmd.sVal[DC] = EEPROM_readLong(sVal2_Address); //steps/worm rotation
+    cmd.siderealIVal[RA] = EEPROM_readInt(IVal1_Address); //steps/worm rotation
+    cmd.siderealIVal[DC] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
+    cmd.normalGotoSpeed[RA] = EEPROM_readByte(RAGoto_Address); //IVal for normal goto speed
+    cmd.normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address); //IVal for normal goto speed
+    for(byte i = 0;i < 2;i++){
+        cmd.dir[i] = CMD_FORWARD;
+        cmd.stepDir[i] = 1; //1-dir*2
+        cmd.stopped[i] = CMD_STOPPED;
+        cmd.gotoEn[i] = CMD_DISABLED;
+        cmd.FVal[i] = CMD_DISABLED;
+        cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
+        cmd.IVal[i] = cmd.siderealIVal[i]; //Recieved Speed will be set by :I command.
+        cmd.GVal[i] = 0; //Mode recieved from :G command
+        cmd.HVal[i] = 0; //Value recieved from :H command
+        cmd.eVal[i] = _eVal; //version number
+        cmd.gVal[i] = _gVal; //High speed scalar
+        cmd.minSpeed[i] = cmd.siderealIVal[i]>>1;//2x sidereal rate. [minspeed is the point at which acceleration curves are enabled]
+        cmd.stopSpeed[i] = cmd.minSpeed[i];
+        cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
+        cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
+        cmd.stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
+    }
+    Commands_configureST4Speed(CMD_ST4_DEFAULT);
+}
+
+void Commands_configureST4Speed(byte mode) {
+    if (mode == CMD_ST4_STANDALONE) {
+        //Set the ST4 speeds to highspeed standalone mode (goto speeds)
+        cmd.st4RAIVal[0] = cmd.normalGotoSpeed[RA];
+        cmd.st4RAIVal[1] = cmd.normalGotoSpeed[RA];
+        cmd.st4RAReverse = CMD_REVERSE;
+        cmd.st4DecIVal   = cmd.normalGotoSpeed[DC];
+    } else if (mode == CMD_ST4_STANDALONE) {
+        //Set the ST4 speeds to standalone mode (2x around sidereal speed)
+        cmd.st4RAIVal[0] =(cmd.siderealIVal[RA])/3; //3x speed
+        cmd.st4RAIVal[1] =(cmd.siderealIVal[RA])  ; //-1x speed
+        cmd.st4RAReverse = CMD_REVERSE;
+        cmd.st4DecIVal   =(cmd.siderealIVal[DC])/2; //2x speed
+    } else {
+        //Set the ST4 speeds to normal mode (0.25x around sidereal speed)
+        cmd.st4RAIVal[0] =(cmd.siderealIVal[RA]<<2)/5; //1.25x speed
+        cmd.st4RAIVal[1] =(cmd.siderealIVal[RA]<<2)/3; //0.75x speed
+        cmd.st4RAReverse = CMD_FORWARD;
+        cmd.st4DecIVal   =(cmd.siderealIVal[DC]<<2)  ; //0.25x speed
+    }
 }
 
 const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in order of most frequently used to reduce searching time.
@@ -86,16 +109,16 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                };
 
 char Commands_getLength(char cmd, bool sendRecieve){
-  for(byte i = 0;i < numberOfCommands;i++){
-    if(cmd_commands[i][0] == cmd){
-      if(sendRecieve){
-        return cmd_commands[i][1];
-      } else {
-        return cmd_commands[i][2];
-      }
+    for(byte i = 0;i < numberOfCommands;i++){
+        if(cmd_commands[i][0] == cmd){
+            if(sendRecieve){
+                return cmd_commands[i][1];
+            } else {
+                return cmd_commands[i][2];
+            }
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
 //void Commands::setStepLength(byte target, byte stepLength) {
