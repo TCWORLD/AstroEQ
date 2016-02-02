@@ -484,10 +484,14 @@ int main(void) {
                 setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1   )));
                 setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
                 setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
-                cmd_updateStepDir(RA,1);
-                cmd_updateStepDir(DC,1);
                 motorEnable(RA);
                 motorEnable(DC);
+                cmd_setGVal(RA, 1); //Set both axes to slew mode.
+                cmd_setGVal(DC, 1);
+                cmd_setDir (RA, CMD_FORWARD); //Store the current direction for that axis
+                cmd_setDir (DC, CMD_FORWARD); //Store the current direction for that axis
+                cmd_setIVal(RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
+                readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sideral tracking
             }
 
             //Then parse the stand-alone mode speed
