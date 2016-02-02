@@ -53,7 +53,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
 }
 
 void Commands_configureST4Speed(byte mode) {
-    if (mode == CMD_ST4_STANDALONE) {
+    if (mode == CMD_ST4_HIGHSPEED) {
         //Set the ST4 speeds to highspeed standalone mode (goto speeds)
         cmd.st4RAIVal[0] = cmd.normalGotoSpeed[RA];
         cmd.st4RAIVal[1] = cmd.normalGotoSpeed[RA];
