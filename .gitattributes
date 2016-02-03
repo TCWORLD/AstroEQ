@@ -12,3 +12,7 @@
 *.epf binary
 *.lbr binary
 *.deb binary
+
+# Language detection
+*.h linguist-language=C++
+AstroEQ-PIC-Firmware/* linguist-vendored=false
