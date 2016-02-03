@@ -467,11 +467,10 @@ int main(void) {
 
         } else { //Stand-alone mode
 
-            standaloneMode = true; //We are in standalone mode.
             //See if we need to enable the motors in stand-alone mode
             
-            if(!cmd.FVal[RA] || !cmd.FVal[DC]) {
-                //If the axes aren't energised, then we enable the motors and configure the mount
+            if(!standaloneMode) {
+                //If we have just entered stand-alone mode, then we enable the motors and configure the mount
                 byte oldSREG = SREG; 
                 cli();  //The next bit needs to be atomic
                 cmd_setjVal(RA, 0x800000); //set the current position to the middle
@@ -484,7 +483,11 @@ int main(void) {
                 setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1   )));
                 setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
                 setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
-                motorEnable(RA);
+                
+                highspeedMode = false; //Assume we are not in highspeed mode at the moment.
+                Commands_configureST4Speed(CMD_ST4_STANDALONE); //Change the ST4 speeds
+                
+                motorEnable(RA); //Ensure the motors are enabled
                 motorEnable(DC);
                 cmd_setGVal(RA, 1); //Set both axes to slew mode.
                 cmd_setGVal(DC, 1);
@@ -492,8 +495,10 @@ int main(void) {
                 cmd_setDir (DC, CMD_FORWARD); //Store the current direction for that axis
                 cmd_setIVal(RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
                 readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sideral tracking
-            }
 
+                standaloneMode = true; //We are in standalone mode.
+            }
+            
             //Then parse the stand-alone mode speed
             if (getPinValue(standalonePin[1])) {
                 //If in normal speed mode
