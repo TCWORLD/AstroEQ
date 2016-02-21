@@ -398,14 +398,14 @@ int main(void) {
     setPinValue(resetPin[DC],HIGH);
     
     //ST4 pins to input with pullup
-    setPinDir  (st4Pin[RA][0],OUTPUT);
-    setPinValue(st4Pin[RA][0],HIGH  );
-    setPinDir  (st4Pin[RA][1],OUTPUT);
-    setPinValue(st4Pin[RA][1],HIGH  );
-    setPinDir  (st4Pin[DC][0],OUTPUT);
-    setPinValue(st4Pin[DC][0],HIGH  );
-    setPinDir  (st4Pin[DC][1],OUTPUT);
-    setPinValue(st4Pin[DC][1],HIGH  );
+    setPinDir  (st4Pin[RA][0],INPUT);
+    setPinValue(st4Pin[RA][0],HIGH );
+    setPinDir  (st4Pin[RA][1],INPUT);
+    setPinValue(st4Pin[RA][1],HIGH );
+    setPinDir  (st4Pin[DC][0],INPUT);
+    setPinValue(st4Pin[DC][0],HIGH );
+    setPinDir  (st4Pin[DC][1],INPUT);
+    setPinValue(st4Pin[DC][1],HIGH );
         
     //Initialise the Serial port:
     Serial_initialise(9600); //SyncScan runs at 9600Baud, use a serial port of your choice as defined in SerialLink.h
@@ -437,7 +437,7 @@ int main(void) {
     bool highspeedMode = false;
     for(;;){ //Run loop
 
-        if ((getPinValue(standalonePin[0]) && getPinValue(standalonePin[1])) || progMode) { //EQMOD Mode or Programming Mode
+        if (getPinValue(standalonePin[0]) || progMode) { //EQMOD Mode or Programming Mode
 
             if (standaloneMode) {
                 //If we have just moved from standalone to EQMOD mode,
