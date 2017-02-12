@@ -46,12 +46,10 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
         dataPacket[0] = startOutChar;
 
         if (replyLength == 2) {
-            Nibbler nibble = {
-                responseData            };
+            Nibbler nibble = { responseData };
             private_byteToHex(dataPacket+2,dataPacket+1,nibble);
         } else if (replyLength == 3) {
-            DoubleNibbler nibble = {
-                responseData            };
+            DoubleNibbler nibble = { responseData };
             nibbleToHex(dataPacket+3, nibble.low);
             nibbleToHex(dataPacket+2, nibble.mid);
             nibbleToHex(dataPacket+1, nibble.high);
@@ -73,19 +71,19 @@ bool synta_validateCommand(byte len, char* decoded){
     _command = commandString[0]; //first byte is command
     _axis = commandString[1] - 49; //second byte is axis
     if(_axis > 1){
-        return 0; //incorrect axis
+        return false; //incorrect axis
     }
     char requiredLength = Commands_getLength(_command,1); //get the required length of this command
     len -= 3; //Remove the command and axis bytes, aswell as the end char;
     if(requiredLength != len){ //If invalid command, or not required length
-        return 0;
+        return false;
     }
     byte i;
     for(i = 0;i < len;i++){
         decoded[i] = commandString[i + 2];
     }
     decoded[i] = 0; //Null
-    return 1;
+    return true;
 }
 
 char synta_recieveCommand(char* dataPacket, char character){
@@ -103,7 +101,7 @@ char synta_recieveCommand(char* dataPacket, char character){
         if(character == endChar){
             if(synta_validateCommand(commandIndex, dataPacket)){
                 validPacket = 0;
-                return 1; //Successful decode (dataPacket contains decoded packet)
+                return _command; //Successful decode (dataPacket contains decoded packet, return value is the current command)
             } else {
                 goto error; //Decode Failed (dataPacket contains error message)
             }

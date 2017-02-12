@@ -44,12 +44,12 @@ typedef struct{
     bool FVal[2];
     bool gotoEn[2];
     bool stopped[2];
+    bool highSpeedMode[2];
     unsigned long eVal[2]; //_eVal: Version number
     unsigned long aVal[2]; //_aVal: Steps per axis revolution
     unsigned long bVal[2]; //_bVal: Sidereal Rate of axis
     byte gVal[2]; //_gVal: Speed scalar for highspeed slew
     unsigned long sVal[2]; //_sVal: Steps per worm gear revolution
-    byte stepRepeat[2];
     unsigned int st4RAIVal[2]; //_IVal: for RA ST4 movements ({RA+,RA-});
     bool st4RAReverse; //Reverse RA- axis direction if true.
     unsigned int st4DecIVal; //_IVal: for declination ST4 movements
@@ -58,9 +58,10 @@ typedef struct{
     unsigned int minSpeed[2]; //slowest speed allowed
     unsigned int normalGotoSpeed[2]; //IVal for normal goto movement.
     unsigned int stopSpeed[2]; //Speed at which mount should stop. May be lower than minSpeed if doing a very slow IVal.
+    AccelTableStruct accelTable[2][AccelTableLength]; //Acceleration profile now controlled via lookup table. The first element will be used for cmd.minSpeed[]. max repeat=85
 } Commands;
 
-#define numberOfCommands 31
+#define numberOfCommands 36
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);

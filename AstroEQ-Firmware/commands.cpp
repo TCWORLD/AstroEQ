@@ -31,9 +31,12 @@ void Commands_init(unsigned long _eVal, byte _gVal){
     cmd.siderealIVal[DC] = EEPROM_readInt(IVal2_Address); //steps/worm rotation
     cmd.normalGotoSpeed[RA] = EEPROM_readByte(RAGoto_Address); //IVal for normal goto speed
     cmd.normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address); //IVal for normal goto speed
+    EEPROM_readAccelTable(cmd.accelTable[RA],AccelTableLength,AccelTable1_Address); //Load the RA accel/decel table
+    EEPROM_readAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address); //Load the DC accel/decel table
     for(byte i = 0;i < 2;i++){
         cmd.dir[i] = CMD_FORWARD;
         cmd.stepDir[i] = 1; //1-dir*2
+        cmd.highSpeedMode[i] = false;
         cmd.stopped[i] = CMD_STOPPED;
         cmd.gotoEn[i] = CMD_DISABLED;
         cmd.FVal[i] = CMD_DISABLED;
@@ -43,11 +46,10 @@ void Commands_init(unsigned long _eVal, byte _gVal){
         cmd.HVal[i] = 0; //Value recieved from :H command
         cmd.eVal[i] = _eVal; //version number
         cmd.gVal[i] = _gVal; //High speed scalar
-        cmd.minSpeed[i] = cmd.siderealIVal[i]>>1;//2x sidereal rate. [minspeed is the point at which acceleration curves are enabled]
+        cmd.minSpeed[i] = cmd.accelTable[i][0].speed;//2x sidereal rate. [minspeed is the point at which acceleration curves are enabled]
         cmd.stopSpeed[i] = cmd.minSpeed[i];
         cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
         cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
-        cmd.stepRepeat[i] = 0;//siderealIVal[i]/75;//((aVal[i] < 5600000UL) ? ((aVal[i] < 2800000UL) ? 16 : 8) : 4);
     }
     Commands_configureST4Speed(CMD_ST4_DEFAULT);
 }
@@ -104,6 +106,11 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'Z', 2, 0},
                                                  {'z', 0, 2},
                                                  {'O', 1, 0},
+                                                 {'Q', 2, 0},
+                                                 {'q', 0, 2},
+                                                 {'X', 6, 0},
+                                                 {'x', 0, 6},
+                                                 {'Y', 2, 0},
                                                  {'T', 0, 0},
                                                  {'R', 0, 0}
                                                };
