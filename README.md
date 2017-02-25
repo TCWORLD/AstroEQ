@@ -21,9 +21,13 @@ The current software and hardware versions are as follows:
 
  * Config Utility Version: **3.6**
  * Software Verison: **8.0**
- * Hardware Version: **4.6**
+ * Hardware Version: **4.6/4.7 - see note below**
 
 The AstroEQ configuration utility and precompiled firmware can be downloaded from the AstroEQ website at: https://astroeq.co.uk/download
+
+I recommend people use the V4.6 design for DIY controllers. The blank PCBs I sell through the AstroEQ website will remain the V4.6 version.
+
+The new V4.7 hardware design is functionality equivalent to the V4.6 design, but uses a mixture of PTH and SMD components to make it compatible with machine assembly. I will be having future batches of AstroEQ controllers professionally assembled.
 
 ### Making your own AstroEQ 
 
