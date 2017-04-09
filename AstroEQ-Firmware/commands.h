@@ -34,34 +34,37 @@
 
 typedef struct{        
     //class variables
-    unsigned long jVal[2]; //_jVal: Current position
-    unsigned int IVal[2]; //_IVal: speed to move if in slew mode
-    unsigned int motorSpeed[2]; //speed at which moving. Accelerates to IVal.
-    byte GVal[2]; //_GVal: slew/goto mode
-    unsigned long HVal[2]; //_HVal: steps to move if in goto mode
-    volatile char stepDir[2]; 
-    bool dir[2];
-    bool FVal[2];
-    bool gotoEn[2];
-    bool stopped[2];
-    bool highSpeedMode[2];
-    unsigned long eVal[2]; //_eVal: Version number
-    unsigned long aVal[2]; //_aVal: Steps per axis revolution
-    unsigned long bVal[2]; //_bVal: Sidereal Rate of axis
-    byte gVal[2]; //_gVal: Speed scalar for highspeed slew
-    unsigned long sVal[2]; //_sVal: Steps per worm gear revolution
-    unsigned int st4RAIVal[2]; //_IVal: for RA ST4 movements ({RA+,RA-});
-    bool st4RAReverse; //Reverse RA- axis direction if true.
-    unsigned int st4DecIVal; //_IVal: for declination ST4 movements
-    unsigned int siderealIVal[2]; //_IVal: at sidereal rate
-    unsigned int currentIVal[2]; //this will be upldated to match the requested IVal once the motors are stopped.
-    unsigned int minSpeed[2]; //slowest speed allowed
-    unsigned int normalGotoSpeed[2]; //IVal for normal goto movement.
-    unsigned int stopSpeed[2]; //Speed at which mount should stop. May be lower than minSpeed if doing a very slow IVal.
-    AccelTableStruct accelTable[2][AccelTableLength]; //Acceleration profile now controlled via lookup table. The first element will be used for cmd.minSpeed[]. max repeat=85
+    unsigned long    jVal           [2]; //_jVal: Current position
+    unsigned int     IVal           [2]; //_IVal: speed to move if in slew mode
+    unsigned int     motorSpeed     [2]; //speed at which moving. Accelerates to IVal.
+    byte             GVal           [2]; //_GVal: slew/goto mode
+    unsigned long    HVal           [2]; //_HVal: steps to move if in goto mode
+    volatile char    stepDir        [2]; 
+    bool             dir            [2];
+    bool             FVal           [2];
+    bool             gotoEn         [2];
+    bool             stopped        [2];
+    bool             highSpeedMode  [2];
+    unsigned long    eVal           [2]; //_eVal: Version number
+    unsigned long    aVal           [2]; //_aVal: Steps per axis revolution
+    unsigned long    bVal           [2]; //_bVal: Sidereal Rate of axis
+    byte             gVal           [2]; //_gVal: Speed scalar for highspeed slew
+    unsigned long    sVal           [2]; //_sVal: Steps per worm gear revolution
+    byte             st4Mode;            //Current ST-4 mode
+    byte             st4SpeedFactor;     //Multiplication factor to get st4 speed. min = 1 = 0.05x, max = 19 = 0.95x.
+    unsigned int     st4RAIVal      [2]; //_IVal: for RA ST4 movements ({RA+,RA-});
+    bool             st4RAReverse;       //Reverse RA- axis direction if true.
+    unsigned int     st4DecIVal;         //_IVal: for declination ST4 movements
+    unsigned int     st4DecBacklash;     //Number of steps to perform on ST-4 direction change ---- Not yet implemented.
+    unsigned int     siderealIVal   [2]; //_IVal: at sidereal rate
+    unsigned int     currentIVal    [2]; //this will be upldated to match the requested IVal once the motors are stopped.
+    unsigned int     minSpeed       [2]; //slowest speed allowed
+    unsigned int     normalGotoSpeed[2]; //IVal for normal goto movement.
+    unsigned int     stopSpeed      [2]; //Speed at which mount should stop. May be lower than minSpeed if doing a very slow IVal.
+    AccelTableStruct accelTable     [2][AccelTableLength]; //Acceleration profile now controlled via lookup table. The first element will be used for cmd.minSpeed[]. max repeat=85
 } Commands;
 
-#define numberOfCommands 36
+#define numberOfCommands 37
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);
@@ -73,11 +76,11 @@ extern Commands cmd;
 
 //Methods for accessing command variables
 inline void cmd_setDir(byte target, bool _dir){ //Set Method
-    cmd.dir[target] = _dir; //set direction
+    cmd.dir[target] = _dir ? CMD_REVERSE : CMD_FORWARD; //set direction
 }
 
 inline void cmd_updateStepDir(byte target, byte stepSize){
-    if(cmd.dir[target]){
+    if(cmd.dir[target] == CMD_REVERSE){
         cmd.stepDir[target] = -stepSize; //set step direction
     } else {
         cmd.stepDir[target] = stepSize; //set step direction
@@ -144,5 +147,14 @@ inline void cmd_setHVal(byte target, unsigned long _HVal){ //Set Method
 inline void cmd_setGVal(byte target, byte _GVal){ //Set Method
     cmd.GVal[target] = _GVal;
 }
+
+inline void cmd_setst4SpeedFactor(byte _factor){ //Set Method
+    cmd.st4SpeedFactor = _factor;
+}
+
+inline void cmd_setst4DecBacklash(unsigned int _backlash){ //Set Method
+    cmd.st4DecBacklash = _backlash;
+}
+
 
 #endif //__COMMANDS_H__

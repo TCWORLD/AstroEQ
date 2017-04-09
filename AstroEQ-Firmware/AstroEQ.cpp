@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Verison: 7.5.1
+  Current Verison: 8.0.2
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -42,9 +42,7 @@ void wdt_init(void)
  * Defines
  */
 //Define the version number
-#define ASTROEQ_VER 751
-//Define the welcome string for the advanced handcontroller. This is the version number as hex.
-#define SPI_WELCOME_STRING "=4B\r"
+#define ASTROEQ_VER 802
 
 /*
  * Global Variables
@@ -56,6 +54,8 @@ bool encodeDirection[2];
 byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
 byte microstepConf;
 byte driverVersion;
+bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
+bool syntaMode = true; //And synta processing is enabled.
 
 #define timerCountRate 8000000
 
@@ -260,21 +260,21 @@ void systemInitialiser(){
 
     //Standalone Speed/IRQ pin to input no-pullup
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
-    setPinValue(standalonePin[  STANDALONE_IRQ],   LOW);
+    setPinValue(standalonePin[  STANDALONE_IRQ],  HIGH); //enable pull-up to pull IRQ high.
 
     //Standalone Pullup/Pulldown pin to output high
     setPinDir  (standalonePin[ STANDALONE_PULL],OUTPUT);
     setPinValue(standalonePin[ STANDALONE_PULL],  HIGH);
     
     //ST4 pins to input with pullup
-    setPinDir  (st4Pin[RA][ST4P],INPUT);
-    setPinValue(st4Pin[RA][ST4P],HIGH );
-    setPinDir  (st4Pin[RA][ST4N],INPUT);
-    setPinValue(st4Pin[RA][ST4N],HIGH );
-    setPinDir  (st4Pin[DC][ST4P],INPUT);
-    setPinValue(st4Pin[DC][ST4P],HIGH );
-    setPinDir  (st4Pin[DC][ST4N],INPUT);
-    setPinValue(st4Pin[DC][ST4N],HIGH );
+    setPinDir  (st4Pins[RA][ST4P],INPUT);
+    setPinValue(st4Pins[RA][ST4P],HIGH );
+    setPinDir  (st4Pins[RA][ST4N],INPUT);
+    setPinValue(st4Pins[RA][ST4N],HIGH );
+    setPinDir  (st4Pins[DC][ST4P],INPUT);
+    setPinValue(st4Pins[DC][ST4P],HIGH );
+    setPinDir  (st4Pins[DC][ST4N],INPUT);
+    setPinValue(st4Pins[DC][ST4N],HIGH );
     
     //Reset pins to output
     setPinDir  (resetPin[RA],OUTPUT);
@@ -340,22 +340,6 @@ void systemInitialiser(){
     //Initialise the Serial port:
     Serial_initialise(BAUD_RATE); //SyncScan runs at 9600Baud, use a serial port of your choice as defined in SerialLink.h
       
-    //Configure interrupt for ST4 connection
-#if defined(__AVR_ATmega162__)
-    //For ATMega162:
-    PCICR &= ~_BV(PCIE1); //disable PCInt[8..15] vector
-    PCICR |=  _BV(PCIE0); //enable  PCInt[0..7]  vector
-#elif defined(ALTERNATE_ST4)
-    //For ATMega1280/2560 with Alterante ST4 pins
-    PCICR |=  _BV(PCIE2); //enable  PCInt[16..23] vector
-    PCICR &= ~_BV(PCIE1); //disable PCInt[8..15]  vector
-    PCICR &= ~_BV(PCIE0); //disable PCInt[0..7]   vector
-#else
-    //For ATMega1280/2560 with Standard ST4 pins
-    PCICR &= ~_BV(PCIE2); //disable PCInt[16..23] vector
-    PCICR &= ~_BV(PCIE1); //disable PCInt[8..15]  vector
-    PCICR |=  _BV(PCIE0); //enable  PCInt[0..7]   vector
-#endif
 }
 
 
@@ -391,6 +375,9 @@ bool checkEEPROM(){
     if(cmd.normalGotoSpeed[DC] == 0){
         return false; //invalid value.
     }
+    if((cmd.st4SpeedFactor < 1) || (cmd.st4SpeedFactor > 19)){
+        return false; //invalid value
+    }
     return true;
 }
 
@@ -415,6 +402,8 @@ void storeEEPROM(){
     EEPROM_writeInt(cmd.siderealIVal[DC],IVal2_Address);
     EEPROM_writeByte(!disableGearChange, GearEnable_Address);
     EEPROM_writeByte(!allowAdvancedHCDetection, AdvHCEnable_Address);
+    EEPROM_writeInt(cmd.st4DecBacklash, DecBacklash_Address);
+    EEPROM_writeByte(cmd.st4SpeedFactor, SpeedFactor_Address);
     EEPROM_writeAccelTable(cmd.accelTable[RA],AccelTableLength,AccelTable1_Address);
     EEPROM_writeAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address);
 }
@@ -432,35 +421,30 @@ void storeEEPROM(){
  */
 
 byte standaloneModeTest() {
-    if (allowAdvancedHCDetection) {
-        //Don't allow advanced detection if user has disabled (i.e. no detection hardware implemented).
-        setPinValue(standalonePin[STANDALONE_IRQ],HIGH); //enable pull-up to pull IRQ high.
-    } else {
-        //We need to test what sort of controller is attached.
-        //The IRQ pin on the ST4 connector is used to determine this. It has the following
-        //states:
-        //   FLOAT      | No handcontroller
-        //   DRIVE LOW  | Basic handcontroller
-        //   DRIVE HIGH | Advanced handcontroller
-        //We can test for each of these states by virtue of having a controllable pull up/down
-        //resistor on that pin.
-        //If we pull down and the pin stays high, then pin must be driven high (DRIVE HIGH)
-        //If we pull up and the pin stays low, then pin must be driven low (DRIVE LOW)
-        //Otherwise if pin follows us then it must be floating.
-    
-        //To start we check for an advanced controller
-        setPinValue(standalonePin[STANDALONE_PULL],LOW); //Pull low
-        nop(); // Input synchroniser takes a couple of cycles
-        nop();
-        nop();
-        nop();
-        if(getPinValue(standalonePin[STANDALONE_IRQ])) {
-            //Must be an advanced controller as pin stayed high.
-            return ADVANCED_HC_MODE;
-        }
-        setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Convert to external pull-up of IRQ
+    //We need to test what sort of controller is attached.
+    //The IRQ pin on the ST4 connector is used to determine this. It has the following
+    //states:
+    //   FLOAT      | No handcontroller
+    //   DRIVE LOW  | Basic handcontroller
+    //   DRIVE HIGH | Advanced handcontroller
+    //We can test for each of these states by virtue of having a controllable pull up/down
+    //resistor on that pin.
+    //If we pull down and the pin stays high, then pin must be driven high (DRIVE HIGH)
+    //If we pull up and the pin stays low, then pin must be driven low (DRIVE LOW)
+    //Otherwise if pin follows us then it must be floating.
+
+    //To start we check for an advanced controller
+    setPinValue(standalonePin[STANDALONE_PULL],LOW); //Pull low
+    nop(); // Input synchroniser takes a couple of cycles
+    nop();
+    nop();
+    nop();
+    if(allowAdvancedHCDetection && getPinValue(standalonePin[STANDALONE_IRQ])) {
+        //Note: Must be an advanced controller as pin stayed high and we are allowing HC detection. (If HC detection is disallowed its because we have no external pull down available)
+        return ADVANCED_HC_MODE;
     }
     //Otherwise we check for a basic controller
+    setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Convert to external pull-up of IRQ
     nop(); // Input synchroniser takes a couple of cycles
     nop();
     nop();
@@ -476,6 +460,47 @@ byte standaloneModeTest() {
 }
 
 
+byte checkBasicHCSpeed() {
+    //Here we check what the speed is for the basic hand controller.
+    //
+    //By using both external and internal pull-ups, the following three speeds are possible:
+    // +-----------+-----+-----+
+    // |  Pull-Up: | Ext | Int |
+    // +-----------+-----+-----+
+    // | ST-4 Rate |  0  |  0  |
+    // |   2x Rate |  1  |  0  |
+    // | GoTo Rate |  1  |  1  |
+    // +-----------+-----+-----+
+    //
+    //Note: if we don't have an external pull-up resistor, this function will return either ST-4 Rate (0,0) or GoTo Rate (1,1)
+    //
+    byte speed;
+    if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
+        //Must be a ST-4 rate as IRQ pin is low when external pull-up enabled
+        speed = CMD_ST4_DEFAULT;
+    } else {
+        //Otherwise check which high-speed mode it is
+        setPinDir  (standalonePin[STANDALONE_PULL],INPUT); //Disable external resistor by switching to input
+        setPinValue(standalonePin[STANDALONE_PULL],LOW);   //with no internal pull-up (we are using the IRQ pin internal pull-up)
+        nop(); // Input synchroniser takes a couple of cycles
+        nop();
+        nop();
+        nop();
+        
+        if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
+            //Must be a 2x rate as IRQ pin goes low when external pull-up disabled
+            speed = CMD_ST4_STANDALONE;
+        } else {
+            speed = CMD_ST4_HIGHSPEED;
+        }
+    }
+    setPinDir  (standalonePin[STANDALONE_PULL],OUTPUT); //Ensure we leave an external pull-up of IRQ.
+    setPinValue(standalonePin[STANDALONE_PULL],HIGH);
+    //And return the new speed
+    return speed;
+}
+
+
 
 /*
  * AstroEQ firmware main() function
@@ -487,10 +512,9 @@ int main(void) {
     //Initialise global variables from the EEPROM
     systemInitialiser();
     
-    bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
-    bool syntaMode = true; //And synta processing is enabled.
-    bool hcFastSpeed = false; //Also not in basic hand controller fast speed mode.
     bool mcuReset = false; //Not resetting the MCU after programming command
+    
+    bool isST4Move[2] = {false, false};
     
     unsigned int loopCount = 0;
     char recievedChar = 0; //last character we received
@@ -528,22 +552,13 @@ int main(void) {
                     //This means we must have an advanced controller actively pulling the line high
                     syntaMode = true; 
                     
-                    //Disable interrupts for ST4 connection as this is no longer being used for ST4
-    #if defined(__AVR_ATmega162__)
-                    //For ATMega162:
-                    PCMSK0 =  0x00; //PCINT[4..7]
-    #elif defined(ALTERNATE_ST4)
-                    //For ATMega1280/2560 with Alterante ST4 pins
-                    PCMSK2 =  0x00; //PCINT[16..23]
-    #else
-                    //For ATMega1280/2560 with Standard ST4 pins
-                    PCMSK0 =  0x00; //PCINT[0..3]
-    #endif
                     //Initialise SPI for advanced comms
                     SPI_initialise();
     
                     //And send welcome message
-                    Serial_writeStr(SPI_WELCOME_STRING); //Send version number
+                    char welcome[3];
+                    synta_assembleResponse(welcome, '\0', 0 );
+                    Serial_writeStr(welcome); //Send error packet to trigger controller state machine.
                     
                 } else {
                     //Pin either is being pulled low by us or by something else
@@ -551,9 +566,12 @@ int main(void) {
                     //Even if we don't we would default to basic mode.
                     syntaMode = false;
                     
+                    //High speed not supported in Basic HC
+                    canJumpToHighspeed = false;
+                    
                     //For basic mode we need a pull up resistor on the speed/irq line
                     setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Pull high
-    
+                    
                     //And then we need to initialise the controller manually so the basic controller can help us move
                     byte state = modeState[defaultSpeedState]; //Extract the default mode - for basic HC we won't change from default mode.
                     setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0   )));
@@ -563,24 +581,30 @@ int main(void) {
                     setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
                     setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
                     
-                    hcFastSpeed = false; //Assume we are not in highspeed mode at the moment.
-                    Commands_configureST4Speed(CMD_ST4_STANDALONE); //Change the ST4 speeds
+                    Commands_configureST4Speed(CMD_ST4_DEFAULT); //Change the ST4 speeds to default
                     
                     motorEnable(RA); //Ensure the motors are enabled
                     motorEnable(DC);
-                    cmd_setGVal(RA, 1); //Set both axes to slew mode.
-                    cmd_setGVal(DC, 1);
-                    cmd_setDir (RA, CMD_FORWARD); //Store the current direction for that axis
-                    cmd_setDir (DC, CMD_FORWARD); //Store the current direction for that axis
-                    cmd_setIVal(RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
+                    
+                    cmd_setGVal      (RA, 1); //Set both axes to slew mode.
+                    cmd_setGVal      (DC, 1);
+                    cmd_setDir       (RA, CMD_FORWARD); //Store the current direction for that axis
+                    cmd_updateStepDir(RA ,1);
+                    cmd_setDir       (DC, CMD_FORWARD); //Store the current direction for that axis
+                    cmd_updateStepDir(RA,1);
+                    cmd_setIVal      (RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
+                    
                     readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sideral tracking
                 }
             }
             //If we end up in standalone mode, we don't exit until a reset.
         }
-        
-        if (syntaMode) { //EQMOD or Advanced Hand Controller Synta Mode
-            
+
+        /////////////
+        if (syntaMode) {
+        //
+        // EQMOD or Advanced Hand Controller Synta Mode
+        //
             //Check if we need to run the command parser
             
             if ((decoded == -2) || Serial_available()) { //is there a byte in buffer or we still need to process the previous byte?
@@ -602,114 +626,241 @@ int main(void) {
                 } //otherwise command not yet fully recieved, so wait for next byte
                 
                 if (mcuReset) {
-                    exit(0); //Special case. We were asked to reset the MCU. The WDT has been set to reset.
+                    //Special case. We were asked to reset the MCU.
+                    Serial_flush(); //Flush out last response.
+                    wdt_enable(WDTO_120MS); //WDT has been set to reset MCU.
+                    exit(0); //Done
                 }
             }
-        } else { //ST4 Basic Hand Controller Mode
-            
-            //Parse the stand-alone mode speed
-
             if (loopCount == 0) {
-                togglePin(statusPin); //Toggle status pin at roughly constant rate in basic mode as indicator
+                setPinValue(statusPin, 0);
             }
             
-            if (getPinValue(standalonePin[1])) {
-                //If in normal speed mode
-                if (hcFastSpeed) {
-                    //But we have just changed from highspeed
-                    Commands_configureST4Speed(CMD_ST4_STANDALONE); //Change the ST4 speeds
-                    hcFastSpeed = false;
-                }
-            } else {
-                //If in high speed mode
-                if (!hcFastSpeed) {
-                    //But we have just changed from normal speed
-                    Commands_configureST4Speed(CMD_ST4_HIGHSPEED); //Change the ST4 speeds
-                    hcFastSpeed = true;
+            //
+            //ST4 button handling
+            //
+            if (!standaloneMode && ((loopCount & 0xFF) == 0)){
+                //We only check the ST-4 buttons in EQMOD mode when not doing Go-To, and only every so often - this adds a little bit of debouncing time.
+                {//Start RA
+                    //In Synta mode, we only allow the ST-4 port to move forward, and only if EQMOD has configured us previously to be in tracking mode
+                    if ((cmd.dir[RA] == CMD_FORWARD) && (readyToGo[RA] == 2)) {
+                        //Determine which ST4 pin if any
+                        char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                        //Update target speed.
+                        if (st4Pin != ST4O) {
+                            //If RA+/- pressed:
+                            cmd_setIVal(RA,cmd.st4RAIVal[st4Pin]);
+                            motorStartRA();
+                            isST4Move[RA] = true; //Now doing ST4 movement
+                        }
+                        else if (isST4Move[RA]) { 
+                            //Only return to sidereal speed if we are in an ST4 move.
+                            cmd_setIVal(RA,cmd.siderealIVal[RA]);
+                            motorStartRA();
+                            isST4Move[RA] = false; //No longer ST4 movement
+                        }
+                    }
+                }//End RA
+                
+                if (!cmd.gotoEn[DC]) {//Start DEC
+                    //Determine which if any ST4 Pin
+                    char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                    //Determine the new direction
+                    byte dir = CMD_FORWARD;
+                    if (st4Pin == ST4N) {
+                        //If we need to be going in reverse, switch direction
+                        dir = CMD_REVERSE;
+                    }
+                    if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir)) {
+                        //If we are currently moving in the wrong direction
+                        motorStopDC(false); //Stop the Dec motor
+                        readyToGo[DC]=0;    //No longer ready to go as we have now deleted any pre-running EQMOD movement.
+                    } else {
+                        //Otherwise we are now free to change to the new required speed.
+                        if (st4Pin != ST4O) {
+                            //If an ST4 Dec pin is pressed
+                            cmd_setIVal(DC,cmd.st4DecIVal);
+                            cmd_setDir (DC,dir);
+                            cmd_updateStepDir(DC,1);
+                            motorStartDC(); //If the motor is currently stopped at this point, this will automatically start them.
+                            isST4Move[DC] = true; //Now doing ST4 movement
+                        } else if (isST4Move[DC]) {
+                            //Otherwise stop th DEC motor
+                            motorStopDC(false);
+                            isST4Move[DC] = false; //No longer ST4 movement
+                        }
+                    }
+                }//End DEC
+            }
+            
+            //Check both axes - loop unravelled for speed efficiency - lots of Flash available.
+            if(readyToGo[RA]==1){
+                //If we are ready to begin a movement which requires the motors to be reconfigured
+                if(cmd.stopped[RA] == CMD_STOPPED){
+                    //Once the motor is stopped, we can accelerate to target speed.
+                    signed char GVal = cmd.GVal[RA];
+                    if (canJumpToHighspeed){
+                        //If we are allowed to enable high speed, see if we need to
+                        byte state;
+                        if ((GVal == 1) || (GVal == 2)) {
+                            //If a low speed mode command
+                            state = modeState[SPEEDNORM]; //Select the normal speed mode
+                            cmd_updateStepDir(RA,1);
+                            cmd.highSpeedMode[RA] = false;
+                        } else {
+                            state = modeState[SPEEDFAST]; //Select the high speed mode
+                            cmd_updateStepDir(RA,cmd.gVal[RA]);
+                            cmd.highSpeedMode[RA] = true;
+                        }
+                        setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0)));
+                        setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1)));
+                        setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2)));
+                    } else {
+                        //Otherwise we never need to change the speed
+                        cmd_updateStepDir(RA,1); //Just move along at one step per step
+                        cmd.highSpeedMode[RA] = false;
+                    }
+                    if(GVal & 1){
+                        //This is the funtion that enables a slew type move.
+                        slewMode(RA); //Slew type
+                        readyToGo[RA] = 2;
+                    } else {
+                        //This is the function for goto mode. You may need to customise it for a different motor driver
+                        gotoMode(RA); //Goto Mode
+                        readyToGo[RA] = 0;
+                    }
+                } //Otherwise don't start the next movement until we have stopped.
+            }
+            
+            if(readyToGo[DC]==1){
+                //If we are ready to begin a movement which requires the motors to be reconfigured
+                if(cmd.stopped[DC] == CMD_STOPPED){
+                    //Once the motor is stopped, we can accelerate to target speed.
+                    signed char GVal = cmd.GVal[DC];
+                    if (canJumpToHighspeed){
+                        //If we are allowed to enable high speed, see if we need to
+                        byte state;
+                        if ((GVal == 1) || (GVal == 2)) {
+                            //If a low speed mode command
+                            state = modeState[SPEEDNORM]; //Select the normal speed mode
+                            cmd_updateStepDir(DC,1);
+                            cmd.highSpeedMode[DC] = false;
+                        } else {
+                            state = modeState[SPEEDFAST]; //Select the high speed mode
+                            cmd_updateStepDir(DC,cmd.gVal[DC]);
+                            cmd.highSpeedMode[DC] = true;
+                        }
+                        setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0)));
+                        setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1)));
+                        setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2)));
+                    } else {
+                        //Otherwise we never need to change the speed
+                        cmd_updateStepDir(DC,1); //Just move along at one step per step
+                        cmd.highSpeedMode[DC] = false;
+                    }
+                    if(GVal & 1){
+                        //This is the funtion that enables a slew type move.
+                        slewMode(DC); //Slew type
+                        readyToGo[DC] = 2; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
+                    } else {
+                        //This is the function for goto mode.
+                        gotoMode(DC); //Goto Mode
+                        readyToGo[DC] = 0; //We are now in a mode where no further changes can be made to the motor (apart from requesting a stop) until the go-to movement is done.
+                    }
+                } //Otherwise don't start the next movement until we have stopped.
+            }
+            
+        //////////
+        } else {
+        //
+        // ST4 Basic Hand Controller Mode
+        //
+            if (loopCount == 0) {
+                //we run these checks every so often, not all the time.
+                
+                //Update status LED
+                togglePin(statusPin); //Toggle status pin at roughly constant rate in basic mode as indicator
+                
+                //Check the speed
+                byte newBasicHCSpeed = checkBasicHCSpeed();
+                if (newBasicHCSpeed != cmd.st4Mode) {
+                    //Only update speed if changed.
+                    Commands_configureST4Speed(newBasicHCSpeed); //Change the ST4 speeds
                 }
             }
-        }
-    
-    
-        //Check both axes - loop unravelled for speed efficiency - lots of Flash available.
-        if(readyToGo[RA]==1){
-            //If we are ready to begin a movement which requires the motors to be reconfigured
-            if((cmd.stopped[RA])){
-                //Once the motor is stopped, we can accelerate to target speed.
-                signed char GVal = cmd.GVal[RA];
-                if (canJumpToHighspeed){
-                    //If we are allowed to enable high speed, see if we need to
-                    byte state;
-                    if ((GVal == 1) || (GVal == 2)) {
-                        //If a low speed mode command
-                        state = modeState[SPEEDNORM]; //Select the normal speed mode
+            
+            //
+            //NESW button handling - uses ST4 pins
+            //
+            if ((loopCount & 0xFF) == 0){
+                //We only check the buttons every so often - this adds a little bit of debouncing time.
+                {//Start RA
+                    //Determine which if any ST4 Pin
+                    char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
+                    //Determine the new direction
+                    byte dir = CMD_FORWARD;
+                    if ((st4Pin == ST4N) && (cmd.st4RAReverse == CMD_REVERSE)) {
+                        //If we need to be going in reverse, switch direction
+                        dir = CMD_REVERSE;
+                    }
+                    byte oldSREG = SREG;
+                    cli(); //We are playing with motor ISR values, so ensure we are atomic.
+                    if ((cmd.stopped[RA] != CMD_STOPPED) && (cmd.dir[RA] != dir) && (currentMotorSpeed(RA) < cmd.minSpeed[RA])) {
+                        //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
+                        motorStopRA(false);
+                    } else {
+                        //Otherwise we are now free to change to the new required speed
+                        // - If no RA button is pressed, go at sidereal rate
+                        // - Otherwise go at rate corresponding with the pressed button
+                        cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.siderealIVal[RA] : cmd.st4RAIVal[st4Pin]);
+                        cmd_setDir(RA,dir);
                         cmd_updateStepDir(RA,1);
-                        cmd.highSpeedMode[RA] = false;
-                    } else {
-                        state = modeState[SPEEDFAST]; //Select the high speed mode
-                        cmd_updateStepDir(RA,cmd.gVal[RA]);
-                        cmd.highSpeedMode[RA] = true;
+                        if ((st4Pin == ST4O) && (cmd.st4Mode == CMD_ST4_HIGHSPEED)) {
+                            motorStopRA(false); //If no buttons pressed and in high speed mode, we stop entirely rather than going to tracking
+                                                //This ensures that the motors stop if the handcontroller is subsequently unplugged.
+                        } else {
+                            motorStartRA(); //If the motor is currently stopped at this point, this will automatically start them.
+                        }
                     }
-                    setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0)));
-                    setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1)));
-                    setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2)));
-                } else {
-                    //Otherwise we never need to change the speed
-                    cmd_updateStepDir(RA,1); //Just move along at one step per step
-                    cmd.highSpeedMode[RA] = false;
-                }
-                if(GVal & 1){
-                    //This is the funtion that enables a slew type move.
-                    slewMode(RA); //Slew type
-                    readyToGo[RA] = 2;
-                } else {
-                    //This is the function for goto mode. You may need to customise it for a different motor driver
-                    gotoMode(RA); //Goto Mode
-                    readyToGo[RA] = 0;
-                }
-            } //Otherwise don't start the next movement until we have stopped.
-        }
-        if(readyToGo[DC]==1){
-            //If we are ready to begin a movement which requires the motors to be reconfigured
-            if((cmd.stopped[DC])){
-                //Once the motor is stopped, we can accelerate to target speed.
-                signed char GVal = cmd.GVal[DC];
-                if (canJumpToHighspeed){
-                    //If we are allowed to enable high speed, see if we need to
-                    byte state;
-                    if ((GVal == 1) || (GVal == 2)) {
-                        //If a low speed mode command
-                        state = modeState[SPEEDNORM]; //Select the normal speed mode
-                        cmd_updateStepDir(DC,1);
-                        cmd.highSpeedMode[DC] = false;
-                    } else {
-                        state = modeState[SPEEDFAST]; //Select the high speed mode
-                        cmd_updateStepDir(DC,cmd.gVal[DC]);
-                        cmd.highSpeedMode[DC] = true;
+                    SREG = oldSREG; //End atomic
+                }//End RA
+                
+                {//Start DEC
+                    //Determine which if any ST4 Pin
+                    char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                    //Determine the new direction
+                    byte dir = CMD_FORWARD;
+                    if (st4Pin == ST4N) {
+                        //If we need to be going in reverse, switch direction
+                        dir = CMD_REVERSE;
                     }
-                    setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0)));
-                    setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1)));
-                    setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2)));
-                } else {
-                    //Otherwise we never need to change the speed
-                    cmd_updateStepDir(DC,1); //Just move along at one step per step
-                    cmd.highSpeedMode[DC] = false;
-                }
-                if(GVal & 1){
-                    //This is the funtion that enables a slew type move.
-                    slewMode(DC); //Slew type
-                    readyToGo[DC] = 2; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
-                } else {
-                    //This is the function for goto mode.
-                    gotoMode(DC); //Goto Mode
-                    readyToGo[DC] = 0; //We are now in a mode where no further changes can be made to the motor (apart from requesting a stop) until the go-to movement is done.
-                }
-            } //Otherwise don't start the next movement until we have stopped.
+                    byte oldSREG = SREG;
+                    cli(); //We are playing with motor ISR values, so ensure we are atomic.
+                    if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir) && (currentMotorSpeed(DC) < cmd.minSpeed[DC])) {
+                        //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
+                        motorStopDC(false);
+                    } else {
+                        //Otherwise we are now free to change to the new required speed.
+                        if (st4Pin != ST4O) {
+                            //If an ST4 Dec pin is pressed
+                            cmd_setIVal(DC,cmd.st4DecIVal);
+                            cmd_setDir (DC,dir);
+                            cmd_updateStepDir(DC,1);
+                            motorStartDC(); //If the motor is currently stopped at this point, this will automatically start them.
+                        } else {
+                            //Otherwise stop th DEC motor
+                            motorStopDC(false);
+                        }
+                    }
+                    SREG = oldSREG; //End atomic
+                }//End DEC
+            }
+        ///////////
         }
+        
+        
     }//End of run loop
 }
-
-
 
 
 /*
@@ -718,6 +869,7 @@ int main(void) {
 
 bool decodeCommand(char command, char* buffer){ //each command is axis specific. The axis being modified can be retrieved by calling synta_axis()
     unsigned long responseData = 0; //data for response
+    bool success = true;
     byte axis = synta_axis();
     unsigned int correction;
     byte oldSREG;
@@ -801,92 +953,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             }
             break;
             
-            
-        //The following are used for configuration ----------
-        case 'A': //store the aVal (steps per axis)
-            cmd_setaVal(axis, synta_hexToLong(buffer)); //store aVal for that axis.
-            break;
-        case 'B': //store the bVal (sidereal rate)
-            cmd_setbVal(axis, synta_hexToLong(buffer)); //store bVal for that axis.
-            break;
-        case 'S': //store the sVal (steps per worm rotation)
-            cmd_setsVal(axis, synta_hexToLong(buffer)); //store sVal for that axis.
-            break;
-        case 'n': //return the IVal (EQMOD Speed at sidereal)
-            responseData = cmd.siderealIVal[axis];
-            break;
-        case 'N': //store the IVal (EQMOD Speed at sidereal)
-            cmd_setsideIVal(axis, synta_hexToLong(buffer)); //store sVal for that axis.
-            break;
-        case 'd': //return the driver version or step mode
-            if (axis) {
-                responseData = microstepConf; 
-            } else {
-                responseData = driverVersion;
-            }
-            break;
-        case 'D': //store the driver verison and step modes
-            if (axis) {
-                microstepConf = synta_hexToByte(buffer); //store step mode.
-                canJumpToHighspeed = (microstepConf >=8);
-            } else {
-                driverVersion = synta_hexToByte(buffer); //store driver version.
-            }
-            break;
-        case 'z': //return the Goto speed
-            responseData = cmd.normalGotoSpeed[axis];
-            break;
-        case 'Z': //return the Goto speed factor
-            cmd.normalGotoSpeed[axis] = synta_hexToByte(buffer); //store the goto speed factor
-            break;
-        case 'c': //return the axisDirectionReverse
-            responseData = encodeDirection[axis];
-            break;
-        case 'C': //store the axisDirectionReverse
-            encodeDirection[axis] = buffer[0] - '0'; //store sVal for that axis.
-            break;
-        case 'q': //return the disableGearChange/allowAdvancedHCDetection setting  
-            if (axis) {
-                responseData = disableGearChange; 
-            } else {
-                responseData = allowAdvancedHCDetection;
-            }
-            break;
-        case 'Q': //store the disableGearChange/allowAdvancedHCDetection setting
-            if (axis) {
-                disableGearChange = synta_hexToByte(buffer); //store whether we can change gear
-            } else {
-                allowAdvancedHCDetection = synta_hexToByte(buffer); //store whether to allow advanced hand controller detection
-            }
-            break;
-        case 'x': {  //return the accelTable
-            Inter responsePack = InterMaker(0);
-            responsePack.lowByter.integer = cmd.accelTable[axis][accelTableIndex[axis]].speed;
-            responsePack.highByter.low = cmd.accelTable[axis][accelTableIndex[axis]].repeats; 
-            responseData = responsePack.integer;
-            accelTableIndex[axis]++; //increment the index so we don't have to send :Y commands for every address if reading sequentially.
-            if (accelTableIndex[axis] >= AccelTableLength) {
-                accelTableIndex[axis] = 0; //Wrap around
-            }
-            break;
-        }
-        case 'X': { //store the accelTable value for address set by 'Y', or next address after last 'X'
-            unsigned long dataIn = synta_hexToLong(buffer);
-            cmd.accelTable[axis][accelTableIndex[axis]].speed = (unsigned int)dataIn; //lower two bytes is speed
-            cmd.accelTable[axis][accelTableIndex[axis]].repeats = (byte)(dataIn>>16); //upper byte is repeats.
-            accelTableIndex[axis]++; //increment the index so we don't have to send :Y commands for every address if programming sequentially.
-            if (accelTableIndex[axis] >= AccelTableLength) {
-                accelTableIndex[axis] = 0; //Wrap around
-            }
-            break;
-        }
-        case 'Y': //store the accelTableIndex value
-            //Use axis=0 to set which address we are accessing (we'll repurpose accelTableIndex[RA] in prog mode for this)
-            accelTableIndex[axis] = synta_hexToByte(buffer);
-            if (accelTableIndex[axis] >= AccelTableLength) {
-                command = '\0'; //If the address out of range, force an error response packet.
-            }
-            break;
+        //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //set the programming mode.
             progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
             if (progMode != 0) {
@@ -896,33 +963,149 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 motorDisable(DC); //shutdown driver power.
                 readyToGo[RA] = 0;
                 readyToGo[DC] = 0;
+            } else { //reset the uC to return to normal ops mode.
+                success = false;
             }
             break;
-        case 'T': //set mode, return empty response
-            if (progMode & 2) {
-            //proceed with eeprom write
-                if (progMode & 1) {
-                    buildEEPROM();
-                } else {
-                    storeEEPROM();
-                }
-            } else if (progMode & 1) {
-                if (!checkEEPROM()) { //check if EEPROM contains valid data.
-                    command = 0; //force sending of an error packet.
+
+        default:
+            //Prevent any chance of accidentally running configuration commands when not in programming mode.
+            if (progMode != 0) {
+                //The following are used for configuration ----------
+                switch(command) {
+                    case 'A': //store the aVal (steps per axis)
+                        cmd_setaVal(axis, synta_hexToLong(buffer)); //store aVal for that axis.
+                        break;
+                    case 'B': //store the bVal (sidereal rate)
+                        cmd_setbVal(axis, synta_hexToLong(buffer)); //store bVal for that axis.
+                        break;
+                    case 'S': //store the sVal (steps per worm rotation)
+                        cmd_setsVal(axis, synta_hexToLong(buffer)); //store sVal for that axis.
+                        break;
+                    case 'n': //return the IVal (EQMOD Speed at sidereal)
+                        responseData = cmd.siderealIVal[axis];
+                        break;
+                    case 'N': //store the IVal (EQMOD Speed at sidereal)
+                        cmd_setsideIVal(axis, synta_hexToLong(buffer)); //store sVal for that axis.
+                        break;
+                    case 'd': //return the driver version or step mode
+                        if (axis) {
+                            responseData = microstepConf; 
+                        } else {
+                            responseData = driverVersion;
+                        }
+                        break;
+                    case 'D': //store the driver verison and step modes
+                        if (axis) {
+                            microstepConf = synta_hexToByte(buffer); //store step mode.
+                            canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
+                        } else {
+                            driverVersion = synta_hexToByte(buffer); //store driver version.
+                        }
+                        break;
+                    case 'r': //return the dec backlash or st4 speed factor
+                        if (axis) {
+                            responseData = cmd.st4DecBacklash; 
+                        } else {
+                            responseData = cmd.st4SpeedFactor;
+                        }
+                        break;
+                    case 'R': //store the dec backlash or st4 speed factor
+                        if (axis) {
+                            unsigned long dataIn = synta_hexToLong(buffer); //store step mode.
+                            if (dataIn > 65535) {
+                                command = '\0'; //If the step rate is out of range, force an error response packet.
+                            } else {
+                                cmd_setst4DecBacklash(dataIn); //store st4 speed factor
+                            }
+                        } else {
+                            byte factor = synta_hexToByte(buffer);
+                            if ((factor > 19) || (factor < 1)) {
+                                command = '\0'; //If the factor is out of range, force an error response packet.
+                            } else {
+                                cmd_setst4SpeedFactor(factor); //store st4 speed factor
+                            }
+                        }
+                        break;
+                    case 'z': //return the Goto speed
+                        responseData = cmd.normalGotoSpeed[axis];
+                        break;
+                    case 'Z': //return the Goto speed factor
+                        cmd.normalGotoSpeed[axis] = synta_hexToByte(buffer); //store the goto speed factor
+                        break;
+                    case 'c': //return the axisDirectionReverse
+                        responseData = encodeDirection[axis];
+                        break;
+                    case 'C': //store the axisDirectionReverse
+                        encodeDirection[axis] = buffer[0] - '0'; //store sVal for that axis.
+                        break;
+                    case 'q': //return the disableGearChange/allowAdvancedHCDetection setting  
+                        if (axis) {
+                            responseData = disableGearChange; 
+                            canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
+                        } else {
+                            responseData = allowAdvancedHCDetection;
+                        }
+                        break;
+                    case 'Q': //store the disableGearChange/allowAdvancedHCDetection setting
+                        if (axis) {
+                            disableGearChange = synta_hexToByte(buffer); //store whether we can change gear
+                        } else {
+                            allowAdvancedHCDetection = synta_hexToByte(buffer); //store whether to allow advanced hand controller detection
+                        }
+                        break;
+                    case 'x': {  //return the accelTable
+                        Inter responsePack = InterMaker(0);
+                        responsePack.lowByter.integer = cmd.accelTable[axis][accelTableIndex[axis]].speed;
+                        responsePack.highByter.low = cmd.accelTable[axis][accelTableIndex[axis]].repeats; 
+                        responseData = responsePack.integer;
+                        accelTableIndex[axis]++; //increment the index so we don't have to send :Y commands for every address if reading sequentially.
+                        if (accelTableIndex[axis] >= AccelTableLength) {
+                            accelTableIndex[axis] = 0; //Wrap around
+                        }
+                        break;
+                    }
+                    case 'X': { //store the accelTable value for address set by 'Y', or next address after last 'X'
+                        unsigned long dataIn = synta_hexToLong(buffer);
+                        cmd.accelTable[axis][accelTableIndex[axis]].speed = (unsigned int)dataIn; //lower two bytes is speed
+                        cmd.accelTable[axis][accelTableIndex[axis]].repeats = (byte)(dataIn>>16); //upper byte is repeats.
+                        accelTableIndex[axis]++; //increment the index so we don't have to send :Y commands for every address if programming sequentially.
+                        if (accelTableIndex[axis] >= AccelTableLength) {
+                            accelTableIndex[axis] = 0; //Wrap around
+                        }
+                        break;
+                    }
+                    case 'Y': //store the accelTableIndex value
+                        //Use axis=0 to set which address we are accessing (we'll repurpose accelTableIndex[RA] in prog mode for this)
+                        accelTableIndex[axis] = synta_hexToByte(buffer);
+                        if (accelTableIndex[axis] >= AccelTableLength) {
+                            command = '\0'; //If the address out of range, force an error response packet.
+                        }
+                        break;
+                    case 'T': //set mode, return empty response
+                        if (progMode & 2) {
+                        //proceed with eeprom write
+                            if (progMode & 1) {
+                                buildEEPROM();
+                            } else {
+                                storeEEPROM();
+                            }
+                        } else if (progMode & 1) {
+                            if (!checkEEPROM()) { //check if EEPROM contains valid data.
+                                command = 0; //force sending of an error packet.
+                            }
+                        }
+                        break;
+                    //---------------------------------------------------
+                    default: //Return empty response (deals with commands that don't do anything before the response sent (i.e 'J', 'R'), or do nothing at all (e.g. 'M') )
+                        break;
                 }
             }
-            break;
-        //---------------------------------------------------
-        default: //Return empty response (deals with commands that don't do anything before the response sent (i.e 'J', 'R'), or do nothing at all (e.g. 'M') )
             break;
     }
   
     synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
     
-    if (command == 'R') { //reset the uC
-        wdt_enable(WDTO_120MS);
-        return false;
-    }
     if ((command == 'J') && (progMode == 0)) { //J tells us we are ready to begin the requested movement.
         readyToGo[axis] = 1; //So signal we are ready to go and when the last movement complets this one will execute.
         if (!(cmd.GVal[axis] & 1)){
@@ -930,7 +1113,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             cmd_setGotoEn(axis,CMD_ENABLED);
         }
     }
-    return true;
+    return success;
 }
 
 
@@ -1025,6 +1208,7 @@ void motorStart(byte motor){
         motorStartDC();
     }
 }
+
 void motorStartRA(){
     unsigned int IVal = cmd.IVal[RA];
     unsigned int currentIVal;
@@ -1117,7 +1301,7 @@ void motorStop(byte motor, byte emergency){
     }
 }
 
-void motorStopRA(byte emergency){
+void motorStopRA(bool emergency){
     if (emergency) {
         //trigger instant shutdown of the motor in an emergency.
         timerDisable(RA);
@@ -1129,10 +1313,12 @@ void motorStopRA(byte emergency){
     } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based decelleration
         //readyToGo[RA] = 0;
+        byte oldSREG = SREG;
+        cli();
         cmd_setGotoEn(RA,CMD_DISABLED); //No longer in goto mode.
         clearGotoRunning(RA);
         cmd_setGVal(RA, 0); //Switch back to slew mode (in case we just finished a GoTo)
-        interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+        //interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
         if(cmd.currentIVal[RA] < cmd.minSpeed[RA]){
             if(cmd.stopSpeed[RA] > cmd.minSpeed[RA]){
                 cmd.stopSpeed[RA] = cmd.minSpeed[RA];
@@ -1141,11 +1327,12 @@ void motorStopRA(byte emergency){
             stopSpeed[RA] = cmd.currentIVal[RA];
         }*/
         cmd.currentIVal[RA] = cmd.stopSpeed[RA] + 1;//cmd.stepIncrement[motor];
-        interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
+        SREG = oldSREG;
+        //interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
     }
 }
 
-void motorStopDC(byte emergency){
+void motorStopDC(bool emergency){
     if (emergency) {
         //trigger instant shutdown of the motor in an emergency.
         timerDisable(DC);
@@ -1157,10 +1344,12 @@ void motorStopDC(byte emergency){
     } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based decelleration
         //readyToGo[motor] = 0;
+        byte oldSREG = SREG;
+        cli();
         cmd_setGotoEn(DC,CMD_DISABLED); //No longer in goto mode.
         cmd_setGVal(DC, 0); //Switch back to slew mode (in case we just finished a GoTo)
         clearGotoRunning(DC);
-        interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+        //interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
         if(cmd.currentIVal[DC] < cmd.minSpeed[DC]){
             if(cmd.stopSpeed[DC] > cmd.minSpeed[DC]){
                 cmd.stopSpeed[DC] = cmd.minSpeed[DC];
@@ -1169,7 +1358,8 @@ void motorStopDC(byte emergency){
         stopSpeed[DC] = cmd.currentIVal[DC];
         }*/
         cmd.currentIVal[DC] = cmd.stopSpeed[DC] + 1;//cmd.stepIncrement[motor];
-        interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
+        SREG = oldSREG;
+        //interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
     }
 }
 
@@ -1186,86 +1376,7 @@ void configureTimer(){
     TCCR1B = ((1<<WGM12) | (1<<WGM13));
     TCCR3A = 0;//~((1<<WGM31) | (1<<WGM30));
     TCCR3B = ((1<<WGM32) | (1<<WGM33));
-  
 }
-
-#ifdef ALTERNATE_ST4
-ISR(PCINT2_vect)
-#else
-ISR(PCINT0_vect)
-#endif
-{
-    //ST4 Pin Change Interrupt Handler.
-    if(!cmd.gotoEn[RA] && !cmd.gotoEn[DC]){
-        //Only allow when not it goto mode.
-        {//Start RA
-            byte dir;
-            byte stepDir;
-            bool stopped = (cmd.stopped[RA] == CMD_STOPPED) || (cmd.st4RAReverse == CMD_REVERSE);
-            unsigned int newSpeed;
-            if (cmd.dir[RA] && !stopped) {
-                goto ignoreRAST4; //if travelling in the wrong direction and not allowing reverse, then ignore.
-            }
-            if (!getPinValue(st4Pin[RA][ST4N])) {
-                //RA-
-                if (cmd.st4RAReverse == CMD_REVERSE) {
-                    dir = CMD_REVERSE;
-                    stepDir = -1;
-                } else {
-                    dir = CMD_FORWARD;
-                    stepDir = 1;
-                }
-                newSpeed = cmd.st4RAIVal[1]; //------------ 0.75x sidereal rate
-                goto setRASpeed;
-            } else if (!getPinValue(st4Pin[RA][ST4P])) {
-                //RA+
-                dir = CMD_FORWARD;
-                stepDir = 1;
-                newSpeed = cmd.st4RAIVal[0]; //------------ 1.25x sidereal rate
-setRASpeed:
-                cmd.currentIVal[RA] = newSpeed;
-                if (stopped) {
-                    cmd.stepDir[RA] = stepDir; //set step direction
-                    cmd.dir[RA] = dir; //set direction
-                    cmd.GVal[RA] = 1; //slew mode
-                    motorStartRA();
-                } else if (cmd.stopSpeed[RA] < cmd.currentIVal[RA]) {
-                    cmd.stopSpeed[RA] = cmd.currentIVal[RA]; //ensure that RA doesn't stop.
-                }
-            } else {
-ignoreRAST4:
-                dir = CMD_FORWARD;
-                stepDir = 1;
-                newSpeed = cmd.siderealIVal[RA];
-                goto setRASpeed;
-            }
-        }//End RA
-
-        {//Start DEC
-            byte dir;
-            byte stepDir;
-            if (!getPinValue(st4Pin[DC][ST4N])) {
-                //DEC-
-                dir = CMD_REVERSE;
-                stepDir = -1;
-                goto setDECSpeed;
-            } else if (!getPinValue(st4Pin[DC][ST4P])) {
-                //DEC+
-                dir = CMD_FORWARD;
-                stepDir = 1;
-setDECSpeed:
-                cmd.stepDir[DC] = stepDir; //set step direction
-                cmd.dir[DC] = dir; //set direction
-                cmd.currentIVal[DC] = cmd.st4DecIVal; //move at 0.25x sidereal rate
-                cmd.GVal[DC] = 1; //slew mode
-                motorStartDC();
-            } else {
-                cmd.currentIVal[DC] = cmd.stopSpeed[DC] + 1;//make our target >stopSpeed so that ISRs bring us to a halt.
-            }
-        }//End DEC
-    }
-}
-
 
 
 

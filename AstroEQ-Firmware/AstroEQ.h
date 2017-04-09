@@ -85,8 +85,9 @@ typedef uint8_t byte;
 #define RA 0 //Right Ascension is AstroEQ axis 0 (Synta axis '1')
 #define DC 1 //Declination is AstroEQ axis 1 (Synta axis '2')
 
-#define ST4P 0 //Positive ST4 Pin
-#define ST4N 1 //Negative ST4 Pin
+#define ST4P (0)  //Positive ST4 Pin
+#define ST4N (1)  //Negative ST4 Pin
+#define ST4O (-1) //Neither ST4 Pin
 
 #define MIN_IVAL 50
 
@@ -121,7 +122,7 @@ const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
 const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
 const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
 const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
-const byte st4Pin[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
+const byte st4Pins[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
 const byte modePins[2][3] = {{modePins0_0_Define,modePins1_0_Define,modePins2_0_Define},{modePins0_1_Define,modePins1_1_Define,modePins2_1_Define}};
 
 
@@ -146,8 +147,8 @@ void motorStart(byte motor);
 void motorStartRA();
 void motorStartDC();
 void motorStop(byte motor, byte emergency);
-void motorStopRA(byte emergency);
-void motorStopDC(byte emergency);
+void motorStopRA(bool emergency);
+void motorStopDC(bool emergency);
 void configureTimer();
 void buildModeMapping(byte microsteps, byte driverVersion);
 

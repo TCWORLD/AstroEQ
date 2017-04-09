@@ -18,6 +18,8 @@
 #define IVal2_Address       (EEPROMStart_Address + 40) //steps/worm rotation
 #define GearEnable_Address  (EEPROMStart_Address + 42) //Allow "gear change"
 #define AdvHCEnable_Address (EEPROMStart_Address + 43) //Allow advanced controller detection
+#define DecBacklash_Address (EEPROMStart_Address + 44) //DEC backlash correction factor
+#define SpeedFactor_Address (EEPROMStart_Address + 46) //ST4 Speed Factor (0.05x to 0.95x sidereal as multiple of 1/20)
 
 #define AccelTableLength 64
 #define AccelTable1_Address (EEPROMStart_Address + 100) //Leave a gap so we can add more settings later.
