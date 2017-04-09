@@ -21,6 +21,7 @@ void SPI_disable();
 byte Serial_available(void);
 void Serial_clear(void);
 char Serial_read(void);
+void Serial_flush(void);
 void Serial_write(char ch);
 void Serial_writeStr(char* str);
 void Serial_writeArr(char* arr, byte len);

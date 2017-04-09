@@ -37,7 +37,7 @@ inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
 }
 
 void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData){
-    char replyLength = Commands_getLength(commandOrError,0); //get the number of data bytes for response
+    char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError,0); //get the number of data bytes for response
 
     if (replyLength < 0) {
         replyLength = 0;
@@ -63,7 +63,7 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
     }
 
     dataPacket[(byte)replyLength + 1] = endChar;
-    dataPacket[(byte)replyLength + 2] = 0;  
+    dataPacket[(byte)replyLength + 2] = '\0';  
     return;
 }
 
@@ -82,7 +82,7 @@ bool synta_validateCommand(byte len, char* decoded){
     for(i = 0;i < len;i++){
         decoded[i] = commandString[i + 2];
     }
-    decoded[i] = 0; //Null
+    decoded[i] = '\0'; //Null
     return true;
 }
 
@@ -91,7 +91,7 @@ char synta_recieveCommand(char* dataPacket, char character){
         if (character == startInChar){
             dataPacket[0] = errorChar;
             dataPacket[1] = endChar;
-            dataPacket[2] = 0;
+            dataPacket[2] = '\0';
             validPacket = 0; //new command without old finishing! (dataPacket contains error message)
             return -2;
         }
@@ -118,7 +118,7 @@ char synta_recieveCommand(char* dataPacket, char character){
 error:
     dataPacket[0] = errorChar;
     dataPacket[1] = endChar;
-    dataPacket[2] = 0;
+    dataPacket[2] = '\0';
     validPacket = 0;
     return -1;
 }

@@ -98,8 +98,6 @@
 //#define ALTERNATE_ST4 //Uncomment this line to use the alternate mapping for the ST4 port, using A8 to A11 instead of 50 to 53
 
 //You only have a choice between two locations for the ST4 pins as controlled by the above #define.
-//It is possible to rearrange the pin within the set groups, e.g. you could switch 50 and 51, but
-//all the ST4 pins must remain within either group of four as shown below.
 #ifdef ALTERNATE_ST4
 #define ST4AddPin_0_Define 62 //Analog 8
 #define ST4AddPin_1_Define 63 //Analog 9

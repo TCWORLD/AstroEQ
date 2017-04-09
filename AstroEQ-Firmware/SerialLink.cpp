@@ -228,6 +228,19 @@ void Serial_write(char ch) {
     }
 }
 
+//Flushes data from TX buffer
+void Serial_flush() {
+    if (UCSRnB & _BV(TXENn)) { 
+        //If UART is enabled
+        unsigned char head = ((txBuf.head + 1) & BUFFER_PTR_MASK); //Calculate the new head
+        if (head == txBuf.tail) {
+            //If there is no space in the buffer
+            sbi(UCSRnB, UDRIEn); //Ensure TX IRQ is enabled before our busy wait - otherwise we lock up!
+            while (head == txBuf.tail); //wait for buffer to have some space
+        }
+    }
+}
+
 //Convert string to bytes
 void Serial_writeStr(char* str) {
     while (*str) {
