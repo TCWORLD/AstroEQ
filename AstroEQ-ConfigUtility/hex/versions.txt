@@ -1,5 +1,5 @@
-AstroEQUploaderUtility	3.6
-AstroEQArduinoMega1280	7.5
-AstroEQArduinoMega2560	7.5
-AstroEQV4-EQ5Board	7.5
-AstroEQV4-DIYBoard(includingKits)	7.5
+AstroEQUploaderUtility	3.7
+AstroEQArduinoMega1280	8.0
+AstroEQArduinoMega2560	8.0
+AstroEQV4-EQ5Board	8.0
+AstroEQV4-DIYBoard(includingKits)	8.0
