@@ -8,24 +8,24 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
-<layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
-<layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
-<layer number="14" name="Route14" color="1" fill="6" visible="no" active="no"/>
-<layer number="15" name="Route15" color="4" fill="6" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="25" name="tNames" color="15" fill="1" visible="no" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="27" name="tValues" color="15" fill="1" visible="no" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
+<layer number="2" name="Route2" color="1" fill="3" visible="yes" active="no"/>
+<layer number="3" name="Route3" color="4" fill="3" visible="yes" active="no"/>
+<layer number="14" name="Route14" color="1" fill="6" visible="yes" active="no"/>
+<layer number="15" name="Route15" color="4" fill="6" visible="yes" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="25" name="tNames" color="15" fill="1" visible="yes" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="27" name="tValues" color="15" fill="1" visible="yes" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -34,8 +34,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -43,20 +43,20 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="15" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="15" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
-<layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="no" active="no"/>
-<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="no" active="no"/>
-<layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
-<layer number="57" name="tCAD" color="7" fill="1" visible="no" active="no"/>
-<layer number="58" name="bCAD" color="7" fill="1" visible="no" active="no"/>
-<layer number="59" name="tCarbon" color="7" fill="1" visible="no" active="no"/>
-<layer number="60" name="bCarbon" color="7" fill="1" visible="no" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="53" name="tGND_GNDA" color="7" fill="9" visible="yes" active="no"/>
+<layer number="54" name="bGND_GNDA" color="1" fill="9" visible="yes" active="no"/>
+<layer number="56" name="wert" color="7" fill="1" visible="yes" active="no"/>
+<layer number="57" name="tCAD" color="7" fill="1" visible="yes" active="no"/>
+<layer number="58" name="bCAD" color="7" fill="1" visible="yes" active="no"/>
+<layer number="59" name="tCarbon" color="7" fill="1" visible="yes" active="no"/>
+<layer number="60" name="bCarbon" color="7" fill="1" visible="yes" active="no"/>
 <layer number="90" name="Modules" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
@@ -4145,6 +4145,65 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 </package>
 </packages>
 <symbols>
+<symbol name="USB-PANEL">
+<wire x1="-10.2" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="7.62" y2="5.08" width="0.254" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="7.62" y2="2.54" width="0.254" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="7.62" y2="0" width="0.254" layer="94"/>
+<wire x1="7.62" y1="0" x2="7.62" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-2.54" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-1.32" y1="1.6" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-3.47" y1="1.6" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-5.52" y1="3.2" x2="-4.52" y2="3.2" width="0.254" layer="94"/>
+<wire x1="-6.27" y1="0.15" x2="-5.07" y2="0.15" width="0.254" layer="94"/>
+<wire x1="-5.07" y1="0.15" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-4.52" y1="3.2" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-4.22" y1="1.6" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="1.6" x2="-7.92" y2="0.8" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="0.8" x2="-8.12" y2="0.8" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="0.8" x2="-8.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-8.92" y1="1.6" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="1" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="2.4" x2="-7.92" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="2.4" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-8.52" y1="1.6" x2="-8.52" y2="1.4" width="0.254" layer="94"/>
+<wire x1="-8.52" y1="1.4" x2="-8.32" y2="1.2" width="0.254" layer="94"/>
+<wire x1="-8.32" y1="1.2" x2="-8.32" y2="2" width="0.254" layer="94"/>
+<wire x1="-8.32" y1="2" x2="-8.72" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="7.62" x2="-10.16" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-7.62" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<circle x="-1.32" y="1.6" radius="0.5" width="1" layer="94"/>
+<circle x="-5.92" y="3.2" radius="0.2" width="1" layer="94"/>
+<text x="-10.16" y="8.636" size="1.27" layer="95">&gt;NAME</text>
+<text x="-10.16" y="-10.16" size="1.27" layer="96">&gt;VALUE</text>
+<rectangle x1="-7.12" y1="-0.45" x2="-5.92" y2="0.75" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="10.16" y2="2.54" width="0.127" layer="94"/>
+<wire x1="7.62" y1="0" x2="10.16" y2="0" width="0.127" layer="94"/>
+<text x="5.08" y="5.08" size="1.524" layer="95" font="vector" ratio="10" align="center-right">VBUS</text>
+<text x="5.08" y="2.54" size="1.524" layer="95" font="vector" ratio="10" align="center-right">D+</text>
+<text x="5.08" y="0" size="1.524" layer="95" font="vector" ratio="10" align="center-right">D-</text>
+<text x="5.08" y="-2.54" size="1.524" layer="95" font="vector" ratio="10" align="center-right">ID</text>
+<text x="5.08" y="-5.08" size="1.524" layer="95" font="vector" ratio="10" align="center-right">GND</text>
+<wire x1="10.16" y1="0" x2="11.176" y2="2.54" width="0.127" layer="94"/>
+<wire x1="11.176" y1="2.54" x2="11.684" y2="2.54" width="0.127" layer="94"/>
+<wire x1="11.684" y1="2.54" x2="12.7" y2="0" width="0.127" layer="94"/>
+<wire x1="12.7" y1="0" x2="15.24" y2="0" width="0.127" layer="94"/>
+<wire x1="10.16" y1="2.54" x2="11.176" y2="0" width="0.127" layer="94"/>
+<wire x1="11.176" y1="0" x2="11.684" y2="0" width="0.127" layer="94"/>
+<wire x1="11.684" y1="0" x2="12.7" y2="2.54" width="0.127" layer="94"/>
+<wire x1="12.7" y1="2.54" x2="15.24" y2="2.54" width="0.127" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="15.24" y2="5.08" width="0.127" layer="94"/>
+<wire x1="7.62" y1="-2.54" x2="15.24" y2="-2.54" width="0.127" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="15.24" y2="-5.08" width="0.127" layer="94"/>
+<wire x1="8.89" y1="6.096" x2="8.89" y2="-6.096" width="0.127" layer="94" style="shortdash" curve="20"/>
+<wire x1="8.89" y1="-6.096" x2="8.89" y2="6.096" width="0.127" layer="94" style="shortdash" curve="20"/>
+<wire x1="8.89" y1="6.096" x2="13.97" y2="6.096" width="0.127" layer="94" style="shortdash"/>
+<wire x1="8.89" y1="-6.096" x2="13.97" y2="-6.096" width="0.127" layer="94" style="shortdash"/>
+<wire x1="13.97" y1="-6.096" x2="13.97" y2="6.096" width="0.127" layer="94" style="shortdash" curve="20"/>
+<wire x1="13.97" y1="6.096" x2="13.97" y2="-6.096" width="0.127" layer="94" style="shortdash" curve="20"/>
+</symbol>
 <symbol name="USB">
 <wire x1="-10.2" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
 <wire x1="-10.16" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
@@ -4194,6 +4253,18 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 </symbol>
 </symbols>
 <devicesets>
+<deviceset name="USB-PANEL">
+<gates>
+<gate name="G$1" symbol="USB-PANEL" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="USB" prefix="CN" uservalue="yes">
 <description>&lt;p&gt;&lt;b&gt;USB Connectors&lt;/b&gt;&lt;/p&gt;
 &lt;b&gt;USBMINIB&lt;/b&gt; - Surface Mount Female Mini-B USB Connector 4UConnector: 06564&lt;/p&gt;
@@ -22250,10 +22321,10 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="OC_FARNELL" value="2447230"/>
 </part>
 <part name="P+10" library="supply1" deviceset="+5V" device=""/>
-<part name="USB-&gt;" library="adafruit" deviceset="USB" device="BULGINWIRE" value="Bulgin PX0443">
-<attribute name="MF" value="BULGIN"/>
-<attribute name="MPN" value="PX0443"/>
-<attribute name="OC_FARNELL" value="1229685"/>
+<part name="USB-&gt;" library="adafruit" deviceset="USB" device="BULGINWIRE" value="MC34649">
+<attribute name="MF" value="MULTICOMP"/>
+<attribute name="MPN" value="MC34649"/>
+<attribute name="OC_FARNELL" value="1675777"/>
 </part>
 <part name="C6" library="rcl" deviceset="C-EU" device="C0603" value="470n">
 <attribute name="MF" value="MULTICOMP"/>
@@ -22307,10 +22378,10 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="PACKAGE" value="SSOP20"/>
 </part>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
-<part name="D2" library="SparkFun" deviceset="DIODE" device="SOD" value="PMEG2010EA">
-<attribute name="MF" value="NEXPERIA"/>
-<attribute name="MPN" value="PMEG2010EA"/>
-<attribute name="OC_FARNELL" value="8737908"/>
+<part name="D2" library="SparkFun" deviceset="DIODE" device="SOD" value="RB511VM-30FHTE-17">
+<attribute name="MF" value="ROHM"/>
+<attribute name="MPN" value="RB511VM-30FHTE-17"/>
+<attribute name="OC_FARNELL" value="2581544"/>
 </part>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="C14" library="rcl" deviceset="C-EU" device="C0603" value="22p">
@@ -22490,11 +22561,15 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="OC_FARNELL" value="1759038"/>
 </part>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
+<part name="USB-&gt;1" library="adafruit" deviceset="USB-PANEL" device="" value="Bulgin PX0443">
+<attribute name="MF" value="BULGIN"/>
+<attribute name="MPN" value="PX0443"/>
+<attribute name="OC_FARNELL" value="1229685"/>
+</part>
 </parts>
 <sheets>
 <sheet>
 <plain>
-<text x="-5.08" y="60.96" size="1.778" layer="91" rot="R90">NOTE: ID pin is sheild for chosen connector</text>
 <text x="452.12" y="60.96" size="1.4224" layer="97">4-contact version no longer stocked.
 Using 6-contact version with extra
 pins connected to make routing easier.
@@ -22822,6 +22897,11 @@ Use 6P4C cable. or ignore outer two pins</text>
 <attribute name="MPN" value="SR205C104KAR" x="289.56" y="121.92" size="1.778" layer="96" rot="R270" display="off"/>
 </instance>
 <instance part="GND7" gate="1" x="289.56" y="114.3"/>
+<instance part="USB-&gt;1" gate="G$1" x="-17.78" y="91.44">
+<attribute name="MF" value="MOLEX" x="-17.78" y="91.44" size="1.778" layer="96" display="off"/>
+<attribute name="OC_FARNELL" x="-17.78" y="91.44" size="1.778" layer="96" display="off"/>
+<attribute name="MPN" x="-17.78" y="91.44" size="1.778" layer="96" display="off"/>
+</instance>
 </instances>
 <busses>
 </busses>

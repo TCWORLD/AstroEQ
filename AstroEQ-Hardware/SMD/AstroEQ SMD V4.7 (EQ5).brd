@@ -24,8 +24,8 @@
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="25" name="tNames" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="27" name="tValues" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="15" fill="1" visible="no" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
@@ -48,8 +48,8 @@
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="yes"/>
 <layer number="53" name="tGND_GNDA" color="7" fill="9" visible="no" active="no"/>
 <layer number="54" name="bGND_GNDA" color="1" fill="9" visible="no" active="no"/>
 <layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
@@ -1290,11 +1290,11 @@ design rules under a new name.</description>
 <attribute name="MF" value="MULTICOMP" x="10.16" y="20.6375" size="1.778" layer="27" display="off"/>
 <attribute name="MPN" value="MCWR06X1002FTL" x="10.16" y="20.6375" size="1.778" layer="27" display="off"/>
 </element>
-<element name="USB-&gt;" library="adafruit" package="22-23-2051" value="Bulgin PX0443" x="4.1275" y="26.035" locked="yes" smashed="yes" rot="MR270">
+<element name="USB-&gt;" library="adafruit" package="22-23-2051" value="MC34649" x="4.1275" y="26.035" locked="yes" smashed="yes" rot="MR270">
 <attribute name="NAME" x="4.1275" y="33.655" size="1.27" layer="26" font="vector" ratio="15" rot="MR0" align="center"/>
-<attribute name="MF" value="BULGIN" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
-<attribute name="OC_FARNELL" value="1229685" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
-<attribute name="MPN" value="PX0443" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
+<attribute name="MF" value="MULTICOMP" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
+<attribute name="OC_FARNELL" value="1675777" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
+<attribute name="MPN" value="MC34649" x="4.1275" y="26.035" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C6" library="rcl" package="C0603" value="470n" x="8.255" y="29.5275" smashed="yes" rot="R270">
 <attribute name="NAME" x="8.26125" y="32.0525" size="1.016" layer="25" font="vector" ratio="15" rot="R180" align="center"/>
@@ -1358,10 +1358,10 @@ design rules under a new name.</description>
 <attribute name="MF" value="MICROCHIP" x="15.39875" y="28.09875" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="15.39875" y="23.84425" size="1.016" layer="25" font="vector" ratio="15" rot="R180" align="center"/>
 </element>
-<element name="D2" library="SparkFun" package="SOD-323" value="PMEG2010EA" x="3.175" y="33.655" smashed="yes">
-<attribute name="OC_FARNELL" value="8737908" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
-<attribute name="MF" value="NEXPERIA" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
-<attribute name="MPN" value="PMEG2010EA" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
+<element name="D2" library="SparkFun" package="SOD-323" value="RB511VM-30FHTE-17" x="3.175" y="33.655" smashed="yes">
+<attribute name="OC_FARNELL" value="2581544" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
+<attribute name="MF" value="ROHM" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
+<attribute name="MPN" value="RB511VM-30FHTE-17" x="3.175" y="33.655" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="6.0325" y="33.655" size="1.016" layer="25" font="vector" ratio="15" align="center"/>
 </element>
 <element name="C14" library="rcl" package="C0603" value="22p" x="29.845" y="19.3675" smashed="yes" rot="R180">
@@ -2779,8 +2779,8 @@ design rules under a new name.</description>
 <approved hash="8,16,e41800e797cb19c1"/>
 <approved hash="8,16,01fe25cfff87f243"/>
 <approved hash="8,16,98cc806b01382df0"/>
-<approved hash="18,29,ccfa4665c6289a4d"/>
 <approved hash="18,29,5f1d82d1cc61ca7d"/>
+<approved hash="18,29,ccfa4665c6289a4d"/>
 <approved hash="18,30,cf81204519d20b96"/>
 <approved hash="18,30,a1a3b2da71c0533a"/>
 <approved hash="18,30,cf81204519d20b96"/>

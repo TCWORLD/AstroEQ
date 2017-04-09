@@ -376,33 +376,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <rectangle x1="-0.675" y1="0.45" x2="0.675" y2="1.05" layer="51"/>
 <rectangle x1="-0.675" y1="-1.05" x2="0.675" y2="-0.45" layer="51"/>
 </package>
-<package name="LED3MM">
-<description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
-3 mm, round</description>
-<wire x1="1.5748" y1="-1.27" x2="1.5748" y2="1.27" width="0.254" layer="51"/>
-<wire x1="-1.524" y1="0" x2="-1.1708" y2="0.9756" width="0.1524" layer="51" curve="-39.80361"/>
-<wire x1="-1.524" y1="0" x2="-1.1391" y2="-1.0125" width="0.1524" layer="51" curve="41.633208"/>
-<wire x1="1.1571" y1="0.9918" x2="1.524" y2="0" width="0.1524" layer="51" curve="-40.601165"/>
-<wire x1="1.1708" y1="-0.9756" x2="1.524" y2="0" width="0.1524" layer="51" curve="39.80361"/>
-<wire x1="0" y1="1.524" x2="1.2401" y2="0.8858" width="0.1524" layer="51" curve="-54.461337"/>
-<wire x1="-1.2192" y1="0.9144" x2="0" y2="1.524" width="0.1524" layer="51" curve="-53.130102"/>
-<wire x1="0" y1="-1.524" x2="1.203" y2="-0.9356" width="0.1524" layer="51" curve="52.126876"/>
-<wire x1="-1.203" y1="-0.9356" x2="0" y2="-1.524" width="0.1524" layer="51" curve="52.126876"/>
-<wire x1="-0.635" y1="0" x2="0" y2="0.635" width="0.1524" layer="51" curve="-90"/>
-<wire x1="-1.016" y1="0" x2="0" y2="1.016" width="0.1524" layer="51" curve="-90"/>
-<wire x1="0" y1="-0.635" x2="0.635" y2="0" width="0.1524" layer="51" curve="90"/>
-<wire x1="0" y1="-1.016" x2="1.016" y2="0" width="0.1524" layer="51" curve="90"/>
-<wire x1="0" y1="2.032" x2="1.561" y2="1.3009" width="0.254" layer="21" curve="-50.193108"/>
-<wire x1="-1.7929" y1="0.9562" x2="0" y2="2.032" width="0.254" layer="21" curve="-61.926949"/>
-<wire x1="0" y1="-2.032" x2="1.5512" y2="-1.3126" width="0.254" layer="21" curve="49.763022"/>
-<wire x1="-1.7643" y1="-1.0082" x2="0" y2="-2.032" width="0.254" layer="21" curve="60.255215"/>
-<wire x1="-2.032" y1="0" x2="-1.7891" y2="0.9634" width="0.254" layer="51" curve="-28.301701"/>
-<wire x1="-2.032" y1="0" x2="-1.7306" y2="-1.065" width="0.254" layer="51" curve="31.60822"/>
-<pad name="A" x="-1.27" y="0" drill="0.8128" diameter="1.6764" shape="octagon"/>
-<pad name="K" x="1.27" y="0" drill="0.8128" diameter="1.6764" shape="octagon"/>
-<text x="1.905" y="0.381" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="1.905" y="-1.651" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-</package>
 <package name="1206">
 <description>&lt;b&gt;CHICAGO MINIATURE LAMP, INC.&lt;/b&gt;&lt;p&gt;
 7022X Series SMT LEDs 1206 Package Size</description>
@@ -425,40 +398,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <rectangle x1="-0.9" y1="-0.7" x2="-0.8" y2="0.5" layer="51"/>
 <rectangle x1="-0.9" y1="0.55" x2="-0.8" y2="0.7" layer="51"/>
 <rectangle x1="0.45" y1="-0.7" x2="0.6" y2="-0.45" layer="21"/>
-</package>
-<package name="LD260">
-<description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
-5 mm, square, Siemens</description>
-<wire x1="-1.27" y1="-1.27" x2="0" y2="-1.27" width="0.1524" layer="21"/>
-<wire x1="0" y1="-1.27" x2="1.27" y2="-1.27" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="1.27" x2="0" y2="1.27" width="0.1524" layer="21"/>
-<wire x1="0" y1="1.27" x2="-1.27" y2="1.27" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="-1.27" x2="1.27" y2="-0.889" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="1.27" x2="1.27" y2="0.889" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="0.889" x2="1.27" y2="0" width="0.1524" layer="51"/>
-<wire x1="1.27" y1="0" x2="1.27" y2="-0.889" width="0.1524" layer="51"/>
-<wire x1="-1.27" y1="1.27" x2="-1.27" y2="0.889" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="-1.27" x2="-1.27" y2="-0.889" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="-0.889" x2="-1.27" y2="0" width="0.1524" layer="51"/>
-<wire x1="-1.27" y1="0" x2="-1.27" y2="0.889" width="0.1524" layer="51"/>
-<wire x1="0" y1="1.27" x2="0.9917" y2="0.7934" width="0.1524" layer="21" curve="-51.33923"/>
-<wire x1="-0.9917" y1="0.7934" x2="0" y2="1.27" width="0.1524" layer="21" curve="-51.33923"/>
-<wire x1="0" y1="-1.27" x2="0.9917" y2="-0.7934" width="0.1524" layer="21" curve="51.33923"/>
-<wire x1="-0.9917" y1="-0.7934" x2="0" y2="-1.27" width="0.1524" layer="21" curve="51.33923"/>
-<wire x1="0.9558" y1="-0.8363" x2="1.27" y2="0" width="0.1524" layer="51" curve="41.185419"/>
-<wire x1="0.9756" y1="0.813" x2="1.2699" y2="0" width="0.1524" layer="51" curve="-39.806332"/>
-<wire x1="-1.27" y1="0" x2="-0.9643" y2="-0.8265" width="0.1524" layer="51" curve="40.600331"/>
-<wire x1="-1.27" y1="0" x2="-0.9643" y2="0.8265" width="0.1524" layer="51" curve="-40.600331"/>
-<wire x1="-0.889" y1="0" x2="0" y2="0.889" width="0.1524" layer="51" curve="-90"/>
-<wire x1="-0.508" y1="0" x2="0" y2="0.508" width="0.1524" layer="51" curve="-90"/>
-<wire x1="0" y1="-0.508" x2="0.508" y2="0" width="0.1524" layer="21" curve="90"/>
-<wire x1="0" y1="-0.889" x2="0.889" y2="0" width="0.1524" layer="51" curve="90"/>
-<pad name="A" x="-1.27" y="0" drill="0.8128" shape="octagon"/>
-<pad name="K" x="1.27" y="0" drill="0.8128" shape="octagon"/>
-<text x="-1.2954" y="1.4732" size="1.016" layer="25" ratio="10">&gt;NAME</text>
-<text x="-1.27" y="-2.4892" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
-<rectangle x1="1.27" y1="-0.635" x2="2.032" y2="0.635" layer="51"/>
-<rectangle x1="1.905" y1="-0.635" x2="2.032" y2="0.635" layer="21"/>
 </package>
 <package name="LED2X5">
 <description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
@@ -1371,13 +1310,97 @@ Source: http://www.ledtronics.com/ds/smd-1206/dstr0094.PDF</description>
 <wire x1="-1.25" y1="-1.5" x2="-1.75" y2="-1.125" width="0.127" layer="21"/>
 <wire x1="-1.25" y1="-1.125" x2="-1" y2="-1.125" width="0.127" layer="21"/>
 <wire x1="-1.75" y1="-1.125" x2="-2" y2="-1.125" width="0.127" layer="21"/>
-<wire x1="-1.75" y1="-1.125" x2="-1.25" y2="-1.125" width="0.127" layer="21"/>
-<wire x1="-1.75" y1="-1.125" x2="-1.25" y2="-0.875" width="0.127" layer="21"/>
 <wire x1="-1.25" y1="-0.875" x2="-1.25" y2="-1" width="0.127" layer="21"/>
-<wire x1="-1.25" y1="-1.375" x2="-1.75" y2="-1.125" width="0.127" layer="21"/>
-<wire x1="-1.75" y1="-1.125" x2="-1.25" y2="-1" width="0.127" layer="21"/>
 <wire x1="-1.25" y1="-1" x2="-1.25" y2="-1.125" width="0.127" layer="21"/>
-<wire x1="-1.25" y1="-1.25" x2="-1.75" y2="-1.125" width="0.127" layer="21"/>
+</package>
+<package name="LD260">
+<description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
+5 mm, square, Siemens</description>
+<wire x1="-1.27" y1="-1.27" x2="0" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="0" y1="-1.27" x2="1.27" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="1.27" x2="0" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="0" y1="1.27" x2="-1.27" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="-1.27" x2="1.27" y2="-0.889" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="1.27" x2="1.27" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="1.27" y1="0.889" x2="1.27" y2="0" width="0.1524" layer="51"/>
+<wire x1="1.27" y1="0" x2="1.27" y2="-0.889" width="0.1524" layer="51"/>
+<wire x1="-1.27" y1="1.27" x2="-1.27" y2="0.889" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="-1.27" x2="-1.27" y2="-0.889" width="0.1524" layer="21"/>
+<wire x1="-1.27" y1="-0.889" x2="-1.27" y2="0" width="0.1524" layer="51"/>
+<wire x1="-1.27" y1="0" x2="-1.27" y2="0.889" width="0.1524" layer="51"/>
+<wire x1="0" y1="1.27" x2="0.9917" y2="0.7934" width="0.1524" layer="21" curve="-51.33923"/>
+<wire x1="-0.9917" y1="0.7934" x2="0" y2="1.27" width="0.1524" layer="21" curve="-51.33923"/>
+<wire x1="0" y1="-1.27" x2="0.9917" y2="-0.7934" width="0.1524" layer="21" curve="51.33923"/>
+<wire x1="-0.9917" y1="-0.7934" x2="0" y2="-1.27" width="0.1524" layer="21" curve="51.33923"/>
+<wire x1="0.9558" y1="-0.8363" x2="1.27" y2="0" width="0.1524" layer="51" curve="41.185419"/>
+<wire x1="0.9756" y1="0.813" x2="1.2699" y2="0" width="0.1524" layer="51" curve="-39.806332"/>
+<wire x1="-1.27" y1="0" x2="-0.9643" y2="-0.8265" width="0.1524" layer="51" curve="40.600331"/>
+<wire x1="-1.27" y1="0" x2="-0.9643" y2="0.8265" width="0.1524" layer="51" curve="-40.600331"/>
+<wire x1="-0.889" y1="0" x2="0" y2="0.889" width="0.1524" layer="51" curve="-90"/>
+<wire x1="-0.508" y1="0" x2="0" y2="0.508" width="0.1524" layer="51" curve="-90"/>
+<wire x1="0" y1="-0.508" x2="0.508" y2="0" width="0.1524" layer="21" curve="90"/>
+<wire x1="0" y1="-0.889" x2="0.889" y2="0" width="0.1524" layer="51" curve="90"/>
+<pad name="A" x="-1.905" y="0" drill="0.8128" shape="octagon"/>
+<pad name="K" x="1.905" y="0" drill="0.8128" shape="octagon"/>
+<text x="0" y="2" size="1.016" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<rectangle x1="1.27" y1="-0.635" x2="2.032" y2="0.635" layer="51"/>
+<rectangle x1="2.8575" y1="-0.635" x2="2.9845" y2="0.635" layer="21"/>
+</package>
+<package name="LED3MM">
+<description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
+3 mm, round</description>
+<wire x1="1.5748" y1="-1.27" x2="1.5748" y2="1.27" width="0.254" layer="51"/>
+<wire x1="-1.524" y1="0" x2="-1.1708" y2="0.9756" width="0.1524" layer="51" curve="-39.80361"/>
+<wire x1="-1.524" y1="0" x2="-1.1391" y2="-1.0125" width="0.1524" layer="51" curve="41.633208"/>
+<wire x1="1.1571" y1="0.9918" x2="1.524" y2="0" width="0.1524" layer="51" curve="-40.601165"/>
+<wire x1="1.1708" y1="-0.9756" x2="1.524" y2="0" width="0.1524" layer="51" curve="39.80361"/>
+<wire x1="0" y1="1.524" x2="1.2401" y2="0.8858" width="0.1524" layer="51" curve="-54.461337"/>
+<wire x1="-1.2192" y1="0.9144" x2="0" y2="1.524" width="0.1524" layer="51" curve="-53.130102"/>
+<wire x1="0" y1="-1.524" x2="1.203" y2="-0.9356" width="0.1524" layer="51" curve="52.126876"/>
+<wire x1="-1.203" y1="-0.9356" x2="0" y2="-1.524" width="0.1524" layer="51" curve="52.126876"/>
+<wire x1="-0.635" y1="0" x2="0" y2="0.635" width="0.1524" layer="51" curve="-90"/>
+<wire x1="-1.016" y1="0" x2="0" y2="1.016" width="0.1524" layer="51" curve="-90"/>
+<wire x1="0" y1="-0.635" x2="0.635" y2="0" width="0.1524" layer="51" curve="90"/>
+<wire x1="0" y1="-1.016" x2="1.016" y2="0" width="0.1524" layer="51" curve="90"/>
+<wire x1="0" y1="2.032" x2="1.561" y2="1.3009" width="0.254" layer="21" curve="-50.193108"/>
+<wire x1="-1.6659" y1="1.0832" x2="0" y2="2.032" width="0.254" layer="21" curve="-61.926949"/>
+<wire x1="0" y1="-2.032" x2="1.5512" y2="-1.3126" width="0.254" layer="21" curve="49.763022"/>
+<wire x1="-1.9558" y1="0" x2="-1.6621" y2="1.0904" width="0.254" layer="51" curve="-28.301701"/>
+<pad name="A" x="-1.27" y="0" drill="1" diameter="1.6764" shape="octagon"/>
+<pad name="K" x="1.27" y="0" drill="1" diameter="1.6764" shape="octagon"/>
+<text x="0" y="3.175" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.175" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<wire x1="-1.6659" y1="-1.0832" x2="0" y2="-2.032" width="0.254" layer="21" curve="61.926949"/>
+<wire x1="-1.9558" y1="0" x2="-1.6621" y2="-1.0904" width="0.254" layer="51" curve="28.301701"/>
+</package>
+<package name="HLMP-Q150">
+<description>&lt;B&gt;LED&lt;/B&gt;&lt;p&gt;
+5 mm, square, Siemens</description>
+<wire x1="-1.27" y1="-1.27" x2="0" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="0" y1="-1.27" x2="1.27" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="1.27" y1="1.27" x2="0" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="0" y1="1.27" x2="-1.27" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.1524" layer="51"/>
+<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="-1.27" y1="-1.27" x2="-1.27" y2="0" width="0.1524" layer="51"/>
+<wire x1="-1.27" y1="0" x2="-1.27" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="0" y1="1.27" x2="0.9917" y2="0.7934" width="0.1524" layer="51" curve="-51.33923"/>
+<wire x1="-0.9917" y1="0.7934" x2="0" y2="1.27" width="0.1524" layer="51" curve="-51.33923"/>
+<wire x1="0" y1="-1.27" x2="0.9917" y2="-0.7934" width="0.1524" layer="51" curve="51.33923"/>
+<wire x1="-0.9917" y1="-0.7934" x2="0" y2="-1.27" width="0.1524" layer="51" curve="51.33923"/>
+<wire x1="0.9558" y1="-0.8363" x2="1.27" y2="0" width="0.1524" layer="51" curve="41.185419"/>
+<wire x1="0.9756" y1="0.813" x2="1.2699" y2="0" width="0.1524" layer="51" curve="-39.806332"/>
+<wire x1="-1.27" y1="0" x2="-0.9643" y2="-0.8265" width="0.1524" layer="51" curve="40.600331"/>
+<wire x1="-1.27" y1="0" x2="-0.9643" y2="0.8265" width="0.1524" layer="51" curve="-40.600331"/>
+<wire x1="-0.889" y1="0" x2="0" y2="0.889" width="0.1524" layer="51" curve="-90"/>
+<wire x1="-0.508" y1="0" x2="0" y2="0.508" width="0.1524" layer="51" curve="-90"/>
+<wire x1="0" y1="-0.508" x2="0.508" y2="0" width="0.1524" layer="51" curve="90"/>
+<wire x1="0" y1="-0.889" x2="0.889" y2="0" width="0.1524" layer="51" curve="90"/>
+<text x="-6" y="2" size="1.016" layer="26" font="vector" ratio="15" rot="MR0" align="center">&gt;NAME</text>
+<rectangle x1="4.5" y1="-0.5" x2="5.667" y2="0.5" layer="21"/>
+<smd name="A" x="-9" y="0" dx="6" dy="0.7" layer="1"/>
+<smd name="K" x="9" y="0" dx="6" dy="0.7" layer="1" rot="R180"/>
+<text x="4.5" y="-1" size="0.6096" layer="21" font="vector" ratio="16" align="center-left">Cath</text>
 </package>
 </packages>
 <symbols>
@@ -1834,6 +1857,15 @@ Source: www.kingbright.com</description>
 <connects>
 <connect gate="G$1" pin="A" pad="A"/>
 <connect gate="G$1" pin="C" pad="C E"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="HLMP-Q15X" package="HLMP-Q150">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="K"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -2867,8 +2899,8 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <package name="SOT89">
 <wire x1="2.3" y1="1.3" x2="2.3" y2="-1.3" width="0.2032" layer="21"/>
 <wire x1="2.3" y1="-1.3" x2="2.06375" y2="-1.3" width="0.2032" layer="21"/>
-<wire x1="0.9525" y1="-1.3" x2="0.635" y2="-1.3" width="0.2032" layer="21"/>
-<wire x1="-0.635" y1="-1.3" x2="-0.9525" y2="-1.3" width="0.2032" layer="21"/>
+<wire x1="0.9271" y1="-1.3" x2="0.6096" y2="-1.3" width="0.2032" layer="21"/>
+<wire x1="-0.6096" y1="-1.3" x2="-0.9271" y2="-1.3" width="0.2032" layer="21"/>
 <wire x1="-2.06375" y1="-1.3" x2="-2.3" y2="-1.3" width="0.2032" layer="21"/>
 <wire x1="-2.3" y1="-1.3" x2="-2.3" y2="1.3" width="0.2032" layer="21"/>
 <wire x1="-2.3" y1="1.3" x2="-1.27" y2="1.3" width="0.2032" layer="21"/>
@@ -4218,14 +4250,12 @@ Source: www.tycoelectronics.com .. ENG_DS_1654001_1099_RJ_L_0507.pdf</descriptio
 <hole x="5.08" y="0" drill="3.2512"/>
 </package>
 <package name="RJ11-NO_SHIELD-4-LP">
-<wire x1="-6.242" y1="9.549" x2="-1.294" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="0.024" y1="9.549" x2="1.246" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="2.564" y1="9.549" x2="6.242" y2="9.549" width="0.2032" layer="21"/>
+<wire x1="-6.242" y1="10.184" x2="6.242" y2="10.184" width="0.2032" layer="21"/>
 <wire x1="6.242" y1="-7.782" x2="-6.242" y2="-7.782" width="0.2032" layer="51"/>
 <wire x1="-6.242" y1="-7.782" x2="-6.242" y2="-3.337" width="0.2032" layer="51"/>
 <wire x1="-6.242" y1="-3.337" x2="-6.242" y2="-1.5875" width="0.2032" layer="21"/>
-<wire x1="-6.242" y1="1.5875" x2="-6.242" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="6.242" y1="9.549" x2="6.242" y2="1.5875" width="0.2032" layer="21"/>
+<wire x1="-6.242" y1="1.5875" x2="-6.242" y2="10.184" width="0.2032" layer="21"/>
+<wire x1="6.242" y1="10.184" x2="6.242" y2="1.5875" width="0.2032" layer="21"/>
 <wire x1="6.242" y1="-1.5875" x2="6.242" y2="-3.337" width="0.2032" layer="21"/>
 <pad name="4" x="0.635" y="6.35" drill="0.9" diameter="1.4"/>
 <pad name="3" x="-0.635" y="8.89" drill="0.9" diameter="1.4"/>
@@ -4238,15 +4268,12 @@ Source: www.tycoelectronics.com .. ENG_DS_1654001_1099_RJ_L_0507.pdf</descriptio
 <wire x1="6.242" y1="-3.337" x2="6.242" y2="-7.782" width="0.2032" layer="51"/>
 </package>
 <package name="RJ11-NO_SHIELD-LP">
-<wire x1="-6.242" y1="9.549" x2="-3.834" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="-2.516" y1="9.549" x2="-1.294" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="0.024" y1="9.549" x2="1.246" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="2.564" y1="9.549" x2="6.242" y2="9.549" width="0.2032" layer="21"/>
+<wire x1="-6.242" y1="10.184" x2="6.242" y2="10.184" width="0.2032" layer="21"/>
 <wire x1="6.242" y1="-7.782" x2="-6.242" y2="-7.782" width="0.2032" layer="51"/>
 <wire x1="-6.242" y1="-7.782" x2="-6.242" y2="-3.337" width="0.2032" layer="51"/>
 <wire x1="-6.242" y1="-3.337" x2="-6.242" y2="-1.5875" width="0.2032" layer="21"/>
-<wire x1="-6.242" y1="1.5875" x2="-6.242" y2="9.549" width="0.2032" layer="21"/>
-<wire x1="6.242" y1="9.549" x2="6.242" y2="1.5875" width="0.2032" layer="21"/>
+<wire x1="-6.242" y1="1.5875" x2="-6.242" y2="10.184" width="0.2032" layer="21"/>
+<wire x1="6.242" y1="10.184" x2="6.242" y2="1.5875" width="0.2032" layer="21"/>
 <wire x1="6.242" y1="-1.5875" x2="6.242" y2="-3.337" width="0.2032" layer="21"/>
 <pad name="4" x="0.635" y="6.35" drill="0.9" diameter="1.4"/>
 <pad name="3" x="-0.635" y="8.89" drill="0.9" diameter="1.4"/>
@@ -16591,8 +16618,8 @@ Connectors:
 <pin name="VCC" x="0" y="43.18" length="middle" direction="pwr" rot="R270"/>
 <pin name="XTAL1" x="-35.56" y="-25.4" length="middle" direction="in"/>
 <pin name="XTAL2" x="-35.56" y="-27.94" length="middle" direction="in"/>
-<text x="-30.48" y="38.862" size="1.778" layer="94">&gt;NAME</text>
-<text x="-30.48" y="-40.64" size="1.778" layer="94">&gt;VALUE</text>
+<text x="-30.48" y="38.862" size="1.778" layer="95">&gt;NAME</text>
+<text x="-30.48" y="-40.64" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -20249,6 +20276,87 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="ic-package">
+<description>&lt;b&gt;IC Packages an Sockets&lt;/b&gt;&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="IC">
+<wire x1="-1.905" y1="3.175" x2="-1.905" y2="2.54" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="2.54" x2="-1.905" y2="1.27" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="1.27" x2="-1.905" y2="0" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="0" x2="-1.905" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="-1.27" x2="-1.905" y2="-2.54" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="-2.54" x2="-1.905" y2="-3.175" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-3.175" x2="1.905" y2="-2.54" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-2.54" x2="1.905" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-1.27" x2="1.905" y2="0" width="0.127" layer="21"/>
+<wire x1="1.905" y1="0" x2="1.905" y2="1.27" width="0.127" layer="21"/>
+<wire x1="1.905" y1="1.27" x2="1.905" y2="2.54" width="0.127" layer="21"/>
+<wire x1="1.905" y1="2.54" x2="1.905" y2="3.175" width="0.127" layer="21"/>
+<wire x1="1.905" y1="3.175" x2="1.27" y2="3.175" width="0.127" layer="21"/>
+<wire x1="-1.27" y1="3.175" x2="-1.905" y2="3.175" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="0" x2="-2.54" y2="0" width="0.127" layer="21"/>
+<wire x1="1.905" y1="0" x2="2.54" y2="0" width="0.127" layer="21"/>
+<text x="0" y="0" size="1.016" layer="25" font="vector" ratio="16" rot="R90" align="center">&gt;VALUE</text>
+<wire x1="-1.905" y1="-1.27" x2="-2.54" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="1.27" x2="-2.54" y2="1.27" width="0.127" layer="21"/>
+<wire x1="1.905" y1="1.27" x2="2.54" y2="1.27" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-1.27" x2="2.54" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-2.54" x2="2.54" y2="-2.54" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="-2.54" x2="-2.54" y2="-2.54" width="0.127" layer="21"/>
+<wire x1="-1.905" y1="2.54" x2="-2.54" y2="2.54" width="0.127" layer="21"/>
+<wire x1="1.905" y1="2.54" x2="2.54" y2="2.54" width="0.127" layer="21"/>
+<wire x1="1.905" y1="-3.175" x2="1.27" y2="-3.175" width="0.127" layer="21"/>
+<wire x1="-1.27" y1="-3.175" x2="-1.905" y2="-3.175" width="0.127" layer="21"/>
+<circle x="-1.27" y="2.54" radius="0.254" width="0.127" layer="21"/>
+</package>
+</packages>
+<symbols>
+<symbol name="IC">
+<wire x1="-5.08" y1="8.89" x2="-5.08" y2="7.62" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="7.62" x2="-5.08" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="5.08" x2="-5.08" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-5.08" x2="-5.08" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-7.62" x2="-5.08" y2="-8.89" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-8.89" x2="5.08" y2="-8.89" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-8.89" x2="5.08" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-7.62" x2="5.08" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-5.08" x2="5.08" y2="5.08" width="0.254" layer="94"/>
+<wire x1="5.08" y1="5.08" x2="5.08" y2="7.62" width="0.254" layer="94"/>
+<wire x1="5.08" y1="7.62" x2="5.08" y2="8.89" width="0.254" layer="94"/>
+<wire x1="5.08" y1="8.89" x2="2.54" y2="8.89" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="8.89" x2="-2.54" y2="8.89" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="8.89" x2="2.54" y2="8.89" width="0.254" layer="94" curve="180"/>
+<text x="0" y="10.16" size="1.4224" layer="95" font="vector" ratio="14" align="center">&gt;NAME</text>
+<wire x1="-5.08" y1="5.08" x2="-7.62" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-5.08" x2="-7.62" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-7.62" x2="-7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="7.62" x2="-7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="5.08" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="5.08" y1="5.08" x2="7.62" y2="5.08" width="0.254" layer="94"/>
+<wire x1="5.08" y1="-7.62" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="5.08" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-6.35" y1="3.556" x2="-6.35" y2="-3.556" width="0.254" layer="94" style="shortdash"/>
+<wire x1="6.35" y1="3.556" x2="6.35" y2="-3.556" width="0.254" layer="94" style="shortdash"/>
+<text x="0" y="0" size="1.27" layer="94" font="vector" ratio="16" align="center">IC</text>
+<text x="0" y="-10.16" size="1.4224" layer="96" font="vector" ratio="14" align="center">&gt;VALUE</text>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="IC" prefix="ICL" uservalue="yes">
+<gates>
+<gate name="G$1" symbol="IC" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="IC">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -20364,19 +20472,21 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="OC_FARNELL" value="2447272"/>
 </part>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
-<part name="IC1" library="atmel" deviceset="ATMEGA162" device="-16PU-SKT" value="ATMEGA162-16PU-SKT">
-<attribute name="MF" value="ATMEL"/>
-<attribute name="MPN" value="ATMEGA162-16PU"/>
-<attribute name="OC_FARNELL" value="9171169"/>
+<part name="IC1" library="atmel" deviceset="ATMEGA162" device="-16PU-SKT" value="DIP40-SOCKET">
+<attribute name="MF" value="MULTICOMP"/>
+<attribute name="MPN" value="2227MC-40-06-05-F1"/>
+<attribute name="OC_FARNELL" value="1103855"/>
 </part>
-<part name="IC2" library="microchip" deviceset="PIC18F14K50-I/P" device="-SKT" value="PIC18F14K50-I/P-SKT">
-<attribute name="MF" value="MICROCHIP"/>
+<part name="IC2" library="microchip" deviceset="PIC18F14K50-I/P" device="-SKT" value="DIP20-SOCKET">
+<attribute name="MF" value="MULTICOMP"/>
+<attribute name="MPN" value="2227-20-03-07"/>
+<attribute name="OC_FARNELL" value="4285608"/>
 </part>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
-<part name="D2" library="SparkFun" deviceset="DIODE" device="SOD" value="PMEG2010EA">
-<attribute name="MF" value="NEXPERIA"/>
-<attribute name="MPN" value="PMEG2010EA"/>
-<attribute name="OC_FARNELL" value="8737908"/>
+<part name="D2" library="SparkFun" deviceset="DIODE" device="SOD" value="RB511VM-30FHTE-17">
+<attribute name="MF" value="ROHM"/>
+<attribute name="MPN" value="RB511VM-30FHTE-17"/>
+<attribute name="OC_FARNELL" value="2581544"/>
 </part>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="C14" library="rcl" deviceset="C-EU" device="C0603" value="22p">
@@ -20412,9 +20522,9 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 </part>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="PROG" library="SparkFun" deviceset="AVR_SPI_PRG_6" device="PTH" value="AVR_PRG">
-<attribute name="MF" value="AMP - TE CONNECTIVITY"/>
-<attribute name="MPN" value="826632-3"/>
-<attribute name="OC_FARNELL" value="3418492"/>
+<attribute name="MF" value="HARWIN"/>
+<attribute name="MPN" value="M20-9980346"/>
+<attribute name="OC_FARNELL" value="1022231"/>
 </part>
 <part name="C11" library="rcl" deviceset="C-EU" device="C0603" value="100n">
 <attribute name="MF" value="MULTICOMP"/>
@@ -20470,7 +20580,7 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="MPN" value="95501-2661"/>
 <attribute name="OC_FARNELL" value="1536490"/>
 </part>
-<part name="GPIO" library="SparkFun" deviceset="M05" device="PTH">
+<part name="GPIO" library="SparkFun" deviceset="M05" device="PTH" value="DNI">
 <attribute name="MF" value=""/>
 <attribute name="MPN" value=""/>
 <attribute name="OC_FARNELL" value="unknown"/>
@@ -20483,7 +20593,7 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="OC_FARNELL" value="2447230"/>
 </part>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="LOGO1" library="CompanyLogos" deviceset="ASTROEQ" device="5MM">
+<part name="LOGO1" library="CompanyLogos" deviceset="ASTROEQ" device="5MM" value="DNI">
 <attribute name="MF" value=""/>
 <attribute name="MPN" value=""/>
 <attribute name="OC_FARNELL" value="unknown"/>
@@ -20493,22 +20603,22 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="MPN" value="MCWR06X1001FTL"/>
 <attribute name="OC_FARNELL" value="2447272"/>
 </part>
-<part name="SJ1" library="jumper" deviceset="JP2E" device="">
-<attribute name="MF" value="MULTICOMP"/>
-<attribute name="MPN" value="2211S-03G"/>
-<attribute name="OC_FARNELL" value="1593412"/>
+<part name="SJ1" library="jumper" deviceset="JP2E" device="" value="3pin HDR">
+<attribute name="MF" value="HARWIN"/>
+<attribute name="MPN" value="M20-9990345."/>
+<attribute name="OC_FARNELL" value="1022248"/>
 </part>
-<part name="SJ2" library="jumper" deviceset="JP2E" device="">
-<attribute name="MF" value="MULTICOMP"/>
-<attribute name="MPN" value="2211S-03G"/>
-<attribute name="OC_FARNELL" value="1593412"/>
+<part name="SJ2" library="jumper" deviceset="JP2E" device="" value="3pin HDR">
+<attribute name="MF" value="HARWIN"/>
+<attribute name="MPN" value="M20-9990345."/>
+<attribute name="OC_FARNELL" value="1022248"/>
 </part>
-<part name="J2" library="jumper" deviceset="JUMPER" device="">
+<part name="J2" library="jumper" deviceset="JUMPER" device="" value="DNI">
 <attribute name="MF" value="3M"/>
 <attribute name="MPN" value="969102-0000-DA"/>
 <attribute name="OC_FARNELL" value="2579814"/>
 </part>
-<part name="J3" library="jumper" deviceset="JUMPER" device="">
+<part name="J3" library="jumper" deviceset="JUMPER" device="" value="DNI">
 <attribute name="MF" value="3M"/>
 <attribute name="MPN" value="969102-0000-DA"/>
 <attribute name="OC_FARNELL" value="2579814"/>
@@ -20551,6 +20661,16 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="MF" value="SAMTEC"/>
 <attribute name="MPN" value="CES-116-01-T-S"/>
 <attribute name="OC_FARNELL" value="1667522"/>
+</part>
+<part name="ICL2" library="ic-package" deviceset="IC" device="" value="PIC18F14K50-I/P">
+<attribute name="MF" value="MICROCHIP"/>
+<attribute name="MPN" value="PIC18F14K50-I/P"/>
+<attribute name="OC_FARNELL" value="1648501"/>
+</part>
+<part name="ICL1" library="ic-package" deviceset="IC" device="" value="ATMEGA162-16PU">
+<attribute name="MF" value="ATMEL"/>
+<attribute name="MPN" value="ATMEGA162-16PU"/>
+<attribute name="OC_FARNELL" value="9171169"/>
 </part>
 </parts>
 <sheets>
@@ -20877,6 +20997,16 @@ Source: http://www.diodes.com/datasheets/ds23001.pdf</description>
 <attribute name="OC_FARNELL" x="386.08" y="243.84" size="1.4224" layer="96" display="off"/>
 <attribute name="MF" x="386.08" y="243.84" size="1.4224" layer="96" display="off"/>
 <attribute name="MPN" x="386.08" y="243.84" size="1.4224" layer="96" display="off"/>
+</instance>
+<instance part="ICL2" gate="G$1" x="81.28" y="266.7">
+<attribute name="OC_FARNELL" x="81.28" y="266.7" size="1.778" layer="96" display="off"/>
+<attribute name="MF" x="81.28" y="266.7" size="1.778" layer="96" display="off"/>
+<attribute name="MPN" x="81.28" y="266.7" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="ICL1" gate="G$1" x="241.3" y="264.16">
+<attribute name="OC_FARNELL" x="241.3" y="264.16" size="1.778" layer="96" display="off"/>
+<attribute name="MF" x="241.3" y="264.16" size="1.778" layer="96" display="off"/>
+<attribute name="MPN" x="241.3" y="264.16" size="1.778" layer="96" display="off"/>
 </instance>
 </instances>
 <busses>
