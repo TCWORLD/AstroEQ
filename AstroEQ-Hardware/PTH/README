@@ -1,0 +1,5 @@
+This folder contains designs used in purchased AstroEQ controllers and PCBs.
+
+Currently V4.6 is the bare PCB version that I sell through the AstroEQ website. It is an easy to solder through-hole board. The Gerber files, Schematic and BOM, as well as the Eagle design files are all available in this folder.
+
+V4.7 is a new part-SMD design that I will be using for the next run of controllers. I have made this switch to allow for machine assembly of the design. I would not recommend building this board yourself as it is functionally identical to the V4.6 board but will not be easy to assemble!
