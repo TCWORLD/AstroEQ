@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Verison: 8.0.2
+  Current Verison: 8.0.3
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -42,7 +42,7 @@ void wdt_init(void)
  * Defines
  */
 //Define the version number
-#define ASTROEQ_VER 802
+#define ASTROEQ_VER 803
 
 /*
  * Global Variables
@@ -480,13 +480,14 @@ byte checkBasicHCSpeed() {
         speed = CMD_ST4_DEFAULT;
     } else {
         //Otherwise check which high-speed mode it is
+        setPinValue(standalonePin[STANDALONE_PULL],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
+        for (byte i = 10; i > 0; i--) {
+            nop(); //Short delay to drain capacitance.
+        }
         setPinDir  (standalonePin[STANDALONE_PULL],INPUT); //Disable external resistor by switching to input
-        setPinValue(standalonePin[STANDALONE_PULL],LOW);   //with no internal pull-up (we are using the IRQ pin internal pull-up)
-        nop(); // Input synchroniser takes a couple of cycles
-        nop();
-        nop();
-        nop();
-        
+        for (byte i = 200; i > 0; i--) {
+            nop(); //Short delay to allow line to rebound.
+        }
         if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
             //Must be a 2x rate as IRQ pin goes low when external pull-up disabled
             speed = CMD_ST4_STANDALONE;
@@ -515,6 +516,7 @@ int main(void) {
     bool mcuReset = false; //Not resetting the MCU after programming command
     
     bool isST4Move[2] = {false, false};
+    char lastST4Pin[2] = {ST4O, ST4O};
     
     unsigned int loopCount = 0;
     char recievedChar = 0; //last character we received
@@ -566,9 +568,6 @@ int main(void) {
                     //Even if we don't we would default to basic mode.
                     syntaMode = false;
                     
-                    //High speed not supported in Basic HC
-                    canJumpToHighspeed = false;
-                    
                     //For basic mode we need a pull up resistor on the speed/irq line
                     setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Pull high
                     
@@ -583,6 +582,9 @@ int main(void) {
                     
                     Commands_configureST4Speed(CMD_ST4_DEFAULT); //Change the ST4 speeds to default
                     
+                    cmd.highSpeedMode[RA] = false;
+                    cmd.highSpeedMode[DC] = false;
+                    
                     motorEnable(RA); //Ensure the motors are enabled
                     motorEnable(DC);
                     
@@ -595,6 +597,9 @@ int main(void) {
                     cmd_setIVal      (RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
                     
                     readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sideral tracking
+                    
+                    lastST4Pin[RA] = ST4O;
+                    lastST4Pin[DC] = ST4O;
                 }
             }
             //If we end up in standalone mode, we don't exit until a reset.
@@ -641,11 +646,12 @@ int main(void) {
             //
             if (!standaloneMode && ((loopCount & 0xFF) == 0)){
                 //We only check the ST-4 buttons in EQMOD mode when not doing Go-To, and only every so often - this adds a little bit of debouncing time.
-                {//Start RA
-                    //In Synta mode, we only allow the ST-4 port to move forward, and only if EQMOD has configured us previously to be in tracking mode
+                //Determine which RA ST4 pin if any
+                char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
+                if (st4Pin != lastST4Pin[RA]) { 
+                    //Only update speed/dir if the ST4 pin value has changed.
                     if ((cmd.dir[RA] == CMD_FORWARD) && (readyToGo[RA] == 2)) {
-                        //Determine which ST4 pin if any
-                        char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                        //In Synta mode, we only allow the ST-4 port to move forward, and only if EQMOD has configured us previously to be in tracking mode
                         //Update target speed.
                         if (st4Pin != ST4O) {
                             //If RA+/- pressed:
@@ -660,11 +666,12 @@ int main(void) {
                             isST4Move[RA] = false; //No longer ST4 movement
                         }
                     }
-                }//End RA
-                
-                if (!cmd.gotoEn[DC]) {//Start DEC
-                    //Determine which if any ST4 Pin
-                    char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                    lastST4Pin[RA] = st4Pin; //Keep track of what the last ST4 pin value was so we can detect a change.
+                }
+                //Determine which if any DEC ST4 Pin
+                st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                if (!cmd.gotoEn[DC] && (st4Pin != lastST4Pin[DC])) {
+                    //Only update speed/dir if the ST4 pin value has changed, and we are not in GoTo mode.
                     //Determine the new direction
                     byte dir = CMD_FORWARD;
                     if (st4Pin == ST4N) {
@@ -675,6 +682,8 @@ int main(void) {
                         //If we are currently moving in the wrong direction
                         motorStopDC(false); //Stop the Dec motor
                         readyToGo[DC]=0;    //No longer ready to go as we have now deleted any pre-running EQMOD movement.
+                        //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
+                        //first we can come back in over and over until we have started the movement.
                     } else {
                         //Otherwise we are now free to change to the new required speed.
                         if (st4Pin != ST4O) {
@@ -689,8 +698,9 @@ int main(void) {
                             motorStopDC(false);
                             isST4Move[DC] = false; //No longer ST4 movement
                         }
+                        lastST4Pin[DC] = st4Pin; //Keep track of what the last ST4 pin value was so we can detect a change.
                     }
-                }//End DEC
+                }
             }
             
             //Check both axes - loop unravelled for speed efficiency - lots of Flash available.
@@ -786,6 +796,34 @@ int main(void) {
                 if (newBasicHCSpeed != cmd.st4Mode) {
                     //Only update speed if changed.
                     Commands_configureST4Speed(newBasicHCSpeed); //Change the ST4 speeds
+                    byte state;
+                    if (canJumpToHighspeed && (newBasicHCSpeed == CMD_ST4_HIGHSPEED)) {
+                        //If we can jump to high torque mode, and we are requesting Go-To s
+                        state = modeState[SPEEDFAST]; //Select the high speed modepeed, then change step modes
+                        //RA
+                        cmd_updateStepDir(RA,cmd.gVal[RA]);
+                        cmd.highSpeedMode[RA] = true;
+                        //Dec
+                        cmd_updateStepDir(DC,cmd.gVal[DC]);
+                        cmd.highSpeedMode[DC] = true;
+                    } else {
+                        //Otherwise ensure we are in normal speed mode.
+                        state = modeState[SPEEDNORM]; //Select the normal speed mode
+                        //RA
+                        cmd_updateStepDir(RA,1);
+                        cmd.highSpeedMode[RA] = false;
+                        //Dec
+                        cmd_updateStepDir(DC,1);
+                        cmd.highSpeedMode[DC] = false;
+                    }
+                    //RA
+                    setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0)));
+                    setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1)));
+                    setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2)));
+                    //Dec
+                    setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0)));
+                    setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1)));
+                    setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2)));
                 }
             }
             
@@ -794,9 +832,9 @@ int main(void) {
             //
             if ((loopCount & 0xFF) == 0){
                 //We only check the buttons every so often - this adds a little bit of debouncing time.
-                {//Start RA
-                    //Determine which if any ST4 Pin
-                    char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
+                //Determine which if any RA ST4 Pin
+                char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
+                if ((st4Pin == ST4O) || (st4Pin != lastST4Pin[RA])) { //Only update speed/dir if the ST4 pin value has changed, but also ensure we stop by always doing ST4O!
                     //Determine the new direction
                     byte dir = CMD_FORWARD;
                     if ((st4Pin == ST4N) && (cmd.st4RAReverse == CMD_REVERSE)) {
@@ -804,30 +842,33 @@ int main(void) {
                         dir = CMD_REVERSE;
                     }
                     byte oldSREG = SREG;
-                    cli(); //We are playing with motor ISR values, so ensure we are atomic.
-                    if ((cmd.stopped[RA] != CMD_STOPPED) && (cmd.dir[RA] != dir) && (currentMotorSpeed(RA) < cmd.minSpeed[RA])) {
+                    cli(); //We are reading motor ISR values, so ensure we are atomic.
+                    unsigned int currentSpeed = currentMotorSpeed(RA);
+                    SREG = oldSREG; //End atomic
+                    if ((cmd.stopped[RA] != CMD_STOPPED) && (cmd.dir[RA] != dir) && (currentSpeed < cmd.minSpeed[RA])) {
                         //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
                         motorStopRA(false);
+                        //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
+                        //first we can come back in over and over until we have started the movement.
                     } else {
                         //Otherwise we are now free to change to the new required speed
                         // - If no RA button is pressed, go at sidereal rate
                         // - Otherwise go at rate corresponding with the pressed button
                         cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.siderealIVal[RA] : cmd.st4RAIVal[st4Pin]);
                         cmd_setDir(RA,dir);
-                        cmd_updateStepDir(RA,1);
+                        cmd_updateStepDir(RA,cmd.highSpeedMode[RA] ? cmd.gVal[RA] : 1);
                         if ((st4Pin == ST4O) && (cmd.st4Mode == CMD_ST4_HIGHSPEED)) {
                             motorStopRA(false); //If no buttons pressed and in high speed mode, we stop entirely rather than going to tracking
                                                 //This ensures that the motors stop if the handcontroller is subsequently unplugged.
                         } else {
                             motorStartRA(); //If the motor is currently stopped at this point, this will automatically start them.
                         }
+                        lastST4Pin[RA] = st4Pin; //Keep track of what the last ST4 pin value was so we can detect a change.
                     }
-                    SREG = oldSREG; //End atomic
-                }//End RA
-                
-                {//Start DEC
-                    //Determine which if any ST4 Pin
-                    char st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                }
+                //Determine which if any DEC ST4 Pin
+                st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
+                if ((st4Pin == ST4O) || (st4Pin != lastST4Pin[DC])) { //Only update speed/dir if the ST4 pin value has changed, but also ensure we stop by always doing ST4O!
                     //Determine the new direction
                     byte dir = CMD_FORWARD;
                     if (st4Pin == ST4N) {
@@ -835,25 +876,29 @@ int main(void) {
                         dir = CMD_REVERSE;
                     }
                     byte oldSREG = SREG;
-                    cli(); //We are playing with motor ISR values, so ensure we are atomic.
-                    if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir) && (currentMotorSpeed(DC) < cmd.minSpeed[DC])) {
+                    cli(); //We are reading motor ISR values, so ensure we are atomic.
+                    unsigned int currentSpeed = currentMotorSpeed(DC);
+                    SREG = oldSREG; //End atomic
+                    if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir) && (currentSpeed < cmd.minSpeed[DC])) {
                         //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
                         motorStopDC(false);
+                        //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
+                        //first we can come back in over and over until we have started the movement.
                     } else {
                         //Otherwise we are now free to change to the new required speed.
                         if (st4Pin != ST4O) {
                             //If an ST4 Dec pin is pressed
                             cmd_setIVal(DC,cmd.st4DecIVal);
                             cmd_setDir (DC,dir);
-                            cmd_updateStepDir(DC,1);
+                            cmd_updateStepDir(DC,cmd.highSpeedMode[DC] ? cmd.gVal[DC] : 1);
                             motorStartDC(); //If the motor is currently stopped at this point, this will automatically start them.
                         } else {
                             //Otherwise stop th DEC motor
                             motorStopDC(false);
                         }
+                        lastST4Pin[DC] = st4Pin; //Keep track of what the last ST4 pin value was so we can detect a change.
                     }
-                    SREG = oldSREG; //End atomic
-                }//End DEC
+                }
             }
         ///////////
         }
