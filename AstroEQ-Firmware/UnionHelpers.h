@@ -36,7 +36,7 @@ typedef union{
     };
 } Byter;
 
-typedef union InterMaker{
+typedef union {
     unsigned long integer;
     struct {
         byte low;
@@ -48,16 +48,16 @@ typedef union InterMaker{
         Byter lowByter;
         Byter highByter;
     };
-    InterMaker(unsigned long _integer){
-        integer = _integer;
-    }
-    InterMaker(byte _top, byte _high, byte _mid, byte _low){
-        low = _low;
-        mid = _mid;
-        high = _high;
-        top = _top;
-    }
 } Inter;
+
+inline Inter InterMaker(byte _top, byte _high, byte _mid, byte _low){
+	Inter inter;
+	inter.low = _low;
+	inter.mid = _mid;
+	inter.high = _high;
+	inter.top = _top;
+	return inter;
+}
 
 typedef union{
     unsigned int integer;

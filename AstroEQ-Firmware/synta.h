@@ -1,6 +1,6 @@
 
-#ifndef synta_h
-#define synta_h
+#ifndef __SYNTA_H__
+#define __SYNTA_H__
 
 #include "AstroEQ.h"
 #include "commands.h"
@@ -8,8 +8,9 @@
 void synta_initialise(unsigned long version, byte gVal);
 void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData);
 char synta_recieveCommand(char* dataPacket, char character);
-byte synta_axis(byte axis = 2); //make target readonly to outside world.
-char synta_command(); //make current command readonly to outside world.
+byte synta_setaxis(byte axis);
+byte synta_getaxis();
+char synta_command();
 unsigned long synta_hexToLong(char* hex);
 byte synta_hexToByte(char* hex);
 
@@ -25,4 +26,4 @@ byte synta_hexToByte(char* hex);
 //void cmd_setHVal(byte target, unsigned long _HVal);
 //void cmd_setGVal(byte target, byte _GVal);
   
-#endif
+#endif //__SYNTA_H__

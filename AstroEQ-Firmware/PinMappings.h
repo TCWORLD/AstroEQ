@@ -1,4 +1,8 @@
 
+
+#ifndef __PINMAPPINGS_H__
+#define __PINMAPPINGS_H__
+
 //
 // Useful Macros
 //
@@ -268,3 +272,7 @@
 
 
 #endif
+
+
+#endif //__PINMAPPINGS_H__
+

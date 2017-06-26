@@ -1,3 +1,7 @@
+
+#ifndef __EEPROM_ADDRESSES_H__
+#define __EEPROM_ADDRESSES_H__
+
 #include "avr/io.h"
 
 #define EEPROMStart_Address (                      0 )
@@ -28,3 +32,5 @@
 #if ((EEPROMStart_Address + 100 + (6*AccelTableLength) - 1) > E2END)
     #error "AccelTable too large for EEPROM"
 #endif
+
+#endif //__EEPROM_ADDRESSES_H__

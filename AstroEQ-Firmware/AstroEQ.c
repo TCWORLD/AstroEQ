@@ -72,17 +72,31 @@ byte accelTableIndex[2] = {0,0};
 /*
  * Helper Macros
  */
-#define distributionSegment(m)      (m ? GPIOR1     : GPIOR2    )
-#define currentMotorSpeed(m)        (m ? OCR3A      : OCR3B     )
-#define irqToNextStep(m)            (m ? OCR1A      : OCR1B     )
-#define interruptOVFCount(m)        (m ? ICR3       : ICR1      )
-#define interruptControlRegister(m) (m ? TIMSK3     : TIMSK1    )
-#define interruptControlBitMask(m)  (m ? _BV(ICIE3) : _BV(ICIE1))
-#define timerCountRegister(m)       (m ? TCNT3      : TCNT1     )
-#define timerPrescalarRegister(m)   (m ? TCCR3B     : TCCR1B    )
-#define gotoDeceleratingBitMask(m)  (m ? _BV(3)     : _BV(2)    )
-#define gotoRunningBitMask(m)       (m ? _BV(1)     : _BV(0)    )
+
+//These should not be used directly. They are used for
+//overloading of the register access macros to allow
+//set and get operations to be performed using the same
+//name.
+#define GET_TERNARY_MACRO(m,_1,NAME,...) NAME
+#define SET_TERNARY_REGISTER(rt,rf,m,c) if(m) {rt = c;} else {rf = c;}
+#define GET_TERNARY_REGISTER(rt,rf,m)   ((m) ? rt : rf)
+
+//Registers
+//For setting an RA/DC register -> macro(RA,setValue)
+//For getting an RA/DC register -> macro(DC)
+#define distributionSegment(...)      GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(GPIOR1,GPIOR2,__VA_ARGS__)
+#define currentMotorSpeed(...)        GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( OCR3A, OCR3B,__VA_ARGS__)
+#define irqToNextStep(...)            GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( OCR1A, OCR1B,__VA_ARGS__)
+#define timerCountRegister(...)       GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( TCNT3, TCNT1,__VA_ARGS__)
+#define timerPrescalarRegister(...)   GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(TCCR3B,TCCR1B,__VA_ARGS__)
+#define interruptOVFCount(...)        GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(  ICR3,  ICR1,__VA_ARGS__)
+#define interruptControlRegister(...) GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(TIMSK3,TIMSK1,__VA_ARGS__)
 #define gotoControlRegister GPIOR0
+//Bit Masks
+#define interruptControlBitMask(m)  (m ? _BV(ICIE3) : _BV(ICIE1))
+#define gotoDeceleratingBitMask(m)  (m ? _BV(    3) : _BV(    2))
+#define gotoRunningBitMask(m)       (m ? _BV(    1) : _BV(    0))
+
 
 
 
@@ -363,10 +377,10 @@ bool checkEEPROM(){
     } else if (microstepConf > 32){
         return false; //invalid value.
     }
-    if ((cmd.siderealIVal[RA] > 1200) || (cmd.siderealIVal[RA] < MIN_IVAL)) {
+    if ((cmd.siderealIVal[RA] > MAX_IVAL) || (cmd.siderealIVal[RA] < MIN_IVAL)) {
         return false; //invalid value.
     }
-    if ((cmd.siderealIVal[DC] > 1200) || (cmd.siderealIVal[DC] < MIN_IVAL)) {
+    if ((cmd.siderealIVal[DC] > MAX_IVAL) || (cmd.siderealIVal[DC] < MIN_IVAL)) {
         return false; //invalid value.
     }
     if(cmd.normalGotoSpeed[RA] == 0){
@@ -622,13 +636,13 @@ int main(void) {
                 } //otherwise we will try to parse the previous character again.
                 //Append the current character and try to parse the command
                 decoded = synta_recieveCommand(decodedPacket,recievedChar); 
-                //Once full command packet recieved, synta_recieveCommand populates either an error packet (and returns -1), or data packet (returns 1). If incomplete, decodedPacket is unchanged and 0 is returned
+                //Once full command packet received, synta_recieveCommand populates either an error packet (and returns -1), or data packet (returns 1). If incomplete, decodedPacket is unchanged and 0 is returned
                 if (decoded != 0){ //Send a response
                     if (decoded > 0){ //Valid Packet, current command is in decoded variable.
                         mcuReset = !decodeCommand(decoded,decodedPacket); //decode the valid packet and populate response.
                     }
                     Serial_writeStr(decodedPacket); //send the response packet (recieveCommand() generated the error packet, or decodeCommand() a valid response)
-                } //otherwise command not yet fully recieved, so wait for next byte
+                } //otherwise command not yet fully received, so wait for next byte
                 
                 if (mcuReset) {
                     //Special case. We were asked to reset the MCU.
@@ -655,7 +669,7 @@ int main(void) {
                         //Update target speed.
                         if (st4Pin != ST4O) {
                             //If RA+/- pressed:
-                            cmd_setIVal(RA,cmd.st4RAIVal[st4Pin]);
+                            cmd_setIVal(RA,cmd.st4RAIVal[(byte)st4Pin]);
                             motorStartRA();
                             isST4Move[RA] = true; //Now doing ST4 movement
                         }
@@ -703,7 +717,7 @@ int main(void) {
                 }
             }
             
-            //Check both axes - loop unravelled for speed efficiency - lots of Flash available.
+            //Check both axes - loop unraveled for speed efficiency - lots of Flash available.
             if(readyToGo[RA]==1){
                 //If we are ready to begin a movement which requires the motors to be reconfigured
                 if(cmd.stopped[RA] == CMD_STOPPED){
@@ -731,7 +745,7 @@ int main(void) {
                         cmd.highSpeedMode[RA] = false;
                     }
                     if(GVal & 1){
-                        //This is the funtion that enables a slew type move.
+                        //This is the function that enables a slew type move.
                         slewMode(RA); //Slew type
                         readyToGo[RA] = 2;
                     } else {
@@ -769,7 +783,7 @@ int main(void) {
                         cmd.highSpeedMode[DC] = false;
                     }
                     if(GVal & 1){
-                        //This is the funtion that enables a slew type move.
+                        //This is the function that enables a slew type move.
                         slewMode(DC); //Slew type
                         readyToGo[DC] = 2; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
                     } else {
@@ -799,7 +813,7 @@ int main(void) {
                     byte state;
                     if (canJumpToHighspeed && (newBasicHCSpeed == CMD_ST4_HIGHSPEED)) {
                         //If we can jump to high torque mode, and we are requesting Go-To s
-                        state = modeState[SPEEDFAST]; //Select the high speed modepeed, then change step modes
+                        state = modeState[SPEEDFAST]; //Select the high speed mode, then change step modes
                         //RA
                         cmd_updateStepDir(RA,cmd.gVal[RA]);
                         cmd.highSpeedMode[RA] = true;
@@ -846,7 +860,7 @@ int main(void) {
                     unsigned int currentSpeed = currentMotorSpeed(RA);
                     SREG = oldSREG; //End atomic
                     if ((cmd.stopped[RA] != CMD_STOPPED) && (cmd.dir[RA] != dir) && (currentSpeed < cmd.minSpeed[RA])) {
-                        //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
+                        //If we are currently moving in the wrong direction and are traveling too fast to instantly reverse
                         motorStopRA(false);
                         //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
                         //first we can come back in over and over until we have started the movement.
@@ -854,12 +868,12 @@ int main(void) {
                         //Otherwise we are now free to change to the new required speed
                         // - If no RA button is pressed, go at sidereal rate
                         // - Otherwise go at rate corresponding with the pressed button
-                        cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.siderealIVal[RA] : cmd.st4RAIVal[st4Pin]);
+                        cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.siderealIVal[RA] : cmd.st4RAIVal[(byte)st4Pin]);
                         cmd_setDir(RA,dir);
                         cmd_updateStepDir(RA,cmd.highSpeedMode[RA] ? cmd.gVal[RA] : 1);
                         if ((st4Pin == ST4O) && (cmd.st4Mode == CMD_ST4_HIGHSPEED)) {
                             motorStopRA(false); //If no buttons pressed and in high speed mode, we stop entirely rather than going to tracking
-                                                //This ensures that the motors stop if the handcontroller is subsequently unplugged.
+                                                //This ensures that the motors stop if the hand controller is subsequently unplugged.
                         } else {
                             motorStartRA(); //If the motor is currently stopped at this point, this will automatically start them.
                         }
@@ -880,7 +894,7 @@ int main(void) {
                     unsigned int currentSpeed = currentMotorSpeed(DC);
                     SREG = oldSREG; //End atomic
                     if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir) && (currentSpeed < cmd.minSpeed[DC])) {
-                        //If we are currently moving in the wrong direction and are travelling too fast to instantly reverse
+                        //If we are currently moving in the wrong direction and are traveling too fast to instantly reverse
                         motorStopDC(false);
                         //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
                         //first we can come back in over and over until we have started the movement.
@@ -915,17 +929,17 @@ int main(void) {
 bool decodeCommand(char command, char* buffer){ //each command is axis specific. The axis being modified can be retrieved by calling synta_axis()
     unsigned long responseData = 0; //data for response
     bool success = true;
-    byte axis = synta_axis();
+    byte axis = synta_getaxis();
     unsigned int correction;
     byte oldSREG;
     switch(command) {
-        case 'e': //readonly, return the eVal (version number)
+        case 'e': //read-only, return the eVal (version number)
             responseData = cmd.eVal[axis]; //response to the e command is stored in the eVal function for that axis.
             break;
-        case 'a': //readonly, return the aVal (steps per axis)
+        case 'a': //read-only, return the aVal (steps per axis)
             responseData = cmd.aVal[axis]; //response to the a command is stored in the aVal function for that axis.
             break;
-        case 'b': //readonly, return the bVal (sidereal step rate)
+        case 'b': //read-only, return the bVal (sidereal step rate)
             responseData = cmd.bVal[axis]; //response to the b command is stored in the bVal function for that axis.
             if (!progMode) {
                 //If not in programming mode, we need to apply a correction factor to ensure that calculations in EQMOD round correctly
@@ -933,23 +947,23 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 responseData = (responseData * (correction+1))/correction; //account for rounding inside Skywatcher DLL.
             }
             break;
-        case 'g': //readonly, return the gVal (high speed multiplier)
+        case 'g': //read-only, return the gVal (high speed multiplier)
             responseData = cmd.gVal[axis]; //response to the g command is stored in the gVal function for that axis.
             break;
-        case 's': //readonly, return the sVal (steps per worm rotation)
+        case 's': //read-only, return the sVal (steps per worm rotation)
             responseData = cmd.sVal[axis]; //response to the s command is stored in the sVal function for that axis.
             break;
-        case 'f': //readonly, return the fVal (axis status)
+        case 'f': //read-only, return the fVal (axis status)
             responseData = cmd_fVal(axis); //response to the f command is stored in the fVal function for that axis.
             break;
-        case 'j': //readonly, return the jVal (current position)
+        case 'j': //read-only, return the jVal (current position)
             oldSREG = SREG; 
             cli();  //The next bit needs to be atomic, just in case the motors are running
             responseData = cmd.jVal[axis]; //response to the j command is stored in the jVal function for that axis.
             SREG = oldSREG;
             break;
         case 'K': //stop the motor, return empty response
-            motorStop(axis,0); //normal ISR based decelleration trigger.
+            motorStop(axis,0); //normal ISR based deceleration trigger.
             readyToGo[axis] = 0;
             break;
         case 'L':
@@ -964,7 +978,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             cmd_setDir(axis, (buffer[1] != '0') ? CMD_REVERSE : CMD_FORWARD); //Store the current direction for that axis
             readyToGo[axis] = 0;
             break;
-        case 'H': //set goto position, return empty response (this sets the number of steps to move from cuurent position if in goto mode)
+        case 'H': //set goto position, return empty response (this sets the number of steps to move from current position if in goto mode)
             cmd_setHVal(axis, synta_hexToLong(buffer)); //set the goto position container (convert string to long first)
             readyToGo[axis] = 0;
             break;
@@ -1040,7 +1054,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             responseData = driverVersion;
                         }
                         break;
-                    case 'D': //store the driver verison and step modes
+                    case 'D': //store the driver version and step modes
                         if (axis) {
                             microstepConf = synta_hexToByte(buffer); //store step mode.
                             canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
@@ -1100,7 +1114,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         }
                         break;
                     case 'x': {  //return the accelTable
-                        Inter responsePack = InterMaker(0);
+                        Inter responsePack = {0};
                         responsePack.lowByter.integer = cmd.accelTable[axis][accelTableIndex[axis]].speed;
                         responsePack.highByter.low = cmd.accelTable[axis][accelTableIndex[axis]].repeats; 
                         responseData = responsePack.integer;
@@ -1129,7 +1143,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         break;
                     case 'T': //set mode, return empty response
                         if (progMode & 2) {
-                        //proceed with eeprom write
+                        //proceed with EEPROM write
                             if (progMode & 1) {
                                 buildEEPROM();
                             } else {
@@ -1152,7 +1166,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
     
     if ((command == 'J') && (progMode == 0)) { //J tells us we are ready to begin the requested movement.
-        readyToGo[axis] = 1; //So signal we are ready to go and when the last movement complets this one will execute.
+        readyToGo[axis] = 1; //So signal we are ready to go and when the last movement completes this one will execute.
         if (!(cmd.GVal[axis] & 1)){
             //If go-to mode requested
             cmd_setGotoEn(axis,CMD_ENABLED);
@@ -1212,7 +1226,7 @@ void gotoMode(byte axis){
     }
 
     decelerationLength = decelerationLength * dirMagnitude;
-    //decelleration length is here a multiple of stepDir.
+    //deceleration length is here a multiple of stepDir.
     unsigned long HVal = cmd.HVal[axis];
     unsigned long halfHVal = (HVal >> 1);
     unsigned int gotoSpeed = cmd.normalGotoSpeed[axis];
@@ -1227,7 +1241,7 @@ void gotoMode(byte axis){
         decelerationLength = halfHVal;
     }
     HVal -= decelerationLength;
-    gotoPosn[axis] = cmd.jVal[axis] + ((dir == CMD_REVERSE) ? -HVal : HVal); //current position + relative change - decelleration region
+    gotoPosn[axis] = cmd.jVal[axis] + ((dir == CMD_REVERSE) ? -HVal : HVal); //current position + relative change - deceleration region
     
     cmd_setIVal(axis, gotoSpeed);
     clearGotoDecelerating(axis);
@@ -1236,13 +1250,23 @@ void gotoMode(byte axis){
 }
 
 inline void timerEnable(byte motor) {
-    timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn1));//00x
-    timerPrescalarRegister(motor) |= (1<<CSn0);//xx1
+    if (motor == RA) {
+        timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1)) );//00x
+        timerPrescalarRegister(RA, timerPrescalarRegister(RA) |  (            (1<<CSn0)) );//xx1
+    } else {
+        timerPrescalarRegister(DC, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1)) );//00x
+        timerPrescalarRegister(DC, timerPrescalarRegister(RA) |  (            (1<<CSn0)) );//xx1
+    }
 }
 
 inline void timerDisable(byte motor) {
-    interruptControlRegister(motor) &= ~interruptControlBitMask(motor); //Disable timer interrupt
-    timerPrescalarRegister(motor) &= ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0));//00x
+    if (motor == RA) {
+        interruptControlRegister(RA, interruptControlRegister(RA) & ~interruptControlBitMask(RA)); //Disable timer interrupt
+        timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//00x
+    } else {
+        interruptControlRegister(DC, interruptControlRegister(DC) & ~interruptControlBitMask(DC)); //Disable timer interrupt
+        timerPrescalarRegister(DC, timerPrescalarRegister(DC) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//00x
+    }
 }
 
 //As there is plenty of FLASH left, then to improve speed, I have created two motorStart functions (one for RA and one for DEC)
@@ -1260,9 +1284,9 @@ void motorStartRA(){
     unsigned int startSpeed;
     unsigned int stoppingSpeed;
     
-    interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+    interruptControlRegister(RA, interruptControlRegister(RA) & ~interruptControlBitMask(RA)); //Disable timer interrupt
     currentIVal = currentMotorSpeed(RA);
-    interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
+    interruptControlRegister(RA, interruptControlRegister(RA) | interruptControlBitMask(RA)); //enable timer interrupt
     
     if (IVal > cmd.minSpeed[RA]){
         stoppingSpeed = IVal;
@@ -1277,31 +1301,31 @@ void motorStartRA(){
         startSpeed = stoppingSpeed;
     }
     
-    interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
+    interruptControlRegister(RA, interruptControlRegister(RA) & ~interruptControlBitMask(RA)); //Disable timer interrupt
     cmd.currentIVal[RA] = cmd.IVal[RA];
-    currentMotorSpeed(RA) = startSpeed;
+    currentMotorSpeed(RA, startSpeed);
     cmd.stopSpeed[RA] = stoppingSpeed;
     setPinValue(dirPin[RA],(encodeDirection[RA] != cmd.dir[RA]));
     
     if(cmd.stopped[RA]) { //if stopped, configure timers
-        irqToNextStep(RA) = 1;
+        irqToNextStep(RA, 1);
         accelTableRepeatsLeft[RA] = cmd.accelTable[RA][0].repeats; //If we are stopped, we must do the required number of repeats for the first entry in the speed table.
         accelTableIndex[RA] = 0;
-        distributionSegment(RA) = 0;
-        timerCountRegister(RA) = 0;
-        interruptOVFCount(RA) = timerOVF[RA][0];
+        distributionSegment(RA, 0);
+        timerCountRegister(RA, 0);
+        interruptOVFCount(RA, timerOVF[RA][0]);
         timerEnable(RA);
         cmd_setStopped(RA, CMD_RUNNING);
     }
-    interruptControlRegister(RA) |= interruptControlBitMask(RA); //enable timer interrupt
+    interruptControlRegister(RA, interruptControlRegister(RA) | interruptControlBitMask(RA)); //enable timer interrupt
 }
 
 void motorStartDC(){
     unsigned int IVal = cmd.IVal[DC];
     unsigned int currentIVal;
-    interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+    interruptControlRegister(DC, interruptControlRegister(DC) & ~interruptControlBitMask(DC)); //Disable timer interrupt
     currentIVal = currentMotorSpeed(DC);
-    interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
+    interruptControlRegister(DC, interruptControlRegister(DC) | interruptControlBitMask(DC)); //enable timer interrupt
     
     unsigned int startSpeed;
     unsigned int stoppingSpeed;
@@ -1318,23 +1342,23 @@ void motorStartDC(){
         startSpeed = stoppingSpeed;
     }
     
-    interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
+    interruptControlRegister(DC, interruptControlRegister(DC) & ~interruptControlBitMask(DC)); //Disable timer interrupt
     cmd.currentIVal[DC] = cmd.IVal[DC];
-    currentMotorSpeed(DC) = startSpeed;
+    currentMotorSpeed(DC, startSpeed);
     cmd.stopSpeed[DC] = stoppingSpeed;
     setPinValue(dirPin[DC],(encodeDirection[DC] != cmd.dir[DC]));
     
     if(cmd.stopped[DC]) { //if stopped, configure timers
-        irqToNextStep(DC) = 1;
+        irqToNextStep(DC, 1);
         accelTableRepeatsLeft[DC] = cmd.accelTable[DC][0].repeats; //If we are stopped, we must do the required number of repeats for the first entry in the speed table.
         accelTableIndex[DC] = 0;
-        distributionSegment(DC) = 0;
-        timerCountRegister(DC) = 0;
-        interruptOVFCount(DC) = timerOVF[DC][0];
+        distributionSegment(DC, 0);
+        timerCountRegister(DC, 0);
+        interruptOVFCount(DC, timerOVF[DC][0]);
         timerEnable(DC);
         cmd_setStopped(DC, CMD_RUNNING);
     }
-    interruptControlRegister(DC) |= interruptControlBitMask(DC); //enable timer interrupt
+    interruptControlRegister(DC, interruptControlRegister(DC) | interruptControlBitMask(DC)); //enable timer interrupt
 }
 
 //As there is plenty of FLASH left, then to improve speed, I have created two motorStop functions (one for RA and one for DEC)
@@ -1356,7 +1380,7 @@ void motorStopRA(bool emergency){
         readyToGo[RA] = 0;
         clearGotoRunning(RA);
     } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
-        //trigger ISR based decelleration
+        //trigger ISR based deceleration
         //readyToGo[RA] = 0;
         byte oldSREG = SREG;
         cli();
@@ -1387,7 +1411,7 @@ void motorStopDC(bool emergency){
         readyToGo[DC] = 0;
         clearGotoRunning(DC);
     } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
-        //trigger ISR based decelleration
+        //trigger ISR based deceleration
         //readyToGo[motor] = 0;
         byte oldSREG = SREG;
         cli();
@@ -1410,11 +1434,11 @@ void motorStopDC(bool emergency){
 
 //Timer Interrupt-----------------------------------------------------------------------------
 void configureTimer(){
-    interruptControlRegister(DC) = 0; //disable all timer interrupts.
+    interruptControlRegister(DC, 0); //disable all timer interrupts.
 #if defined(__AVR_ATmega162__)
-    interruptControlRegister(RA) &= 0b00000011; //for 162, the lower 2 bits of the declination register control another timer, so leave them alone.
+    interruptControlRegister(RA, interruptControlRegister(RA) & 0b00000011); //for 162, the lower 2 bits of the declination register control another timer, so leave them alone.
 #else
-    interruptControlRegister(RA) = 0;
+    interruptControlRegister(RA, 0);
 #endif
     //set to ctc mode (0100)
     TCCR1A = 0;//~((1<<WGM11) | (1<<WGM10));
@@ -1435,20 +1459,20 @@ ISR(TIMER3_CAPT_vect) {
         //Once the required number of interrupts have occurred...
         
         //First update the interrupt base rate using our distribution array. 
-        //This affords a more accurate sidereal rate by dithering the intterrupt rate to get higher resolution.
-        byte timeSegment = distributionSegment(DC); //Get the current time segement
+        //This affords a more accurate sidereal rate by dithering the interrupt rate to get higher resolution.
+        byte timeSegment = distributionSegment(DC); //Get the current time segment
         
         /* 
         byte index = ((DecimalDistnWidth-1) & timeSegment) >> 1; //Convert time segment to array index
         interruptOVFCount(DC) = timerOVF[DC][index]; //Update interrupt base rate.
         */// Below is optimised version of above:
         byte index = ((DecimalDistnWidth-1) << 1) & timeSegment; //Convert time segment to array index
-        interruptOVFCount(DC) = *(int*)((byte*)timerOVF[DC] + index); //Update interrupt base rate.
+        interruptOVFCount(DC, *(int*)((byte*)timerOVF[DC] + index)); //Update interrupt base rate.
         
-        distributionSegment(DC) = timeSegment + 1; //Increment time segement for next time.
+        distributionSegment(DC, timeSegment + 1); //Increment time segment for next time.
 
         unsigned int currentSpeed = currentMotorSpeed(DC); //Get the current motor speed
-        irqToNextStep(DC) = currentSpeed; //Update interrupts to next step to be the current speed in case it changed (accel/decel)
+        irqToNextStep(DC, currentSpeed); //Update interrupts to next step to be the current speed in case it changed (accel/decel)
         
         if (getPinValue(stepPin[DC])){
             //If the step pin is currently high...
@@ -1462,11 +1486,11 @@ ISR(TIMER3_CAPT_vect) {
             cmd.jVal[DC] = jVal;
             
             if(gotoRunning(DC) && !gotoDecelerating(DC)){
-                //If we are currently performing a Go-To and haven't yet started decelleration...
+                //If we are currently performing a Go-To and haven't yet started deceleration...
                 if (gotoPosn[DC] == jVal){ 
-                    //If we have reached the start decelleration marker...
-                    setGotoDecelerating(DC); //Mark that we have started decelleration.
-                    cmd.currentIVal[DC] = cmd.stopSpeed[DC]+1; //Set the new target speed to slower than the stop speed to cause decelleration to a stop.
+                    //If we have reached the start deceleration marker...
+                    setGotoDecelerating(DC); //Mark that we have started deceleration.
+                    cmd.currentIVal[DC] = cmd.stopSpeed[DC]+1; //Set the new target speed to slower than the stop speed to cause deceleration to a stop.
                     accelTableRepeatsLeft[DC] = 0;
                 }
             } 
@@ -1541,7 +1565,7 @@ ISR(TIMER3_CAPT_vect) {
                         }
                     }
                 }
-                currentMotorSpeed(DC) = currentSpeed; //Update the current speed in case it has changed.
+                currentMotorSpeed(DC, currentSpeed); //Update the current speed in case it has changed.
             } else {
                 //Otherwise one more repeat done.
                 accelTableRepeatsLeft[DC] = repeatsReqd - 1;
@@ -1549,7 +1573,7 @@ ISR(TIMER3_CAPT_vect) {
         }
     } else {
         //The required number of interrupts have not yet occurred...
-        irqToNextStep(DC) = irqToNext; //Update the number of IRQs remaining until the next step.
+        irqToNextStep(DC, irqToNext); //Update the number of IRQs remaining until the next step.
     }   
 
 
@@ -1578,12 +1602,12 @@ ISR(TIMER1_CAPT_vect) {
         interruptOVFCount(RA) = timerOVF[RA][index]; //Update interrupt base rate.
         */// Below is optimised version of above:
         byte index = ((DecimalDistnWidth-1) << 1) & timeSegment; //Convert time segment to array index
-        interruptOVFCount(RA) = *(int*)((byte*)timerOVF[RA] + index); //Update interrupt base rate.
+        interruptOVFCount(RA, *(int*)((byte*)timerOVF[RA] + index)); //Update interrupt base rate.
         
-        distributionSegment(RA) = timeSegment + 1; //Increment time segement for next time.
+        distributionSegment(RA, timeSegment + 1); //Increment time segement for next time.
 
         unsigned int currentSpeed = currentMotorSpeed(RA); //Get the current motor speed
-        irqToNextStep(RA) = currentSpeed; //Update interrupts to next step to be the current speed in case it changed (accel/decel)
+        irqToNextStep(RA, currentSpeed); //Update interrupts to next step to be the current speed in case it changed (accel/decel)
         
         if (getPinValue(stepPin[RA])){
             //If the step pin is currently high...
@@ -1676,7 +1700,7 @@ ISR(TIMER1_CAPT_vect) {
                         }
                     }
                 }
-                currentMotorSpeed(RA) = currentSpeed; //Update the current speed in case it has changed.
+                currentMotorSpeed(RA, currentSpeed); //Update the current speed in case it has changed.
             } else {
                 //Otherwise one more repeat done.
                 accelTableRepeatsLeft[RA] = repeatsReqd - 1;
@@ -1684,7 +1708,7 @@ ISR(TIMER1_CAPT_vect) {
         }
     } else {
         //The required number of interrupts have not yet occurred...
-        irqToNextStep(RA) = irqToNext; //Update the number of IRQs remaining until the next step.
+        irqToNextStep(RA, irqToNext); //Update the number of IRQs remaining until the next step.
     }   
 
 

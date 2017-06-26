@@ -40,6 +40,10 @@ extern "C"{
 
 #include <inttypes.h>
 
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
 /*
  * Useful Defines
  */
@@ -90,6 +94,7 @@ typedef uint8_t byte;
 #define ST4O (-1) //Neither ST4 Pin
 
 #define MIN_IVAL 50
+#define MAX_IVAL 1200
 
 #define BAUD_RATE 9600
 
@@ -116,14 +121,14 @@ typedef struct {
  * Declare constant arrays of pin numbers
  */
  
-const byte standalonePin[2] = {gpioPin_0_Define,gpioPin_2_Define};
-const byte statusPin = statusPin_Define;
-const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
-const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
-const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
-const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
-const byte st4Pins[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
-const byte modePins[2][3] = {{modePins0_0_Define,modePins1_0_Define,modePins2_0_Define},{modePins0_1_Define,modePins1_1_Define,modePins2_1_Define}};
+static const byte standalonePin[2] = {gpioPin_0_Define,gpioPin_2_Define};
+static const byte statusPin = statusPin_Define;
+static const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
+static const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
+static const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
+static const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
+static const byte st4Pins[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
+static const byte modePins[2][3] = {{modePins0_0_Define,modePins1_0_Define,modePins2_0_Define},{modePins0_1_Define,modePins1_1_Define,modePins2_1_Define}};
 
 
 /*
@@ -158,7 +163,7 @@ void buildModeMapping(byte microsteps, byte driverVersion);
 #endif
 
 
-#endif
+#endif //__ASTROEQ_H__
 
 
 #else

@@ -54,7 +54,7 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
             nibbleToHex(dataPacket+2, nibble.mid);
             nibbleToHex(dataPacket+1, nibble.high);
         } else if (replyLength == 6) {
-            Inter inter = Inter(responseData);
+            Inter inter = { responseData };
             private_byteToHex(dataPacket+6,dataPacket+5,inter.highByter.lowNibbler);
             private_byteToHex(dataPacket+4,dataPacket+3,inter.lowByter.highNibbler);
             private_byteToHex(dataPacket+2,dataPacket+1,inter.lowByter.lowNibbler);
@@ -149,7 +149,7 @@ unsigned long synta_hexToLong(char* hex){
     //  str[6] = 0;
     //  return strtol(str,&boo,16); //convert hex to long integer
 
-    Inter inter = Inter(0,hexToByte(hex+4),hexToByte(hex+2),hexToByte(hex)); //create an inter 
+    Inter inter = InterMaker(0,hexToByte(hex+4),hexToByte(hex+2),hexToByte(hex)); //create an inter 
     return inter.integer; //and convert it to an integer
 }
 
@@ -157,10 +157,14 @@ char synta_command(){
     return _command;
 }
 
-byte synta_axis(byte axis){
-    if(axis < 2){
-        _axis = axis;
-    }
-    return _axis;
+byte synta_setaxis(byte axis){
+	if(axis < 2){
+		_axis = axis;
+	}
+	return _axis;
+}
+
+byte synta_getaxis(){
+	return _axis;
 }
 
