@@ -18,10 +18,19 @@ AstroEQ-Firmware/**/[Rr]elease/
 AstroEQ-Firmware/**/.vs
 
 #############
+## Processing IDE
+#############
+
+AstroEQ-ConfigUtility/AstroEQUploader/application*
+AstroEQ-ConfigUtility/AstroEQUploader/hex/*.hex
+AstroEQ-ConfigUtility/AstroEQUploader/mounts/*.conf
+
+#############
 ## Devel directories
 #############
 
 AstroEQ-Firmware/AstroEQUploaderUtility
+AstroEQ-ConfigUtility/AstroEQUploader/data/PrivateSource
 
 #############
 ## Windows detritus
