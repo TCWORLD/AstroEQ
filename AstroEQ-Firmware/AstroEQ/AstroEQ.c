@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Verison: 8.0.3
+  Current Version: 8.0.3
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -55,7 +55,7 @@ byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 
 byte microstepConf;
 byte driverVersion;
 bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
-bool syntaMode = true; //And synta processing is enabled.
+bool syntaMode = true; //And Synta processing is enabled.
 
 #define timerCountRate 8000000
 
@@ -138,12 +138,12 @@ inline void clearGotoDecelerating(const byte axis) {
 byte modeState[2] = {((LOW << MODE2) | (HIGH << MODE1) | (HIGH << MODE0)), (( LOW << MODE2) | ( LOW << MODE1) | (LOW << MODE0))}; //Default to 1/8th stepping as that is the same for all
 
 void buildModeMapping(byte microsteps, byte driverVersion){
-    //For microstep modes less than 8, we cannot jump to high speed, so we use the SPEEDFAST mode maps. Given that the SPEEDFAST maps are generated for the microstepping modes >=8
+    //For microstep modes less than 8, we cannot jump to high speed, so we use the SPEEDFAST mode maps. Given that the SPEEDFAST maps are generated for the micro-stepping modes >=8
     //anyway, we can simply multiply the number of microsteps by 8 if it is less than 8 and thus reduce the number of cases in the mode generation switch statement below 
     if (microsteps < 8){
         microsteps *= 8;
     }
-    //Generate the mode mapping for the current driver version and microstepping modes.
+    //Generate the mode mapping for the current driver version and micro-stepping modes.
     switch (microsteps) {
         case 8:
             // 1/8
@@ -200,7 +200,7 @@ void calculateRate(byte axis){
     unsigned long divisor = cmd.bVal[axis];
     byte distWidth = DecimalDistnWidth;
     
-    //When dividing a very large number by a much smaller on, float accuracy is abismal. So firstly we use integer math to split the division into quotient and remainder
+    //When dividing a very large number by a much smaller on, float accuracy is abysmal. So firstly we use integer math to split the division into quotient and remainder
     rate = timerCountRate / divisor; //Calculate the quotient
     remainder = timerCountRate % divisor; //Calculate the remainder
     
@@ -272,15 +272,15 @@ void systemInitialiser(){
     setPinDir  (statusPin,OUTPUT);
     setPinValue(statusPin,   LOW);
 
-    //Standalone Speed/IRQ pin to input no-pullup
+    //Standalone Speed/IRQ pin to input no-pull-up
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
     setPinValue(standalonePin[  STANDALONE_IRQ],  HIGH); //enable pull-up to pull IRQ high.
 
-    //Standalone Pullup/Pulldown pin to output high
+    //Standalone Pull-up/Pull-down pin to output high
     setPinDir  (standalonePin[ STANDALONE_PULL],OUTPUT);
     setPinValue(standalonePin[ STANDALONE_PULL],  HIGH);
     
-    //ST4 pins to input with pullup
+    //ST4 pins to input with pull-up
     setPinDir  (st4Pins[RA][ST4P],INPUT);
     setPinValue(st4Pins[RA][ST4P],HIGH );
     setPinDir  (st4Pins[RA][ST4N],INPUT);
@@ -438,9 +438,9 @@ byte standaloneModeTest() {
     //We need to test what sort of controller is attached.
     //The IRQ pin on the ST4 connector is used to determine this. It has the following
     //states:
-    //   FLOAT      | No handcontroller
-    //   DRIVE LOW  | Basic handcontroller
-    //   DRIVE HIGH | Advanced handcontroller
+    //   FLOAT      | No hand controller
+    //   DRIVE LOW  | Basic hand controller
+    //   DRIVE HIGH | Advanced hand controller
     //We can test for each of these states by virtue of having a controllable pull up/down
     //resistor on that pin.
     //If we pull down and the pin stays high, then pin must be driven high (DRIVE HIGH)
@@ -449,7 +449,7 @@ byte standaloneModeTest() {
 
     //To start we check for an advanced controller
     setPinValue(standalonePin[STANDALONE_PULL],LOW); //Pull low
-    nop(); // Input synchroniser takes a couple of cycles
+    nop(); // Input synchronizer takes a couple of cycles
     nop();
     nop();
     nop();
@@ -459,7 +459,7 @@ byte standaloneModeTest() {
     }
     //Otherwise we check for a basic controller
     setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Convert to external pull-up of IRQ
-    nop(); // Input synchroniser takes a couple of cycles
+    nop(); // Input synchronizer takes a couple of cycles
     nop();
     nop();
     nop();
@@ -610,7 +610,7 @@ int main(void) {
                     cmd_updateStepDir(RA,1);
                     cmd_setIVal      (RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
                     
-                    readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sideral tracking
+                    readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sidereal tracking
                     
                     lastST4Pin[RA] = ST4O;
                     lastST4Pin[DC] = ST4O;
@@ -1062,14 +1062,14 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             driverVersion = synta_hexToByte(buffer); //store driver version.
                         }
                         break;
-                    case 'r': //return the dec backlash or st4 speed factor
+                    case 'r': //return the DEC backlash or st4 speed factor
                         if (axis) {
                             responseData = cmd.st4DecBacklash; 
                         } else {
                             responseData = cmd.st4SpeedFactor;
                         }
                         break;
-                    case 'R': //store the dec backlash or st4 speed factor
+                    case 'R': //store the DEC backlash or st4 speed factor
                         if (axis) {
                             unsigned long dataIn = synta_hexToLong(buffer); //store step mode.
                             if (dataIn > 65535) {
@@ -1135,7 +1135,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         break;
                     }
                     case 'Y': //store the accelTableIndex value
-                        //Use axis=0 to set which address we are accessing (we'll repurpose accelTableIndex[RA] in prog mode for this)
+                        //Use axis=0 to set which address we are accessing (we'll re purpose accelTableIndex[RA] in prog mode for this)
                         accelTableIndex[axis] = synta_hexToByte(buffer);
                         if (accelTableIndex[axis] >= AccelTableLength) {
                             command = '\0'; //If the address out of range, force an error response packet.
