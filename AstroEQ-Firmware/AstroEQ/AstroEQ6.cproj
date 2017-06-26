@@ -106,6 +106,43 @@
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
     </ToolchainSettings>
+    <PostBuildEvent>&lt;!-- : Begin batch script
+@echo off
+
+set /p vernum=&lt; $(SolutionDir)VerNum.txt
+
+xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-DIYBoard(includingKits).hex  /Y
+cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-DIYBoard(includingKits) %vernum%
+
+xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-EQ5Board.hex  /Y
+cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-EQ5Board %vernum%
+
+exit /b
+
+----- Begin wsf script ---&gt;
+&lt;job&gt;&lt;script language="VBScript"&gt;
+Const ForReading = 1
+Const ForWriting = 2
+
+strFileName = Wscript.Arguments(0)
+FirmwareName = Wscript.Arguments(1)
+NewVersion = Wscript.Arguments(2)
+
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
+strText = objFile.ReadAll
+objFile.Close
+
+Set re = new regexp
+re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
+ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion
+
+strNewText = re.Replace(strText, ReplaceText)
+
+Set objFile = objFSO.OpenTextFile(strFileName, ForWriting)
+objFile.Write strNewText
+objFile.Close
+&lt;/script&gt;&lt;/job&gt;</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
