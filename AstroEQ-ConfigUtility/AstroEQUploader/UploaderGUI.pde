@@ -517,6 +517,7 @@ class UploaderGUI {
           if (screenStatus < 2) {
             break; //haven't yet checked
           } else if (screenStatus != 5) {
+            versionListDrop(version, listVersions()); //update version displayed by firmware dropdown
             setDisplay(GUI_BEGIN); //got new firmware version or skipping
           }
           

@@ -67,8 +67,8 @@ public String[][] variant = { { "atmega162",  "arduino",  "57600"},
 
 public String hexPath;
 
-public final Boolean isBeta = true; //If a beta version.
-public String configVersion = "3.7.1";
+public final Boolean isBeta = false; //If a beta version.
+public String configVersion = "3.7.2";
 
 public String curFile;
 public String curPort;
@@ -253,7 +253,7 @@ void setup() {
            .setPosition(configDim.centre()-80,configDim.top()+2)
            .setImages(loadImage("Refresh.png"), loadImage("Refresh-Over.png"), loadImage("Refresh-Down.png"))
            .updateSize();
-  version = controlP5.addScrollableList("version",configDim.centre()+5,configDim.top()+2,configDim.centre()-42,120);
+  version = controlP5.addScrollableList("version",configDim.centre()+5,configDim.top()+2,configDim.centre()-52,120);
   versionListDrop(version, versions);
   refreshComm();
   port.setMoveable(false);
@@ -305,7 +305,7 @@ void draw() {
   textFont(wl_font, 12);
   text("COM Port:", configDim.left()+4, configDim.middle()+5);
   text("Firmware:", configDim.centre()-60, configDim.middle()+5);
-  text("V"+firmwareVersion, configDim.right()-32, configDim.middle()+5);
+  text("V"+firmwareVersion, configDim.right()-42, configDim.middle()+5);
   
   
   if (overLogo > 0 && overLogo < 4) {
