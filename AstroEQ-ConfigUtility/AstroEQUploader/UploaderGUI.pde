@@ -471,6 +471,12 @@ class UploaderGUI {
           setDisplay(GUI_ENTER_CONFIG);
           testRun = true;
           extraArgs = loadDefaultConfiguration();
+        } else if (name.equals("eqmodButton")) {
+          if (isWindows()) {
+            setDisplay(GUI_LOAD_EQMOD);
+          } else if (isUnix()) {
+            setDisplay(GUI_FINISHED);
+          }
         }
         screenStatus = 0;
         info.setText("");
@@ -1099,8 +1105,7 @@ class UploaderGUI {
               setDisplay(GUI_LOAD_EQMOD);
             } else if (isUnix()) {
               setDisplay(GUI_FINISHED);
-            }            
-            //setDisplay(GUI_BURN_ASTROEQ);
+            }
             screenStatus = 0;
           } else {
             break;
@@ -1137,7 +1142,7 @@ class UploaderGUI {
           if (screenStatus == 3) {
             finishText = "Mount Programmed, Couldn't Test With EQMOD";
           } else if (screenStatus == 4) {
-            finishText = "                            AstroEQ Setup Failed!!";
+            finishText = "                       AstroEQ Setup Failed!!";
           } else if (screenStatus == 2) {
             finishText = "       AstroEQ Setup Completed Successfully!";
           } else  {
@@ -2209,17 +2214,20 @@ class UploaderGUI {
     dimension.setSize(200, 3*ELEMENT_HEIGHT);
     int y = dimensionMaker.height()/2+(ELEMENT_HEIGHT+TEXTBAR_HEIGHT)/2;
     int x = dimensionMaker.width()/2-100;
-    dimension.setOrigin(x, y-6*TEXTBAR_HEIGHT);
+    dimension.setOrigin(x, y-15*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "configButton", "Configure", wl_font, 1, dimension);
     
-    dimension.setOrigin(x, y-3*TEXTBAR_HEIGHT);
+    dimension.setOrigin(x, y-9*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "uploadButton", "Update Firmware", wl_font, 1, dimension);
     
-    dimension.setOrigin(x,y+0);
+    dimension.setOrigin(x, y-3*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "firmwareButton", "Check For New Version", wl_font, 1, dimension);
     
-    dimension.setOrigin(x, y+3*TEXTBAR_HEIGHT);
+    dimension.setOrigin(x, y+3*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "testButton", "Test Settings", wl_font, 1, dimension);
+    
+    dimension.setOrigin(x, y+9*TEXTBAR_HEIGHT/2);
+    screen.addButton( control, "eqmodButton", "Load EQMOD", wl_font, 1, dimension);
   }
 
   private void buildEEPROMWriterScreen(ControlP5 control, GUIScreen screen) {
