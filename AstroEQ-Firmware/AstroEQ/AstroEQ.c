@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Version: 8.0.3
+  Current Version: <see AstroEQ.h header>
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
@@ -41,8 +41,6 @@ void wdt_init(void)
 /*
  * Defines
  */
-//Define the version number
-#define ASTROEQ_VER 803
 
 /*
  * Global Variables

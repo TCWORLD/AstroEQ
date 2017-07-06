@@ -9,6 +9,11 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "AstroEQ6Mega1280", "AstroEQ
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "AstroEQ6Mega2560", "AstroEQ\AstroEQ6Mega2560.cproj", "{B739D671-B6C4-47F5-93F5-F4776F77272F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9B192E25-728B-490D-AF22-69E27B05EEC3}"
+	ProjectSection(SolutionItems) = preProject
+		VerNum.txt = VerNum.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR

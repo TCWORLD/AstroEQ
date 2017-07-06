@@ -9,8 +9,11 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Verison: 7.5
+  Current Version: 8.04
 */
+
+//Define the version number
+#define ASTROEQ_VER 804
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
 #if defined(__AVR_ATmega162__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
