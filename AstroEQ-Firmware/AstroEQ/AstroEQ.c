@@ -337,7 +337,7 @@ void systemInitialiser(){
     
 #if defined(__AVR_ATmega162__)
     //Disable Timer 0
-    //Timer 0 registers are being used as general purpose data storage for high efficency
+    //Timer 0 registers are being used as general purpose data storage for high efficiency
     //interrupt routines. So timer must be fully disabled. The ATMegaxxx0 has three of these
     //registers, but the ATMega162 doesn't, so I've had to improvise and use other registers
     //instead. See PinMappings.h for the ATMega162 to see which registers have been #defined
@@ -580,7 +580,7 @@ int main(void) {
                     //Even if we don't we would default to basic mode.
                     syntaMode = false;
                     
-                    //For basic mode we need a pull up resistor on the speed/irq line
+                    //For basic mode we need a pull up resistor on the speed/IRQ line
                     setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Pull high
                     
                     //And then we need to initialise the controller manually so the basic controller can help us move
@@ -1592,8 +1592,8 @@ ISR(TIMER1_CAPT_vect) {
         //Once the required number of interrupts have occurred...
         
         //First update the interrupt base rate using our distribution array. 
-        //This affords a more accurate sidereal rate by dithering the intterrupt rate to get higher resolution.
-        byte timeSegment = distributionSegment(RA); //Get the current time segement
+        //This affords a more accurate sidereal rate by dithering the interrupt rate to get higher resolution.
+        byte timeSegment = distributionSegment(RA); //Get the current time segment
         
         /* 
         byte index = ((DecimalDistnWidth-1) & timeSegment) >> 1; //Convert time segment to array index
@@ -1602,7 +1602,7 @@ ISR(TIMER1_CAPT_vect) {
         byte index = ((DecimalDistnWidth-1) << 1) & timeSegment; //Convert time segment to array index
         interruptOVFCount(RA, *(int*)((byte*)timerOVF[RA] + index)); //Update interrupt base rate.
         
-        distributionSegment(RA, timeSegment + 1); //Increment time segement for next time.
+        distributionSegment(RA, timeSegment + 1); //Increment time segment for next time.
 
         unsigned int currentSpeed = currentMotorSpeed(RA); //Get the current motor speed
         irqToNextStep(RA, currentSpeed); //Update interrupts to next step to be the current speed in case it changed (accel/decel)
@@ -1619,11 +1619,11 @@ ISR(TIMER1_CAPT_vect) {
             cmd.jVal[RA] = jVal;
             
             if(gotoRunning(RA) && !gotoDecelerating(RA)){
-                //If we are currently performing a Go-To and haven't yet started decelleration...
+                //If we are currently performing a Go-To and haven't yet started deceleration...
                 if (gotoPosn[RA] == jVal){ 
-                    //If we have reached the start decelleration marker...
-                    setGotoDecelerating(RA); //Mark that we have started decelleration.
-                    cmd.currentIVal[RA] = cmd.stopSpeed[RA]+1; //Set the new target speed to slower than the stop speed to cause decelleration to a stop.
+                    //If we have reached the start deceleration marker...
+                    setGotoDecelerating(RA); //Mark that we have started deceleration.
+                    cmd.currentIVal[RA] = cmd.stopSpeed[RA]+1; //Set the new target speed to slower than the stop speed to cause deceleration to a stop.
                     accelTableRepeatsLeft[RA] = 0;
                 }
             } 
