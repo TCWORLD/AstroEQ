@@ -217,15 +217,11 @@ void calculateRate(byte axis){
         rate = 128UL;
     }
 #if defined(__AVR_ATmega162__)
-    rate--;
+    rate--; //For some reason not doing this on the Arduino Mega works better. Possibly because of frequency drift on Arduino Mega oscillator.
 #endif
   
     for (byte i = 0; i < distWidth; i++){
-#if defined(__AVR_ATmega162__)
-        timerOVF[axis][i] = rate; //Subtract 1 as timer is 0 indexed.
-#else
-        timerOVF[axis][i] = rate; //Hmm, for some reason this one doesn't need 1 subtracting???
-#endif
+        timerOVF[axis][i] = rate;
     }
   
     //evenly distribute the required number of extra clocks over the full step.

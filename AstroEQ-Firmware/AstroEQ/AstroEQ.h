@@ -12,18 +12,32 @@
   Current Version: 8.04
 */
 
-//Define the version number
-#define ASTROEQ_VER 804
-
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
 #if defined(__AVR_ATmega162__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
 #ifndef __ASTROEQ_H__
 #define __ASTROEQ_H__
 
+//Define the version number
+#define ASTROEQ_VER astroEQ_vernum()
+
 #ifdef __cplusplus
 extern "C"{
 #endif
+
+/*
+ * Version number helper inline
+ */
+
+inline unsigned long astroEQ_vernum () {
+    //This function will grab the version number from VerNum.txt which will be
+    //a floating point integer to 2.d.p. The result is then multiplied by 100
+    //to convert to an integer version number representation. The result is then
+    //returned. The whole operation will be optimised to a constant.
+    return (unsigned long)(100.0 *
+    #include "../VerNum.txt"
+    );
+}
 
 /*
  * File Includes
