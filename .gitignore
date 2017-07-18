@@ -13,8 +13,7 @@ AstroEQ-Firmware/**/*.componentinfo.xml
 
 # Build results
 
-AstroEQ-Firmware/**/[Dd]ebug/
-AstroEQ-Firmware/**/[Rr]elease/
+AstroEQ-Firmware/**/ATMega*/
 AstroEQ-Firmware/**/.vs
 
 #############
