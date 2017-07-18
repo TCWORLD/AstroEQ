@@ -232,11 +232,11 @@ void Serial_write(char ch) {
 void Serial_flush() {
     if (UCSRnB & _BV(TXENn)) { 
         //If UART is enabled
-        unsigned char head = ((txBuf.head + 1) & BUFFER_PTR_MASK); //Calculate the new head
-        if (head == txBuf.tail) {
-            //If there is no space in the buffer
+        unsigned char head = txBuf.head; //Calculate the new head
+        if (head != txBuf.tail) {
+            //If there is still data to be sent
             sbi(UCSRnB, UDRIEn); //Ensure TX IRQ is enabled before our busy wait - otherwise we lock up!
-            while (head == txBuf.tail); //wait for buffer to have some space
+            while (head != txBuf.tail); //wait for buffer to empty
         }
     }
 }
