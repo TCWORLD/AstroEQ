@@ -9,7 +9,7 @@
  
   Works with EQ5, HEQ5, and EQ6 mounts, and also a great many custom mount configurations.
  
-  Current Version: 8.04
+  Current Version: <See "../VerNum.txt">
 */
 
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
