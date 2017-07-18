@@ -535,8 +535,8 @@ int main(void) {
 
         loopCount++; //Counter used to time events based on number of loops.
 
-        if (!standaloneMode && (loopCount == 0)) { 
-            //If we are not in standalone mode, periodically check if we have just entered it
+        if (!standaloneMode && (loopCount == 0) && (progMode == RUNMODE)) { 
+            //If we are not in standalone mode and are in run mode, periodically check if we have just entered it
             byte mode = standaloneModeTest();
             if (mode != EQMOD_MODE) {
                 //If we have just entered stand-alone mode, then we enable the motors and configure the mount
@@ -626,7 +626,7 @@ int main(void) {
                 //See what character we need to parse
                 if (decoded != -2) {
                     //get the next character in buffer
-                    recievedChar = Serial_read(); 
+                    recievedChar = Serial_read();
                 } //otherwise we will try to parse the previous character again.
                 //Append the current character and try to parse the command
                 decoded = synta_recieveCommand(decodedPacket,recievedChar); 
@@ -935,7 +935,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             break;
         case 'b': //read-only, return the bVal (sidereal step rate)
             responseData = cmd.bVal[axis]; //response to the b command is stored in the bVal function for that axis.
-            if (!progMode) {
+            if (progMode == RUNMODE) {
                 //If not in programming mode, we need to apply a correction factor to ensure that calculations in EQMOD round correctly
                 correction = (cmd.siderealIVal[axis] << 1);
                 responseData = (responseData * (correction+1))/correction; //account for rounding inside Skywatcher DLL.
@@ -999,7 +999,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             SREG = oldSREG;
             break;
         case 'F': //Enable the motor driver, return empty response
-            if (progMode == 0) { //only allow motors to be enabled outside of programming mode.
+            if (progMode == RUNMODE) { //only allow motors to be enabled outside of programming mode.
                 motorEnable(axis); //This enables the motors - gives the motor driver board power
             } else {
                 command = 0; //force sending of error packet!.
@@ -1009,7 +1009,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //set the programming mode.
             progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-            if (progMode != 0) {
+            if (progMode != RUNMODE) {
                 motorStop(RA,1); //emergency axis stop.
                 motorDisable(RA); //shutdown driver power.
                 motorStop(DC,1); //emergency axis stop.
@@ -1023,7 +1023,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
 
         default:
             //Prevent any chance of accidentally running configuration commands when not in programming mode.
-            if (progMode != 0) {
+            if (progMode != RUNMODE) {
                 //The following are used for configuration ----------
                 switch(command) {
                     case 'A': //store the aVal (steps per axis)
@@ -1136,16 +1136,16 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         }
                         break;
                     case 'T': //set mode, return empty response
-                        if (progMode & 2) {
-                        //proceed with EEPROM write
-                            if (progMode & 1) {
-                                buildEEPROM();
-                            } else {
-                                storeEEPROM();
-                            }
-                        } else if (progMode & 1) {
-                            if (!checkEEPROM()) { //check if EEPROM contains valid data.
-                                command = 0; //force sending of an error packet.
+                        if (progMode == STOREMODE) {
+                            //proceed with EEPROM write
+                            storeEEPROM();
+                        } else if (progMode == REBUILDMODE) {
+                            //repair EEPROM
+                            buildEEPROM();
+                        } else if (progMode == PROGMODE) {
+                            //check if EEPROM contains valid data.
+                            if (!checkEEPROM()) { 
+                                command = 0; //force sending of an error packet if invalid EEPROM
                             }
                         }
                         break;
@@ -1159,7 +1159,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
   
     synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
     
-    if ((command == 'J') && (progMode == 0)) { //J tells us we are ready to begin the requested movement.
+    if ((command == 'J') && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
         readyToGo[axis] = 1; //So signal we are ready to go and when the last movement completes this one will execute.
         if (!(cmd.GVal[axis] & 1)){
             //If go-to mode requested
