@@ -1,5 +1,5 @@
 AstroEQUploaderUtility	3.72
-AstroEQArduinoMega1280	8.04
-AstroEQArduinoMega2560	8.04
-AstroEQV4-EQ5Board	8.04
-AstroEQV4-DIYBoard(includingKits)	8.04
+AstroEQArduinoMega1280	8.05
+AstroEQArduinoMega2560	8.05
+AstroEQV4-EQ5Board	8.05
+AstroEQV4-DIYBoard(includingKits)	8.05
