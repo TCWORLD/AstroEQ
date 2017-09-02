@@ -21,6 +21,9 @@
     
     Verison 3.7
 */
+
+public final Boolean isBeta = false; //If a beta version.
+public String configVersion = "3.7.3";
  
 import controlP5.*;
 import processing.serial.*;
@@ -66,9 +69,6 @@ public String[][] variant = { { "atmega162",  "arduino",  "57600"},
                      
 
 public String hexPath;
-
-public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.7.2";
 
 public String curFile;
 public String curPort;
@@ -173,9 +173,15 @@ void setup() {
   jf = (JFrame) sc.getFrame();
   jf.setMinimumSize(jf.getSize());
   surface.setResizable(true);
-  FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT + 10;
-  FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH + 10;
-      
+  
+  if (isWindows()) {
+    FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT + 10;
+    FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH + 10;
+  } else {
+    FrameHeightOffset = 0;
+    FrameWidthOffset = 0;
+  }
+  
   println("Setting Frame Rate");
   frameRate(30);
   
@@ -221,10 +227,21 @@ void setup() {
     avrdude[1] = "-C\"" + destinationFile+"\"";
   } else if (isUnix()) {
     filePath = java.io.File.separator + "usr" + java.io.File.separator + "share" + java.io.File.separator + "doc" + java.io.File.separator + "astroequploader" + java.io.File.separator;
+    
+    String avrdudePath = java.io.File.separator + "usr" + java.io.File.separator + "bin" + java.io.File.separator + avrdude[0];
+    String avrdudeConfPath = java.io.File.separator + "etc" + java.io.File.separator + avrdude[1];
+    if (!(new File(avrdudePath)).exists() || !(new File(avrdudeConfPath)).exists())
+    {
+      println("WARNING: Could not find avrdude executable and/or config file at expected path(s):\n{    " + avrdudePath + ",\n    " + avrdudeConfPath + "\n};");
+      println("WARNING: Using AstroEQ distributed version as fallback - will work *only* for x86.");
+      avrdudePath = filePath + avrdude[0];
+      avrdudeConfPath = filePath + avrdude[1];
+    }
+    
     println("Current Dir: " + filePath);
     hexPath = filePath + "hex";
-    avrdude[0] = "" + filePath + avrdude[0];
-    avrdude[1] = "-C" + filePath + avrdude[1];
+    avrdude[0] = "" + avrdudePath;
+    avrdude[1] = "-C" + avrdudeConfPath;
   }
   
   PImage astroEQIcon = loadImage("icon.png");
