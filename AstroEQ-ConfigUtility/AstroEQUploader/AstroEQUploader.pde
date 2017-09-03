@@ -178,8 +178,8 @@ void setup() {
     FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT + 10;
     FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH + 10;
   } else {
-    FrameHeightOffset = 0;
-    FrameWidthOffset = 0;
+    FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT;
+    FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH;
   }
   
   println("Setting Frame Rate");
