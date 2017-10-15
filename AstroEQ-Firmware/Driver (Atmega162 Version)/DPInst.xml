@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<dpinst>
+  
+  <!-- The following search and subDirectory elements direct DPInst to
+       search all subdirectories (under the DPInst working directory)
+       to locate driver packages. -->
+  <search>
+    <subDirectory>mchpcdc</subDirectory>
+  </search>
+</dpinst>
+
