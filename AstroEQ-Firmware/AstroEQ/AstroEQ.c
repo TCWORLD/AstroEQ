@@ -134,7 +134,7 @@ inline void clearGotoDecelerating(const byte axis) {
 #define MODE0DIR 3
 #define MODE1DIR 4
 #define MODE2DIR 5
-byte modeState[2] = {((LOW << MODE2) | (HIGH << MODE1) | (HIGH << MODE0)), (( LOW << MODE2) | ( LOW << MODE1) | (LOW << MODE0))}; //Default to 1/8th stepping as that is the same for all
+byte modeState[2] = {((LOW << MODE2) | (HIGH << MODE1) | (HIGH << MODE0)), (( LOW << MODE2) | ( LOW << MODE1) | (LOW << MODE0))}; //Default to 1/1 stepping as that is the same for all
 
 void buildModeMapping(byte microsteps, byte driverVersion){
     //For microstep modes less than 8, we cannot jump to high speed, so we use the SPEEDFAST mode maps. Given that the SPEEDFAST maps are generated for the micro-stepping modes >=8
@@ -143,25 +143,104 @@ void buildModeMapping(byte microsteps, byte driverVersion){
         microsteps *= 8;
     }
     //Generate the mode mapping for the current driver version and micro-stepping modes.
-    switch (microsteps) {
-        case 8:
-            // 1/8
-            modeState[SPEEDNORM] =                                                                                       (( LOW << MODE2) | (HIGH << MODE1) | (HIGH << MODE0));
-            // 1/1
-            modeState[SPEEDFAST] =                                                                                       (( LOW << MODE2) | ( LOW << MODE1) | ( LOW << MODE0));
+    switch (driverVersion) {
+        case A498x:
+            switch (microsteps) {
+                case 8:
+                    // 1/8
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    // 1/1
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    break;
+                case 32:
+                    // 1/32 (unavailable)
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | ( HIGH << MODE1) | (  LOW << MODE0));
+                    // 1/4
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | ( HIGH << MODE1) | (  LOW << MODE0));
+                    break;
+                case 16:
+                default:  //Unknown. Default to half/sixteenth stepping
+                    // 1/16
+                    modeState[SPEEDNORM] = (( HIGH << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    // 1/2
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | ( HIGH << MODE0));
+                break;
+            }
             break;
-        case 32:
-            // 1/32
-            modeState[SPEEDNORM] = (driverVersion == DRV8834) ? ((FLOAT << MODE2) | (HIGH << MODE1) | ( LOW << MODE0)) : ((HIGH << MODE2) | (HIGH << MODE1) | (HIGH << MODE0));
-            // 1/4
-            modeState[SPEEDFAST] = (driverVersion == DRV8834) ? ((FLOAT << MODE2) | ( LOW << MODE1) | ( LOW << MODE0)) : (( LOW << MODE2) | (HIGH << MODE1) | ( LOW << MODE0));
+        case DRV882x:
+            switch (microsteps) {
+                case 8:
+                    // 1/8
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    // 1/1
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    break;
+                case 32:
+                    // 1/32
+                    modeState[SPEEDNORM] = (( HIGH << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    // 1/4
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | ( HIGH << MODE1) | (  LOW << MODE0));
+                    break;
+                case 16:
+                default:  //Unknown. Default to half/sixteenth stepping
+                    // 1/16
+                    modeState[SPEEDNORM] = ((  HIGH << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    // 1/2
+                    modeState[SPEEDFAST] = ((   LOW << MODE2) | (  LOW << MODE1) | ( HIGH << MODE0));
+                    break;
+            }
             break;
-        case 16:
+        case DRV8834:
+            switch (microsteps) {
+                case 8:
+                    // 1/8
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | ( HIGH << MODE1) | (  LOW << MODE0));
+                    // 1/1
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    break;
+                case 32:
+                    // 1/32
+                    modeState[SPEEDNORM] = ((FLOAT << MODE2) | ( HIGH << MODE1) | (FLOAT << MODE0));
+                    // 1/4
+                    modeState[SPEEDFAST] = ((FLOAT << MODE2) | (  LOW << MODE1) | (FLOAT << MODE0));
+                    break;
+                case 16:
+                default:  //Unknown. Default to half/sixteenth stepping
+                    // 1/16
+                    modeState[SPEEDNORM] = (( HIGH << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    // 1/2
+                    modeState[SPEEDFAST] = (( HIGH << MODE2) | (  LOW << MODE1) | ( HIGH << MODE0));
+                    break;
+            }
+            break;
+        case TMC2100:
+            switch (microsteps) {
+                case 8:
+                    // 1/8 (unavailable)
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    // 1/1
+                    modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | (  LOW << MODE0));
+                    break;
+                case 32:
+                    // 1/32 (unavailable)
+                    modeState[SPEEDNORM] = ((FLOAT << MODE2) | ( HIGH << MODE1) | (FLOAT << MODE0));
+                    // 1/4
+                    modeState[SPEEDFAST] = ((FLOAT << MODE2) | ( HIGH << MODE1) | (FLOAT << MODE0));
+                    break;
+                case 16:
+                default:  //Unknown. Default to half/sixteenth stepping
+                    // 1/16
+                    modeState[SPEEDNORM] = ((  LOW << MODE2) | (FLOAT << MODE1) | (  LOW << MODE0));
+                    // 1/2
+                    modeState[SPEEDFAST] = ((FLOAT << MODE2) | (  LOW << MODE1) | (FLOAT << MODE0));
+                    break;
+        }
+        break;
         default:  //Unknown. Default to half/sixteenth stepping
             // 1/16
-            modeState[SPEEDNORM] = (driverVersion == DRV882x) ? ((  LOW << MODE2) | ( LOW << MODE1) | (HIGH << MODE0)) : ((HIGH << MODE2) | (HIGH << MODE1) | (HIGH << MODE0));
+            modeState[SPEEDNORM] = (( HIGH << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
             // 1/2
-            modeState[SPEEDFAST] = (driverVersion == DRV882x) ? (( HIGH << MODE2) | ( LOW << MODE1) | ( LOW << MODE0)) : (( LOW << MODE2) | ( LOW << MODE1) | (HIGH << MODE0));
+            modeState[SPEEDFAST] = ((  LOW << MODE2) | (  LOW << MODE1) | ( HIGH << MODE0));
             break;
     }
 }
@@ -312,17 +391,17 @@ void systemInitialiser(){
     byte state = modeState[defaultSpeedState]; //Extract the default mode - If the microstep mode is >= then we start in NORMAL mode, otherwise we use FAST mode
 
     setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0   )));
-    setPinDir  (modePins[RA][MODE0],  OUTPUT                      ); 
+    setPinDir  (modePins[RA][MODE0],!(state & (byte)(1<<MODE0DIR)));
     setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0   )));
-    setPinDir  (modePins[DC][MODE0],  OUTPUT                      );
+    setPinDir  (modePins[DC][MODE0],!(state & (byte)(1<<MODE0DIR)));
     setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1   )));
-    setPinDir  (modePins[RA][MODE1],  OUTPUT                      );
+    setPinDir  (modePins[RA][MODE1],!(state & (byte)(1<<MODE1DIR)));
     setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1   )));
-    setPinDir  (modePins[DC][MODE1],  OUTPUT                      );
+    setPinDir  (modePins[DC][MODE1],!(state & (byte)(1<<MODE1DIR)));
     setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
-    setPinDir  (modePins[RA][MODE2],!(state & (byte)(1<<MODE2DIR))); //For the DRV8834 type, we also need to set the direction of the Mode2 bit to be an input if floating is required for this step mode.
+    setPinDir  (modePins[RA][MODE2],!(state & (byte)(1<<MODE2DIR)));
     setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
-    setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR))); //For the DRV8834 type, we also need to set the direction of the Mode2 bit to be an input if floating is required for this step mode.
+    setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR)));
 
     //Give some time for the Motor Drivers to reset.
     _delay_ms(1);
@@ -621,11 +700,18 @@ int main(void) {
                     //And then we need to initialise the controller manually so the basic controller can help us move
                     byte state = modeState[defaultSpeedState]; //Extract the default mode - for basic HC we won't change from default mode.
                     setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0   )));
+                    setPinDir  (modePins[RA][MODE0],!(state & (byte)(1<<MODE0DIR)));
                     setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0   )));
+                    setPinDir  (modePins[DC][MODE0],!(state & (byte)(1<<MODE0DIR)));
                     setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1   )));
+                    setPinDir  (modePins[RA][MODE1],!(state & (byte)(1<<MODE1DIR)));
                     setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1   )));
+                    setPinDir  (modePins[DC][MODE1],!(state & (byte)(1<<MODE1DIR)));
                     setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
+                    setPinDir  (modePins[RA][MODE2],!(state & (byte)(1<<MODE2DIR)));
                     setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
+                    setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR)));
+                    
                     
                     Commands_configureST4Speed(CMD_ST4_DEFAULT); //Change the ST4 speeds to default
                     
@@ -769,9 +855,12 @@ int main(void) {
                             cmd_updateStepDir(RA,cmd.gVal[RA]);
                             cmd.highSpeedMode[RA] = true;
                         }
-                        setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0)));
-                        setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1)));
-                        setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2)));
+                        setPinValue(modePins[RA][MODE0], (state & (byte)(1<<MODE0   )));
+                        setPinDir  (modePins[RA][MODE0],!(state & (byte)(1<<MODE0DIR)));
+                        setPinValue(modePins[RA][MODE1], (state & (byte)(1<<MODE1   )));
+                        setPinDir  (modePins[RA][MODE1],!(state & (byte)(1<<MODE1DIR)));
+                        setPinValue(modePins[RA][MODE2], (state & (byte)(1<<MODE2   )));
+                        setPinDir  (modePins[RA][MODE2],!(state & (byte)(1<<MODE2DIR)));
                     } else {
                         //Otherwise we never need to change the speed
                         cmd_updateStepDir(RA,1); //Just move along at one step per step
@@ -807,9 +896,12 @@ int main(void) {
                             cmd_updateStepDir(DC,cmd.gVal[DC]);
                             cmd.highSpeedMode[DC] = true;
                         }
-                        setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0)));
-                        setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1)));
-                        setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2)));
+                        setPinValue(modePins[DC][MODE0], (state & (byte)(1<<MODE0   )));
+                        setPinDir  (modePins[DC][MODE0],!(state & (byte)(1<<MODE0DIR)));
+                        setPinValue(modePins[DC][MODE1], (state & (byte)(1<<MODE1   )));
+                        setPinDir  (modePins[DC][MODE1],!(state & (byte)(1<<MODE1DIR)));
+                        setPinValue(modePins[DC][MODE2], (state & (byte)(1<<MODE2   )));
+                        setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR)));
                     } else {
                         //Otherwise we never need to change the speed
                         cmd_updateStepDir(DC,1); //Just move along at one step per step

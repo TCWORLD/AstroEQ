@@ -96,6 +96,7 @@ inline const char* astroEQ_verstr() {
 #define A498x 0
 #define DRV882x 1
 #define DRV8834 2
+#define TMC2100 3
 #define DRIVER_MAX 3
 
 #define SPEEDNORM 0
