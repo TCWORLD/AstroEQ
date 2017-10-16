@@ -28,7 +28,7 @@ AstroEQ-ConfigUtility/AstroEQUploader/mounts/*.conf
 ## Devel directories
 #############
 
-AstroEQ-Firmware/AstroEQUploaderUtility
+AstroEQ-ConfigUtility/AstroEQUploaderPackage
 AstroEQ-ConfigUtility/AstroEQUploader/data/PrivateSource
 
 #############
