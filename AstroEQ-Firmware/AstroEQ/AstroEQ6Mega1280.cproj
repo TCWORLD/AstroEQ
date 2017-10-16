@@ -140,6 +140,17 @@ Set objFile = objFSO.OpenTextFile(strFileName, ForWriting)
 objFile.Write strNewText
 objFile.Close
 &lt;/script&gt;&lt;/job&gt;</PostBuildEvent>
+    <PreBuildEvent>&lt;!-- : Begin batch script
+@echo off
+
+set /p vernum=&lt; $(SolutionDir)VerNum.txt
+
+echo "%vernum%" &gt; $(SolutionDir)VerNumStr.txt
+echo //AUTO GENERATED - DO NOT MODIFY &gt;&gt; $(SolutionDir)VerNumStr.txt
+
+exit /b
+
+----- End Batch ---&gt;</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AstroEQ.c">

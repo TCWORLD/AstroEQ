@@ -19,7 +19,8 @@
 #define __ASTROEQ_H__
 
 //Define the version number
-#define ASTROEQ_VER astroEQ_vernum()
+#define ASTROEQ_VER     astroEQ_vernum()
+#define ASTROEQ_VER_STR astroEQ_verstr()
 
 #ifdef __cplusplus
 extern "C"{
@@ -37,6 +38,15 @@ inline unsigned long astroEQ_vernum () {
     return (unsigned long)(100.0 *
     #include "../VerNum.txt"
     );
+}
+
+inline const char* astroEQ_verstr() {
+    //This function will grab the version number from VerNumStr.txt which will be
+    //a stringified version of the VerNum.txt file produced by the prebuild event.
+    //The whole operation will be optimised to a constant.
+    return 
+    #include "../VerNumStr.txt"
+    ;
 }
 
 /*
