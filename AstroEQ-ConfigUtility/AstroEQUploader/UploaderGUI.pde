@@ -13,7 +13,8 @@ class UploaderGUI {
   private final static int DRIVER_A498x = 0;
   private final static int DRIVER_DRV882x = 1;
   private final static int DRIVER_DRV8834 = 2;
-  private final static int DRIVER_COUNT = 3;
+  private final static int DRIVER_TMC2100 = 3;
+  private final static int DRIVER_COUNT = 4;
   private final static int MIN_IVAL = 300; //normal minimum
   private final static int ABSOLUTE_MIN_IVAL = 50; //absolute minimum below which an error occurs.
   private int[] minimumIVal = {MIN_IVAL,MIN_IVAL}; //actual minimum
@@ -39,6 +40,22 @@ class UploaderGUI {
   Serial configSerialPort = null;
   ConcurrentLinkedQueue<Character> inQueue = null;
   ConcurrentLinkedQueue<Character> outQueue = null;
+ 
+  Map<String,Integer> populateMicrostepDropdown (int driver) {
+    Map<String,Integer> entries = new LinkedHashMap <String,Integer>();
+    entries = new LinkedHashMap <String,Integer>();
+    for (int j = 0; j < 6; j++){
+      int mode = (int)pow(2,j);
+      entries.put(""+mode+" uStep",mode);
+    }
+    if (driver == DRIVER_TMC2100) {
+       entries.remove("8 uStep");
+       entries.remove("32 uStep");
+    } else if (driver == DRIVER_A498x) {
+       entries.remove("32 uStep");
+    }
+    return entries;
+  }
  
   private String calculateGotoFactor(String IValStr, String MultiplierStr, boolean microstepping, int minIVal){
     int IVal;
@@ -369,14 +386,13 @@ class UploaderGUI {
             ScrollableList versionDropdown = currentScreen.getDropdown(name);
             ScrollableList microstepDropdown = currentScreen.getDropdown("ramicrostepEnableField");
             if ((versionDropdown != null) && (microstepDropdown != null)){
-              if ((Integer)currentScreen.getScrollableListItem(versionDropdown) != DRIVER_A498x){
-                microstepDropdown.removeItem("32 uStep");//ensure there aren't duplicates
-                microstepDropdown.addItem("32 uStep", 32);
-              } else {
-                if ((Integer)currentScreen.getScrollableListItem(microstepDropdown)==32){
-                  currentScreen.selectScrollableListItem(microstepDropdown,16);
-                }
-                microstepDropdown.removeItem("32 uStep");
+              Map<String,Integer> entries = populateMicrostepDropdown((Integer)currentScreen.getScrollableListItem(versionDropdown));
+              Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
+              microstepDropdown.clear();
+              microstepDropdown.addItems((Map)entries);
+              if (!entries.containsValue(currentSelected)) {
+                //Entry no longer available. So select any
+                currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
               }
             }
           }
@@ -563,6 +579,10 @@ class UploaderGUI {
               extraArgs = output.split("\n");
             }
             println("------ Configuration Data Extraction ------");
+          } else if (screenStatus == 7) {
+            setDisplay(GUI_ENTER_CONFIG); //skip EEPROM recovery
+            extraArgs = loadDefaultConfiguration();
+            println("------ Loading Default Configuration ------");
           } else if (screenStatus != 5) {
             break;
           }
@@ -584,7 +604,7 @@ class UploaderGUI {
           if (screenStatus == 1) {
             setDisplay(GUI_BEGIN);
           } else if (screenStatus == 2) {
-            setDisplay(GUI_ENTER_CONFIG);
+            setDisplay(GUI_EEPROM_READ);
           } else {
             break;
           }
@@ -592,9 +612,10 @@ class UploaderGUI {
           execute.resetStatus(); //finished with the thread, so clear.
           
           if (screenStatus != 1) {
-            extraArgs = loadDefaultConfiguration();
+            screenStatus = 6; //Mark that recovery attempt made
+          } else {
+            screenStatus = 0;
           }
-          screenStatus = 0;
           info.setText("");
         }
         break;
@@ -1081,7 +1102,7 @@ class UploaderGUI {
               extraArgs[NUM_COMMANDS + 2*i + 1] = ":X2"+ SyntaString.syntaEncoder(""+dcEncodedTable, SyntaString.argIsLong, SyntaString.encode);
             }
             //Finish up the array with the store commands.
-            extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+0] = ":T1"; //store to EEPROM.
+            extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+0] = ":T10"; //store to EEPROM.
             extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+1] = ":O10"; //reset the uC.
             
             setDisplay(GUI_STORE_CONFIG);
@@ -1454,7 +1475,7 @@ class UploaderGUI {
       break;
 
     case GUI_EEPROM_READ:
-      if (screenStatus > 1) {
+      if ((screenStatus > 1) && (screenStatus != 6)) {
         break; //screen is done with.
       }
       message = currentScreen.getTextLabel("messageBox");
@@ -1471,9 +1492,14 @@ class UploaderGUI {
           String buttonLabel;
           String errorMessage;
           if (errorCode == 1) {
-            errorMessage = "Read Suceeded. EEPROM Blank or Corrupt!";
+            if (screenStatus == 6) {
+              errorMessage = "Read Suceeded. EEPROM Config Lost, Loading Default!";
+              screenStatus = 7;
+            } else {
+              errorMessage = "Read Suceeded. EEPROM Wrong Version or Corrupt!";
+              screenStatus = 2;
+            }
             buttonLabel = "Next";
-            screenStatus = 2;
           } 
           else if (errorCode == 2) {
             errorMessage = "Read Error!! Lost communication.";
@@ -1523,7 +1549,7 @@ class UploaderGUI {
           execute   = new EEPROMInterface(parent,inQueue,outQueue);
           executeThread = new Thread(execute);
           extraArgs = new String[] {
-            ":T1", //check EEPROM.
+            ":T1"+((screenStatus == 6) ? "1" : "0"), //check EEPROM. (if already checked, skip CRC second time to allow for a <V8.6 upgrade scenario)
             ":a1",  //aVal
             ":b1",  //bVal
             ":s1",  //sVal
@@ -1607,7 +1633,7 @@ class UploaderGUI {
             next.setCaptionLabel("Next");
           }
           if (message != null) {
-            message.setValue("EEPROM Repaired. AstroEQ Ready for Configuration.");
+            message.setValue("EEPROM Upgrade/Repair Attempt Complete.");
           }
           closeSerialPort();
           screenStatus = 2;
@@ -1619,10 +1645,10 @@ class UploaderGUI {
           openSerialPort();
           execute   = new EEPROMInterface(parent,inQueue,outQueue);
           executeThread = new Thread(execute);
-          eepromProgrammerRun(EEPROMProgrammer.Store, EEPROMProgrammer.Repair, new String[]{":T1"}); //:=command, T=Proceed, 1=ignored axis.
+          eepromProgrammerRun(EEPROMProgrammer.Store, EEPROMProgrammer.Repair, new String[]{":T10"}); //:=command, T=Proceed, 1=ignored axis, 0=Ignored action
           extraArgs = null;
           if (message != null) {
-            message.setValue("EEPROM Repair in Progress...");
+            message.setValue("EEPROM Upgrade/Repair in Progress...");
           }
           if (next != null) {
             next.setMouseOver(false);
@@ -1717,14 +1743,13 @@ class UploaderGUI {
             ScrollableList microstepDropdown = currentScreen.getDropdown("ramicrostepEnableField");
             if ((versionDropdown != null) && (microstepDropdown != null)){    
               currentScreen.selectScrollableListItem(versionDropdown,Integer.parseInt(readBack.substring(id[0].length())));
-              if ((Integer)currentScreen.getScrollableListItem(versionDropdown) != DRIVER_A498x){
-                microstepDropdown.removeItem("32 uStep");//ensure there aren't duplicates
-                microstepDropdown.addItem("32 uStep", 32);
-              } else {
-                if ((Integer)currentScreen.getScrollableListItem(microstepDropdown)==32){
-                  currentScreen.selectScrollableListItem(microstepDropdown,16);
-                }
-                microstepDropdown.removeItem("32 uStep");
+              Map<String,Integer> entries = populateMicrostepDropdown((Integer)currentScreen.getScrollableListItem(versionDropdown));
+              Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
+              microstepDropdown.clear();
+              microstepDropdown.addItems((Map)entries);
+              if (!entries.containsValue(currentSelected)) {
+                //Entry no longer available. So select any
+                currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
               }
             }
           } else if (name.substring(2).equals("microstepEnableField")) {
@@ -2424,6 +2449,7 @@ class UploaderGUI {
     entries.put("A4988/3",DRIVER_A498x);
     entries.put("DRV882x",DRIVER_DRV882x);
     entries.put("DRV8834",DRIVER_DRV8834);
+    entries.put("TMC2100",DRIVER_TMC2100);
     screen.addTextLabel(control, "driverVersionTitle", wl_font, "Motor Driver IC Type:", color(#ffffff), dimensionLabel);
     screen.addDropdown(control, "radriverVersionField","Driver",wl_font,entries,dimension).setMoveable(false);
         
@@ -2443,11 +2469,7 @@ class UploaderGUI {
     y += TEXTBAR_HEIGHT;
     dimension.setY(y);
     dimensionLabel.setY(y);
-    entries = new LinkedHashMap <String,Integer>();
-    for (int j = 0; j < 5; j++){
-      int mode = (int)pow(2,j);
-      entries.put(""+mode+" uStep",mode);
-    }
+    entries = populateMicrostepDropdown(DRIVER_A498x);
     screen.addTextLabel(control, "microstepEnableTitle", wl_font, "Motor Microstep Level:", color(#ffffff), dimensionLabel);
     screen.addDropdown(control, "ramicrostepEnableField","uSteps",wl_font,entries,dimension).setMoveable(false);
   }

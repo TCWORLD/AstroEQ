@@ -19,11 +19,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    Verison 3.7
+    Verison 3.8
 */
 
 public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.7.3";
+public String configVersion = "3.8.0";
  
 import controlP5.*;
 import processing.serial.*;
