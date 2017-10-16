@@ -15,7 +15,6 @@
 //Only works with ATmega162, and Arduino Mega boards (1280 and 2560)
 #if defined(__AVR_ATmega162__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
-
 /*
  * Include headers
  */
@@ -28,7 +27,9 @@
 #include "synta.h" //Synta Communications Protocol.
 #include <util/delay.h>    
 #include <util/delay_basic.h>
+#include <util/crc16.h>
 #include <avr/wdt.h>
+
 
 // Watchdog disable on boot.
 void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
@@ -253,18 +254,17 @@ void systemInitialiser(){
     
     buildModeMapping(microstepConf, driverVersion);
     
-    if(!checkEEPROM()){
+    if(!checkEEPROM(false)){
         progMode = PROGMODE; //prevent AstroEQ startup if EEPROM is blank.
-    }
-
-    calculateRate(RA); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
-    calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
-    calculateDecelerationLength(RA);
-    calculateDecelerationLength(DC);
-    
+    } else {
+        calculateRate(RA); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
+        calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
+        calculateDecelerationLength(RA);
+        calculateDecelerationLength(DC);
+    }    
     //Status pin to output low
     setPinDir  (statusPin,OUTPUT);
-    setPinValue(statusPin,   LOW);
+    setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
 
     //Standalone Speed/IRQ pin to input no-pull-up
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
@@ -357,13 +357,44 @@ void systemInitialiser(){
  * EEPROM Validation and Programming Routines
  */
 
-bool checkEEPROM(){
-    char temp[9] = {0};
-    EEPROM_readString(temp,8,AstroEQID_Address);
-    if(strncmp(temp,"AstroEQ",8)){
+bool checkEEPROMCRC() {
+    unsigned char crc = EEPROM_readByte(AstroEQCRC_Address);
+    if (crc != calculateEEPROMCRC()) {
+        return false; //Invalid CRC
+    }
+    return true;
+}
+
+unsigned char calculateEEPROMCRC(){
+    unsigned char crc = 0;
+    for (unsigned int addr = AstroEQCRC_Address+1; addr <= EEPROMEnd_Address; addr++) {
+        unsigned char data = EEPROM_readByte(addr);
+        crc = _crc8_ccitt_update(crc, data);
+    }
+    if (crc == 0) {
+        crc = 1; //Don't allow a CRC value of zero as pre-CRC firmware versions used this value at the CRC address
+    }
+    return crc;
+}
+
+bool checkEEPROM(bool skipCRC){
+    char temp[4];
+    //First check header:
+    EEPROM_readString(temp,3,AstroEQID_Address);
+    if(strncmp(temp,"AEQ",3)){
         return false;
     }
-    if (driverVersion > DRV8834){
+    //Then match version number:
+    EEPROM_readString(temp,4,AstroEQVer_Address);
+    if(strncmp(temp,ASTROEQ_VER_STR,4)){
+        return false; //EEPROM needs updating...
+    }
+    //Then validate CRC (unless skipping)
+    if (!skipCRC && !checkEEPROMCRC()) {
+        return false;
+    }    
+    //Then make sure contents makes sense
+    if (driverVersion > DRIVER_MAX){
         return false; //invalid value.
     }
     if ((driverVersion == A498x) && microstepConf > 16){
@@ -390,10 +421,15 @@ bool checkEEPROM(){
 }
 
 void buildEEPROM(){
-    EEPROM_writeString("AstroEQ",8,AstroEQID_Address);
+    //We initialise with the identifier string
+    EEPROM_writeString("AEQ",3,AstroEQID_Address);
+    EEPROM_writeString(ASTROEQ_VER_STR,4,AstroEQVer_Address);
+    //We don't blank out the EEPROM to allow data recovery when updating firmware to new version.
+    //Configuration is now (theoretically) in a valid state, or invalid state with bad crc
 }
 
 void storeEEPROM(){
+    //Store EEPROM values
     EEPROM_writeLong(cmd.aVal[RA],aVal1_Address);
     EEPROM_writeLong(cmd.aVal[DC],aVal2_Address);
     EEPROM_writeLong(cmd.bVal[RA],bVal1_Address);
@@ -414,6 +450,9 @@ void storeEEPROM(){
     EEPROM_writeByte(cmd.st4SpeedFactor, SpeedFactor_Address);
     EEPROM_writeAccelTable(cmd.accelTable[RA],AccelTableLength,AccelTable1_Address);
     EEPROM_writeAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address);
+    //Then compute and store a valid CRC
+    unsigned char crc = calculateEEPROMCRC();
+    EEPROM_writeByte(crc,AstroEQCRC_Address);
 }
 
 
@@ -646,7 +685,7 @@ int main(void) {
                 }
             }
             if (loopCount == 0) {
-                setPinValue(statusPin, 0);
+                setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
             }
             
             //
@@ -1002,7 +1041,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             if (progMode == RUNMODE) { //only allow motors to be enabled outside of programming mode.
                 motorEnable(axis); //This enables the motors - gives the motor driver board power
             } else {
-                command = 0; //force sending of error packet!.
+                command = '\0'; //force sending of error packet!.
             }
             break;
             
@@ -1143,9 +1182,14 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             //repair EEPROM
                             buildEEPROM();
                         } else if (progMode == PROGMODE) {
-                            //check if EEPROM contains valid data.
-                            if (!checkEEPROM()) { 
-                                command = 0; //force sending of an error packet if invalid EEPROM
+                            //check if EEPROM contains valid data. (Skip EEPROM CRC checks if requested)
+                            if (!checkEEPROM(buffer[0]-'0')) { 
+                                //If invalid EEPROM configuration (excluding CRC if skipping CRC)
+                                command = '\0'; //force sending of an error packet if invalid EEPROM
+                            } else if (!checkEEPROMCRC()) {
+                                //If invalid EEPROM configuration is now only due to CRC
+                                EEPROM_writeByte(calculateEEPROMCRC(),AstroEQCRC_Address); //Recalculate and store the correct CRC
+                                //We don't report an error as the CRC is now ready.
                             }
                         }
                         break;

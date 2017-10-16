@@ -119,7 +119,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'X', 6, 0},
                                                  {'x', 0, 6},
                                                  {'Y', 2, 0},
-                                                 {'T', 0, 0}
+                                                 {'T', 1, 0}
                                                };
 
 char Commands_getLength(char cmd, bool sendRecieve){

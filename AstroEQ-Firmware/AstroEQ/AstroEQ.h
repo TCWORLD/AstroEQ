@@ -82,6 +82,10 @@ inline const char* astroEQ_verstr() {
   #define cbi(r,b) r &= ~_BV(b)
 #endif
 
+#ifndef _BV
+  #define _BV(x) (1 << x)
+#endif
+
 #define FLOAT (1<<3)
 #define HIGH 1
 #define LOW 0
@@ -92,6 +96,7 @@ inline const char* astroEQ_verstr() {
 #define A498x 0
 #define DRV882x 1
 #define DRV8834 2
+#define DRIVER_MAX 3
 
 #define SPEEDNORM 0
 #define SPEEDFAST 1
@@ -162,7 +167,9 @@ static const byte modePins[2][3] = {{modePins0_0_Define,modePins1_0_Define,modeP
  * Function Prototypes
  */
  
-bool checkEEPROM();
+bool checkEEPROMCRC();
+unsigned char calculateEEPROMCRC();
+bool checkEEPROM(bool skipCRC);
 void buildEEPROM();
 void storeEEPROM();
 void systemInitialiser();

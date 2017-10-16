@@ -6,6 +6,8 @@
 
 #define EEPROMStart_Address (                      0 )
 #define AstroEQID_Address   (EEPROMStart_Address + 0 )
+#define AstroEQVer_Address  (EEPROMStart_Address + 3 )
+#define AstroEQCRC_Address  (EEPROMStart_Address + 7 )
 #define Microstep_Address   (EEPROMStart_Address + 8 ) //whether to use microstepping.
 #define RAReverse_Address   (EEPROMStart_Address + 9 )
 #define DECReverse_Address  (EEPROMStart_Address + 10)
@@ -29,7 +31,9 @@
 #define AccelTable1_Address (EEPROMStart_Address + 100) //Leave a gap so we can add more settings later.
 #define AccelTable2_Address (EEPROMStart_Address + 100 + AccelTableLength*3)
 
-#if ((EEPROMStart_Address + 100 + (6*AccelTableLength) - 1) > E2END)
+#define EEPROMEnd_Address   (EEPROMStart_Address + 100 + (6*AccelTableLength) - 1)
+
+#if (EEPROMEnd_Address > E2END)
     #error "AccelTable too large for EEPROM"
 #endif
 
