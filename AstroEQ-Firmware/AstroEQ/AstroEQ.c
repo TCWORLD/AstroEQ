@@ -1384,18 +1384,18 @@ inline void timerEnable(byte motor) {
         timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1)) );//00x
         timerPrescalarRegister(RA, timerPrescalarRegister(RA) |  (            (1<<CSn0)) );//xx1
     } else {
-        timerPrescalarRegister(DC, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1)) );//00x
-        timerPrescalarRegister(DC, timerPrescalarRegister(RA) |  (            (1<<CSn0)) );//xx1
+        timerPrescalarRegister(DC, timerPrescalarRegister(DC) & ~((1<<CSn2) | (1<<CSn1)) );//00x
+        timerPrescalarRegister(DC, timerPrescalarRegister(DC) |  (            (1<<CSn0)) );//xx1
     }
 }
 
 inline void timerDisable(byte motor) {
     if (motor == RA) {
         interruptControlRegister(RA, interruptControlRegister(RA) & ~interruptControlBitMask(RA)); //Disable timer interrupt
-        timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//00x
+        timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//000
     } else {
         interruptControlRegister(DC, interruptControlRegister(DC) & ~interruptControlBitMask(DC)); //Disable timer interrupt
-        timerPrescalarRegister(DC, timerPrescalarRegister(DC) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//00x
+        timerPrescalarRegister(DC, timerPrescalarRegister(DC) & ~((1<<CSn2) | (1<<CSn1) | (1<<CSn0)));//000
     }
 }
 
@@ -1566,7 +1566,7 @@ void motorStopDC(bool emergency){
 void configureTimer(){
     interruptControlRegister(DC, 0); //disable all timer interrupts.
 #if defined(__AVR_ATmega162__)
-    interruptControlRegister(RA, interruptControlRegister(RA) & 0b00000011); //for 162, the lower 2 bits of the declination register control another timer, so leave them alone.
+    interruptControlRegister(RA, interruptControlRegister(RA) & 0b00000011); //for 162, the lower 2 bits of the RA register control another timer, so leave them alone.
 #else
     interruptControlRegister(RA, 0);
 #endif
