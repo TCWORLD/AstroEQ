@@ -121,7 +121,15 @@ inline void setGotoDecelerating(const byte axis) {
 inline void clearGotoDecelerating(const byte axis) {
     gotoControlRegister &= ~gotoDeceleratingBitMask(axis);
 }
-
+inline bool motionIsSlew(const unsigned char GVal) {
+    return !!(GVal & 1);
+}
+inline bool motionIsGoto(const unsigned char GVal) {
+    return !(GVal & 1);
+}
+inline bool motionIsLowSpeed(const unsigned char GVal) {
+    return ((GVal == 1) || (GVal == 2));
+}
 
 
 /*
@@ -845,7 +853,7 @@ int main(void) {
                     if (canJumpToHighspeed){
                         //If we are allowed to enable high speed, see if we need to
                         byte state;
-                        if ((GVal == 1) || (GVal == 2)) {
+                        if (motionIsLowSpeed(GVal)) {
                             //If a low speed mode command
                             state = modeState[SPEEDNORM]; //Select the normal speed mode
                             cmd_updateStepDir(RA,1);
@@ -866,7 +874,7 @@ int main(void) {
                         cmd_updateStepDir(RA,1); //Just move along at one step per step
                         cmd.highSpeedMode[RA] = false;
                     }
-                    if(GVal & 1){
+                    if(motionIsSlew(GVal)){
                         //This is the function that enables a slew type move.
                         slewMode(RA); //Slew type
                         readyToGo[RA] = 2;
@@ -886,7 +894,7 @@ int main(void) {
                     if (canJumpToHighspeed){
                         //If we are allowed to enable high speed, see if we need to
                         byte state;
-                        if ((GVal == 1) || (GVal == 2)) {
+                        if (motionIsLowSpeed(GVal)) {
                             //If a low speed mode command
                             state = modeState[SPEEDNORM]; //Select the normal speed mode
                             cmd_updateStepDir(DC,1);
@@ -907,7 +915,7 @@ int main(void) {
                         cmd_updateStepDir(DC,1); //Just move along at one step per step
                         cmd.highSpeedMode[DC] = false;
                     }
-                    if(GVal & 1){
+                    if(motionIsSlew(GVal)){
                         //This is the function that enables a slew type move.
                         slewMode(DC); //Slew type
                         readyToGo[DC] = 2; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
@@ -1297,7 +1305,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     
     if ((command == 'J') && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
         readyToGo[axis] = 1; //So signal we are ready to go and when the last movement completes this one will execute.
-        if (!(cmd.GVal[axis] & 1)){
+        if (motionIsGoto(cmd.GVal[axis])){
             //If go-to mode requested
             cmd_setGotoEn(axis,CMD_ENABLED);
         }
