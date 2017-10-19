@@ -87,19 +87,22 @@ inline void cmd_updateStepDir(byte target, byte stepSize){
     }
 }
 
-inline unsigned int cmd_fVal(byte target){ //_fVal: 00ds000g000f; d = dir, s = stopped, g = goto, f = energised
+inline unsigned int cmd_fVal(byte target){ //_fVal: 0hds000r000f; h=high speed, d = dir, s = slew, r = running, f = energised
     unsigned int fVal = 0;
+    if (cmd.highSpeedMode[target]) {
+        fVal |= (1 << 10);
+    }
     if (cmd.dir[target]) {
-        fVal |= (1 << 9);
+        fVal |= (1 <<  9);
     }
-    if (cmd.stopped[target]) {
-        fVal |= (1 << 8);
+    if (!cmd.gotoEn[target]) {
+        fVal |= (1 <<  8);
     }
-    if (cmd.gotoEn[target]) {
-        fVal |= (1 << 4);
+    if (!cmd.stopped[target]) {
+        fVal |= (1 <<  4);
     }
     if (cmd.FVal[target]){
-        fVal |= (1 << 0);
+        fVal |= (1 <<  0);
     }
     return fVal;
 }
