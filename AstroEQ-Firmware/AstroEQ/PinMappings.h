@@ -115,10 +115,10 @@
 #endif
 
 //SPI Pins:
-#define SPIClockPin_Define 52
-#define SPIMISOPin_Define  50
-#define SPIMOSIPin_Define  51
-#define SPISSnPin_Define   53
+#define SPIClockPin_Define ST4SubPin_1_Define //(52)
+#define SPIMISOPin_Define  ST4AddPin_0_Define //(50) - Comments are hardware SPI pin. These are sadly partly used for other things on M162 version.
+#define SPIMOSIPin_Define  ST4AddPin_1_Define //(51) - Instead we are currently doing software SPI on same pins as ST4.
+#define SPISSnPin_Define   ST4SubPin_0_Define //(53)
 
 
 #endif
