@@ -77,7 +77,6 @@ byte overLogo = 0;
 
 public String filePath;
 String firmwareVersion;
-public String tempDirectory;
 
 private static String OS = System.getProperty("os.name").toLowerCase();
 public static boolean isWindows() {
@@ -85,17 +84,6 @@ public static boolean isWindows() {
 }
 public static boolean isUnix() {
   return (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0 );
-}
-
-
-void exit () {
-  if (isWindows()) {
-    try {
-      deleteDirectory(new File(tempDirectory));
-    } catch (Exception e) {
-    }
-  }
-  super.exit();
 }
 
 public static String dir() throws URISyntaxException {
@@ -110,28 +98,6 @@ public static String dir() throws URISyntaxException {
   }
   return path2;
 } 
-
-public static boolean deleteDirectory(File dir) {
-  if(! dir.exists() || !dir.isDirectory())    {
-    return false;
-  }
-
-  String[] files = dir.list();
-  for(int i = 0, len = files.length; i < len; i++)    {
-    File f = new File(dir, files[i]);
-    if(f.isDirectory()) {
-      deleteDirectory(f);
-    } else {
-      f.delete();
-    }
-  }
-  return dir.delete();
-}
-  /*if (isWindows()) {
-  
-  } else if (isUnix()) {
-    
-  }*/
 
 public final static int BACKGROUND_COLOUR = #0A0C4B;//color(10,21,75);
 public final static int BORDER_COLOUR = #5070AA;//color(80,112,170);
@@ -161,6 +127,8 @@ void setup() {
   println("Starting AstroEQ Config Utility, V" + configVersion + (isBeta ? "(beta)" : ""));
   println("Time is "+hour()+":"+minute()+":"+second());
   println("OS: " + System.getProperty("os.name") + ". JRE Version: " + System.getProperty("java.version") + ". JRE Arch: " + System.getProperty("os.arch"));
+  
+  println("Java Path: " + System.getProperty("java.library.path"));
   
   println("Creating Window. Setting DPI Scaling to " + displayDensity());
   size(100, 100);
@@ -205,26 +173,19 @@ void setup() {
   }
   if (isWindows()) {
     try {
-      filePath = /*URLDecoder.decode(AstroEQUploader.class.getProtectionDomain().getCodeSource().getLocat‌​ion().getPath(), "UTF-8")*/ dir() + java.io.File.separator;
+      System.loadLibrary("bin/jSSC-2.8");
+    } catch (UnsatisfiedLinkError e) {
+      e.printStackTrace();
+    }
+    try {
+      filePath = dir() + java.io.File.separator;
     } catch (Exception e) {
       filePath = sketchPath("");
     }
     println("Current Dir: " + filePath);
-    hexPath = filePath + "hex";  
-    
-    tempDirectory = "C:" + java.io.File.separator + "__temp__AstroEQUploader" + java.io.File.separator;
-    println("Temp Dir: " + tempDirectory);
-    File dir = new File(tempDirectory);
-    dir.mkdir();
-    String sourceFile = "" + filePath + "etc" + java.io.File.separator + avrdude[1];
-    String destinationFile = "" + tempDirectory + avrdude[1];                        
-    
-    println("Copying AVRDude.conf to Temp Dir.");
-    FileCopy copier = new FileCopy();                        
-    copier.copyFile(sourceFile, destinationFile);
-    
-    avrdude[0] = "\""+filePath + "bin" + java.io.File.separator + avrdude[0]+"\"";
-    avrdude[1] = "-C\"" + destinationFile+"\"";
+    hexPath = filePath + "hex";      
+    avrdude[0] = "\"" + filePath + "bin" + java.io.File.separator + avrdude[0]+"\"";
+    avrdude[1] = "\"-C" + filePath + "etc" + java.io.File.separator + avrdude[1]+"\"";
   } else if (isUnix()) {
     filePath = java.io.File.separator + "usr" + java.io.File.separator + "share" + java.io.File.separator + "doc" + java.io.File.separator + "astroequploader" + java.io.File.separator;
     
@@ -627,11 +588,8 @@ void avrdudeRun(String myFile, String myPort, int index) {
   } 
   String sourceFile = "" + hexPath + java.io.File.separator + myFile + ".hex";
   if (isWindows()) {
-    String destinationFile = "" + tempDirectory + myFile + ".hex";                        
-    FileCopy copier = new FileCopy();                        
-    copier.copyFile(sourceFile, destinationFile);
     args[9] = "-P"+"\\\\.\\"+myPort;
-    args[10] = "-Uflash:w:"+destinationFile+":i";
+    args[10] = "-Uflash:w:"+sourceFile+":i";
   } else if (isUnix()) {
     args[9] = "-P"+myPort;
     args[10] = "-Uflash:w:"+sourceFile+":i";
