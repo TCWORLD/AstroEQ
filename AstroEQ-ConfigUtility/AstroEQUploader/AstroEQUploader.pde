@@ -23,7 +23,7 @@
 */
 
 public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.8.0";
+public String configVersion = "3.8.2";
  
 import controlP5.*;
 import processing.serial.*;
@@ -120,6 +120,7 @@ JFrame jf;
 
 int FrameHeightOffset = 0;
 int FrameWidthOffset = 0;
+int infoHeightShrink = 0;
 
 void setup() { 
   Locale.setDefault(Locale.UK);
@@ -145,9 +146,11 @@ void setup() {
   if (isWindows()) {
     FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT + 10;
     FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH + 10;
+    infoHeightShrink = 0;
   } else {
     FrameHeightOffset = (int)jf.getSize().getHeight() - WINDOW_HEIGHT;
     FrameWidthOffset = (int)jf.getSize().getWidth() - WINDOW_WIDTH;
+    infoHeightShrink = 10;
   }
   
   println("Setting Frame Rate");
@@ -218,7 +221,7 @@ void setup() {
   println("Loading ControlP5");
   controlP5 = new ControlP5(this);
   
-  info = controlP5.addTextarea("output","",infoDim.x(),infoDim.y(),infoDim.width(),infoDim.height());
+  info = controlP5.addTextarea("output","",infoDim.x(),infoDim.y(),infoDim.width(),infoDim.height()-infoHeightShrink);
   
   info.setColorBackground(color(#000000));
   info.setColorValue(color(#ffffff));
@@ -255,7 +258,7 @@ void draw() {
   if (infoDim.bottom() != jfHeight-FrameHeightOffset) {
     println("IB:"+infoDim.bottom()+" JFH:"+jfHeight+" JFHO:"+FrameHeightOffset);
     infoDim.setHeight(jfHeight-FrameHeightOffset - controlP5Dim.bottom());
-    info.setHeight(infoDim.height());
+    info.setHeight(infoDim.height()-infoHeightShrink);
   }
   int jfWidth = (int)jfSize.getWidth();
   if (jfWidth != WINDOW_WIDTH+FrameWidthOffset) {

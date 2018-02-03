@@ -291,7 +291,13 @@ class GUIScreen {
     if (ddl == null) {
       return null;
     }
-    Map<String,Object> item = ddl.getItem((int)ddl.getValue());
+    int idx = (int)ddl.getValue();
+    int size = ddl.getItems().size();
+    if (idx >= size){
+      println("Item index out of range (idx:"+idx+"; count:"+size+") in getScrollableListItem for ddl:"+ddl);
+      return null;
+    }
+    Map<String,Object> item = ddl.getItem(idx);
     return item.get(field);
   }
   

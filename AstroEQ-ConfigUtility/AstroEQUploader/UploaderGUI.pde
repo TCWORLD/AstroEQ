@@ -69,12 +69,12 @@ class UploaderGUI {
     if (Multiplier == 0 || Multiplier > 255 || IVal > 1200 || IVal < minIVal) {
       return null;
     }
-    int Factor = (int)Math.round((double)IVal / (double)Multiplier);
+    double Factor = (double)IVal / (double)Multiplier;
     if (microstepping){
-      Factor *= 8; //Goto speed is 8x larger for microstepping
+      Factor *= 8.0; //Goto speed is 8x larger for microstepping
     }
     Factor = Math.min(Factor,1200); //limit max speed
-    return String.valueOf(Factor);
+    return String.valueOf((int)Math.ceil(Factor));
   }
   private String getMinimumGotoFactor(String IValStr, boolean microstepping, int minIVal){
     int IVal;
@@ -86,12 +86,12 @@ class UploaderGUI {
     if (IVal > 1200 || IVal < minIVal) {
       return null;
     }
-    int Factor = (int)Math.ceil((double)IVal/255.0);
+    double Factor = (double)IVal/255.0;
     if (microstepping){
-      Factor *= 8; //Goto speed is 8x larger for microstepping
+      Factor *= 8.0; //Goto speed is 8x larger for microstepping
     }
     Factor = Math.min(Factor,1200); //limit max speed
-    return String.valueOf(Factor);
+    return String.valueOf((int)Math.ceil(Factor));
   }
   private String calculateGotoMultiplier(String IValStr, String FactorStr, boolean microstepping, int minIVal){
     int IVal;
@@ -103,7 +103,7 @@ class UploaderGUI {
       return null;
     }
     if (microstepping){
-      Factor /= 8; //Goto speed is 8x larger for microstepping
+      Factor /= 8.0; //Goto speed is 8x larger for microstepping
     }
     if ((Factor < 1) || (IVal > 1200) || (IVal < minIVal)) {
       return null;
@@ -187,7 +187,6 @@ class UploaderGUI {
           return true; //Table found and populated.
         }
       }
-      
       //If we reach here, we failed to find a table.
       println("Attempt " + attemptNo + " Failed. Abandoned at IVal: " + IVals[currentIndex]);
       if (accelTime > 0.85) {
@@ -200,6 +199,7 @@ class UploaderGUI {
         accelTime = 4.0;
       }
       println("Trying Top Speed IVal of " + stopIVal + " and Accel Time of " + accelTime);
+      attemptNo++;
     }
     return false; //Failed to find a table.
   }
@@ -386,13 +386,19 @@ class UploaderGUI {
             ScrollableList versionDropdown = currentScreen.getDropdown(name);
             ScrollableList microstepDropdown = currentScreen.getDropdown("ramicrostepEnableField");
             if ((versionDropdown != null) && (microstepDropdown != null)){
-              Map<String,Integer> entries = populateMicrostepDropdown((Integer)currentScreen.getScrollableListItem(versionDropdown));
-              Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
-              microstepDropdown.clear();
-              microstepDropdown.addItems((Map)entries);
-              if (!entries.containsValue(currentSelected)) {
-                //Entry no longer available. So select any
-                currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
+              Integer driverVer = (Integer)currentScreen.getScrollableListItem(versionDropdown);
+              if (driverVer != null) {
+                Map<String,Integer> entries = populateMicrostepDropdown(driverVer);
+                Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
+                microstepDropdown.clear();
+                microstepDropdown.addItems((Map)entries);
+                if (!entries.containsValue(currentSelected)) {
+                  //Entry no longer available. So select any
+                  currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
+                }
+              } else {
+                //Failed to get driver version. Clear all values from microstep dropdown
+                microstepDropdown.clear();
               }
             }
           }
@@ -1743,13 +1749,19 @@ class UploaderGUI {
             ScrollableList microstepDropdown = currentScreen.getDropdown("ramicrostepEnableField");
             if ((versionDropdown != null) && (microstepDropdown != null)){    
               currentScreen.selectScrollableListItem(versionDropdown,Integer.parseInt(readBack.substring(id[0].length())));
-              Map<String,Integer> entries = populateMicrostepDropdown((Integer)currentScreen.getScrollableListItem(versionDropdown));
-              Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
-              microstepDropdown.clear();
-              microstepDropdown.addItems((Map)entries);
-              if (!entries.containsValue(currentSelected)) {
-                //Entry no longer available. So select any
-                currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
+              Integer driverVer = (Integer)currentScreen.getScrollableListItem(versionDropdown);
+              if (driverVer != null) {
+                Map<String,Integer> entries = populateMicrostepDropdown(driverVer);
+                Integer currentSelected = (Integer)currentScreen.getScrollableListItem(microstepDropdown);
+                microstepDropdown.clear();
+                microstepDropdown.addItems((Map)entries);
+                if (!entries.containsValue(currentSelected)) {
+                  //Entry no longer available. So select any
+                  currentScreen.selectScrollableListItem(microstepDropdown,entries.values().toArray()[0]);
+                }
+              } else {
+                //Failed to get driver version. Clear all values from microstep dropdown
+                microstepDropdown.clear();
               }
             }
           } else if (name.substring(2).equals("microstepEnableField")) {
@@ -1793,7 +1805,7 @@ class UploaderGUI {
             Button gearchangeButton;
             if ((gearchangeButton = currentScreen.getButton(name)) != null) {
               Integer usteps = (Integer)currentScreen.getScrollableListItem(currentScreen.getDropdown("ramicrostepEnableField"));
-              if (readBack.substring(id[0].length()).equals("0") && (usteps >= 8)){
+              if ((usteps != null) && readBack.substring(id[0].length()).equals("0") && (usteps >= 8)){
                 gearchangeButton.setOn();
                 gearchangeButton.setCaptionLabel("Enabled");
               } else {
