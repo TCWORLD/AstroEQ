@@ -16,6 +16,7 @@ class UploaderGUI {
   private final static int DRIVER_TMC2100 = 3;
   private final static int DRIVER_COUNT = 4;
   private final static int MIN_IVAL = 300; //normal minimum
+  private final static int ABSOLUTE_MAX_IVAL = 1200; //normal maximum
   private final static int ABSOLUTE_MIN_IVAL = 50; //absolute minimum below which an error occurs.
   private int[] minimumIVal = {MIN_IVAL,MIN_IVAL}; //actual minimum
   int screenStatus = 0;
@@ -66,14 +67,14 @@ class UploaderGUI {
     } catch (Exception e) {
       return null;
     }
-    if (Multiplier == 0 || Multiplier > 255 || IVal > 1200 || IVal < minIVal) {
+    if (Multiplier == 0 || Multiplier > 255 || IVal > ABSOLUTE_MAX_IVAL || IVal < minIVal) {
       return null;
     }
     double Factor = (double)IVal / (double)Multiplier;
     if (microstepping){
       Factor *= 8.0; //Goto speed is 8x larger for microstepping
     }
-    Factor = Math.min(Factor,1200); //limit max speed
+    Factor = Math.min(Factor,ABSOLUTE_MAX_IVAL); //limit max speed
     return String.valueOf((int)Math.ceil(Factor));
   }
   private String getMinimumGotoFactor(String IValStr, boolean microstepping, int minIVal){
@@ -83,14 +84,14 @@ class UploaderGUI {
     } catch (Exception e) {
       return null;
     }
-    if (IVal > 1200 || IVal < minIVal) {
+    if (IVal > ABSOLUTE_MAX_IVAL || IVal < minIVal) {
       return null;
     }
     double Factor = (double)IVal/255.0;
     if (microstepping){
       Factor *= 8.0; //Goto speed is 8x larger for microstepping
     }
-    Factor = Math.min(Factor,1200); //limit max speed
+    Factor = Math.min(Factor,ABSOLUTE_MAX_IVAL); //limit max speed
     return String.valueOf((int)Math.ceil(Factor));
   }
   private String calculateGotoMultiplier(String IValStr, String FactorStr, boolean microstepping, int minIVal){
@@ -105,7 +106,7 @@ class UploaderGUI {
     if (microstepping){
       Factor /= 8.0; //Goto speed is 8x larger for microstepping
     }
-    if ((Factor < 1) || (IVal > 1200) || (IVal < minIVal)) {
+    if ((Factor < 1) || (IVal > ABSOLUTE_MAX_IVAL) || (IVal < minIVal)) {
       return null;
     }
     
@@ -845,8 +846,8 @@ class UploaderGUI {
             println("Using Microsteps: "+getMicrostepMode());
             long aVal = (long)Math.ceil(gearRatio*wormRatio*(360.0/angle)*getMicrostepMode());
             long sVal = (long)Math.round((double)aVal/wormRatio);
-            double maxIVal = (86164.0905*8000000.0)/((double)aVal*480.0);
-            long IVal = 1200;
+            double maxIVal = Double.min((86164.0905*8000000.0)/((double)aVal*480.0), ABSOLUTE_MAX_IVAL);
+            long IVal = ABSOLUTE_MAX_IVAL;
             long bVal;
             double minError = 1000;
             int minIVal = Math.min(MIN_IVAL,(int)Math.floor(maxIVal)); //if the maximum possible is smaller than our soft limit, change the minimum.
@@ -894,13 +895,13 @@ class UploaderGUI {
               ResolutionStr = "";
               info.setText(info.getText()+id.toUpperCase()+": ERROR! IVal must be >"+ABSOLUTE_MIN_IVAL+". Try reducing Steps/rev. :(" + "\n");
               info.scroll(1);
-            } else if (IVal > 1200) {
+            } else if (IVal > ABSOLUTE_MAX_IVAL) {
               IValStr = String.valueOf(IVal);
               aValStr = "Error";
               bValStr = "";
               sValStr = "";
               ResolutionStr = "";
-              info.setText(info.getText()+id.toUpperCase()+": ERROR! IVal must be <1200. Try larger uStep setting. :(" + "\n");
+              info.setText(info.getText()+id.toUpperCase()+": ERROR! IVal must be <"+ABSOLUTE_MAX_IVAL+". Try larger uStep setting. :(" + "\n");
               info.scroll(1);
             } else {
               bVal = (long)Math.round((double)IVal*(double)aVal/86164.0905);
