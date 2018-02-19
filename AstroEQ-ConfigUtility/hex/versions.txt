@@ -1,4 +1,4 @@
-AstroEQUploaderUtility	3.82
+AstroEQUploaderUtility	3.83
 AstroEQArduinoMega1280	8.11
 AstroEQArduinoMega2560	8.11
 AstroEQV4-EQ5Board	8.11
