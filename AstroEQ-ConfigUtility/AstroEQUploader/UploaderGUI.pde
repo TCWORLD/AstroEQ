@@ -2357,7 +2357,7 @@ class UploaderGUI {
     Dimensions dimensionLabel = new Dimensions(0, 0,                        0, TEXTBAR_HEIGHT+3, 340, ELEMENT_HEIGHT);
     Dimensions dimension      = new Dimensions(0, 0, dimensionLabel.width()+4, TEXTBAR_HEIGHT+3,  24, ELEMENT_HEIGHT);
     
-    screen.addTextLabel(control, "messageBox", wl_font, "Enter Mount Configuration Below, or Open Confing:", color(#ffffff), dimensionLabel);
+    screen.addTextLabel(control, "messageBox", wl_font, "Enter Mount Configuration Below, or Open Config:", color(#ffffff), dimensionLabel);
 
     //Add file buttons
     screen.addButton( control, "loadButton", "Load", wl_font, 1, dimension)
