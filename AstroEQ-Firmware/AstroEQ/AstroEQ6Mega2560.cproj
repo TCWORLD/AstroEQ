@@ -112,7 +112,7 @@
 set /p vernum=&lt; $(SolutionDir)VerNum.txt
 
 xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQArduinoMega2560.hex  /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQArduinoMega2560 %vernum%
+cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQArduinoMega2560 %vernum% "AstroEQ Arduino Mega 2560" "atmega2560" "wiring" "115200"
 
 exit /b
 
@@ -124,6 +124,10 @@ Const ForWriting = 2
 strFileName = Wscript.Arguments(0)
 FirmwareName = Wscript.Arguments(1)
 NewVersion = Wscript.Arguments(2)
+FirmwareCommonName = Wscript.Arguments(3)
+CPUName = Wscript.Arguments(4)
+BootloaderName = Wscript.Arguments(5)
+BaudRate = Wscript.Arguments(6)
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
@@ -132,7 +136,7 @@ objFile.Close
 
 Set re = new regexp
 re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
-ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion
+ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion &amp; VBTab &amp; FirmwareCommonName &amp; VBTab &amp; CPUName &amp; VBTab &amp; BootloaderName &amp; VBTab &amp; BaudRate
 
 strNewText = re.Replace(strText, ReplaceText)
 

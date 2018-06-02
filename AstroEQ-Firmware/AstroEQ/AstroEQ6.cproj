@@ -112,10 +112,10 @@
 set /p vernum=&lt; $(SolutionDir)VerNum.txt
 
 xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-DIYBoard(includingKits).hex  /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-DIYBoard(includingKits) %vernum%
+cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-DIYBoard(includingKits) %vernum% "AstroEQ V4-DIY Board (including DIY)" "atmega162" "arduino" "57600"
 
 xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-EQ5Board.hex  /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-EQ5Board %vernum%
+cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-EQ5Board %vernum% "AstroEQ V4-EQ5 Board" "atmega162" "arduino" "57600"
 
 exit /b
 
@@ -127,6 +127,10 @@ Const ForWriting = 2
 strFileName = Wscript.Arguments(0)
 FirmwareName = Wscript.Arguments(1)
 NewVersion = Wscript.Arguments(2)
+FirmwareCommonName = Wscript.Arguments(3)
+CPUName = Wscript.Arguments(4)
+BootloaderName = Wscript.Arguments(5)
+BaudRate = Wscript.Arguments(6)
 
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
@@ -135,7 +139,7 @@ objFile.Close
 
 Set re = new regexp
 re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
-ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion
+ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion &amp; VBTab &amp; FirmwareCommonName &amp; VBTab &amp; CPUName &amp; VBTab &amp; BootloaderName &amp; VBTab &amp; BaudRate
 
 strNewText = re.Replace(strText, ReplaceText)
 
