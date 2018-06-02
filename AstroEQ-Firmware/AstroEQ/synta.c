@@ -69,7 +69,7 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
 
 bool synta_validateCommand(byte len, char* decoded){
     _command = commandString[0]; //first byte is command
-    _axis = commandString[1] - 49; //second byte is axis
+    _axis = commandString[1] - '1'; //second byte is axis
     if(_axis > 1){
         return false; //incorrect axis
     }
