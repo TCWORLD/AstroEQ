@@ -23,7 +23,7 @@
 */
 
 public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.8.3";
+public String configVersion = "3.8.4";
  
 import controlP5.*;
 import processing.serial.*;
@@ -62,11 +62,17 @@ String welcomeText;
 public final String versionFilename = "versions.txt";
 
 String[] avrdude = {"avrdude", "avrdude.conf", "-v", "-v", "-v",  "-p",  "-c",  "-b", "-D", "", ""  };
-public String[][] variant = { { "atmega162",  "arduino",  "57600"},
-                              { "atmega162",  "arduino",  "57600"},
-                              {"atmega1280",  "arduino",  "57600"},
-                              {"atmega2560",   "wiring", "115200"} };
-                     
+
+public final static int VARIANT_FILENAME = 0;
+public final static int VARIANT_VERSION = 1;
+public final static int VARIANT_STRINGNAME = 2;
+public final static int VARIANT_PROCESSOR = 3;
+public final static int VARIANT_BOOTLOADER = 4;
+public final static int VARIANT_BAUDRATE = 5;
+public final static int VARIANT_FIELDCOUNT = 6;
+public String[][] variants;
+
+String [] defaultvariant = {"AstroEQV4-DIYBoard(includingKits)","1.0","AstroEQ V4-DIY Board (including Kits)","atmega162","arduino","57600"};
 
 public String hexPath;
 
@@ -212,6 +218,8 @@ void setup() {
   surface.setIcon(astroEQIcon);
   surface.setTitle("AstroEQ Firmware Update Utility V" + configVersion + (isBeta ? "(beta)" : ""));
   
+  populateVariants();
+  
   String[] versions = listVersions();
   
   wl_font = createFont("Tahoma Bold",FONT_HEIGHT, false);//loadFont("Candara-Bold-16.vlw");
@@ -240,7 +248,7 @@ void setup() {
   port.setMoveable(false);
   version.setMoveable(false); 
   
-  firmwareVersion = getVersion(versions[0].replaceAll("\\s",""));
+  firmwareVersion = variants[0][VARIANT_VERSION];
   
 }
 
@@ -360,13 +368,50 @@ String[] listFileNames(String dir) {
 }
 
 String[] listVersions() {
-  String versions[] = new String[]{
-    "AstroEQ V4-DIY Board (including Kits)",
-    "AstroEQ V4-EQ5 Board",
-    "AstroEQ Arduino Mega 1280",
-    "AstroEQ Arduino Mega 2560"
+  String versions[] = new String[variants.length];
+  for (int i = 0; i < variants.length; i++) {
+    versions[i] = variants[i][VARIANT_STRINGNAME];
   };
   return versions;
+}
+
+void populateVariants() {
+  
+  List<String[]> variantsList = new ArrayList<String[]>();
+  
+  BufferedReader reader = null;
+  println("Populating Firmware Variants");
+  try {
+    // Create a URL for the boards.txt file
+    reader = new BufferedReader(createReader("" + hexPath + java.io.File.separator + versionFilename));
+    // Parse the file
+    String line;
+    String [] splitLine;
+    String [] variant = null;
+    // For each line read
+    while ((line = reader.readLine()) != null) {
+      //Split the line on commas
+      splitLine = line.split("\t");
+      if (splitLine.length < VARIANT_FIELDCOUNT) {
+        println("Skipping Line \"" + line +"\" with too few fields.");
+        //Skip any with too few fields (e.g. the config utility version.
+        continue;
+      }
+      //Make a copy which is truncated to expected length
+      variant = Arrays.copyOf(splitLine, VARIANT_FIELDCOUNT);
+      
+      println("Variant Found ->\n\t File:" + variant[VARIANT_FILENAME] + ".hex;\n\t Version: " + variant[VARIANT_VERSION] + ";\n\t Name:" + variant[VARIANT_STRINGNAME] + ";\n\t Processor:" + variant[VARIANT_PROCESSOR] + ";\n\t Bootloader:" + variant[VARIANT_BOOTLOADER] + ";\n\t Baud:" + variant[VARIANT_BAUDRATE]);
+      variantsList.add(variant);
+    }
+    reader.close();
+    variants = new String[variantsList.size()][VARIANT_FIELDCOUNT];
+    variants = variantsList.toArray(variants);
+  } catch (Exception e) {
+    e.printStackTrace();
+  } finally {
+    
+  }
+  println("Board List Loaded");
 }
 
 void versionListDrop(ScrollableList ddl, String[] files) {
@@ -460,12 +505,11 @@ Object getScrollableListEventItem(ControlEvent theEvent, String field) {
 void controlEvent(ControlEvent theEvent) {
   if(theEvent.isController()) {
     if( theEvent.getName().equals("version") ) {
-      curFile = (String)getScrollableListEventItem(theEvent, "text");
-      curFile = curFile.replaceAll("\\s","");
+      boardVersion = (Integer)getScrollableListEventItem(theEvent, "value");
+      curFile = variants[boardVersion][VARIANT_FILENAME];
       print("Board Version: ");
       println(curFile);
-      boardVersion = (Integer)getScrollableListEventItem(theEvent, "value");
-      firmwareVersion = getVersion(curFile);
+      firmwareVersion = variants[boardVersion][VARIANT_VERSION];
       
     } else if( theEvent.getName().equals("comport") ) {
       curPort = (String)getScrollableListEventItem(theEvent, "text");
@@ -481,34 +525,6 @@ void controlEvent(ControlEvent theEvent) {
       
     }
   }  
-}
-
-String getVersion(String file) {
-    String version = "0";
-    BufferedReader reader = null;
-    try {
-      // Create a URL for the desired page
-      Map<String, String> files = new HashMap<String, String>();
-      reader = new BufferedReader(createReader("" + hexPath + java.io.File.separator + versionFilename));
-      String str;
-      while ((str = reader.readLine()) != null) {
-        if(str.contains("\t")){
-          //println(str);
-          String[] parts = str.split("\t");
-          files.put(parts[0],parts[1]); //filename then version.
-        }
-      }
-      reader.close();
-      if (files.containsKey(file)){
-        println("Matched to firmware file: "+file+".hex");
-        version = files.get(file);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      
-    }
-    return version;
 }
 
 
@@ -586,9 +602,9 @@ void avrdudeRun(String myFile, String myPort, int index) {
   // remaining avrdude argument creation (hex and comport #)
   String[] args = (String[])avrdude.clone();//new String[avrdude[0].length];
   
-  for (int i = 0; i < 3; i++) {
-    args[i+5] = args[i+5] + variant[index][i];
-  } 
+  args[5] = args[5] + variants[index][VARIANT_PROCESSOR];
+  args[6] = args[6] + variants[index][VARIANT_BOOTLOADER];
+  args[7] = args[7] + variants[index][VARIANT_BAUDRATE];
   String sourceFile = "" + hexPath + java.io.File.separator + myFile + ".hex";
   if (isWindows()) {
     args[9] = "-P"+"\\\\.\\"+myPort;

@@ -3,6 +3,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.*;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 class TaskStatus {
 
@@ -327,6 +328,7 @@ class NewFirmwareFetcher extends Executioner {
     buffer.add("Fetching New Files..."); //print to buffer
     println("Fetching New Files...");
     List<String> fileList = new ArrayList<String>();
+    List<String> verList = new ArrayList<String>();
     BufferedInputStream remoteFile = null;
     FileOutputStream newFile = null;
     try {
@@ -336,7 +338,8 @@ class NewFirmwareFetcher extends Executioner {
           //this line is a file to fetch
           String[] parts = arg.split("\t"); //this will split the argument up. [0] will be the marker [1] will be the filename [2] doesn't matter
           fileList.add(parts[1]); //add the filename onto the list to add.
-          println(parts[1]);
+          verList.add(parts[4]);
+          println(parts[1] + "\t" + parts[4]);
         }
       }
       if (fileList.size() == 0){
@@ -344,16 +347,15 @@ class NewFirmwareFetcher extends Executioner {
         println("No files to fetch!");
         exitCode = 1; //no files to fetch.
       } else {
-        fileList.add(versionFilename); //as we are fetching files, we also need to get the new file list.
         String urlPrefix = "https://github.com/TCWORLD/AstroEQ/raw/master/AstroEQ-ConfigUtility/hex/";
         String[] filesToFetch = fileList.toArray(new String[fileList.size()]);
-        for(String filename : filesToFetch){
-          String extension = (filename.equals(versionFilename)?"":".hex");
-          String outputExtension = (filename.equals(versionFilename)?"":".hex");
-          println("Fetching: "+filename+extension);
-          buffer.add("Fetching: "+filename+extension);
-          remoteFile = new BufferedInputStream(new URL(""+urlPrefix+filename+extension).openStream());
-          newFile = new FileOutputStream("" + hexPath + java.io.File.separator + filename+outputExtension);
+        String[] versionsToFetch = verList.toArray(new String[verList.size()]);
+        for(int file = 0; file < filesToFetch.length; file++){
+          String filename = filesToFetch[file];
+          println("Fetching: "+filename+".hex");
+          buffer.add("Fetching: "+filename+".hex");
+          remoteFile = new BufferedInputStream(new URL(""+urlPrefix+filename+".hex").openStream());
+          newFile = new FileOutputStream("" + hexPath + java.io.File.separator + filename+".hex");
           byte data[] = new byte[1024];
           int count;
           while ((count = remoteFile.read(data, 0, 1024)) != -1)
@@ -362,10 +364,34 @@ class NewFirmwareFetcher extends Executioner {
           }
           remoteFile.close();
           newFile.close();
+          //Update the variants table with new firmware version.
+          for (int variant = 0; variant < variants.length; variant++) {
+            if (variants[variant][VARIANT_FILENAME].equals(filename)) {
+              variants[variant][VARIANT_VERSION] = versionsToFetch[file];
+            }
+          }
         }
         buffer.add("All files fetched!");
         println("All files fetched!");
-      }      
+        buffer.add("Updating "+ versionFilename +" with new versions...");
+        println("Updating "+ versionFilename +" with new versions...");
+        
+        newFile = new FileOutputStream("" + hexPath + java.io.File.separator + versionFilename);
+        String[] configVerNums = configVersion.split("\\.");
+        println(configVerNums.length);
+        String[] configSubVerNums = Arrays.copyOfRange(configVerNums,1,configVerNums.length);
+        
+        String configVerLine = "AstroEQUploaderUtility\t"+configVerNums[0]+"."+String.join("",configSubVerNums)+"\n";
+        newFile.write(configVerLine.getBytes(Charset.forName("UTF-8")));
+        for (int variant = 0; variant < variants.length; variant++) {
+          String variantString = String.join("\t",variants[variant]) + "\n";
+          newFile.write(variantString.getBytes(Charset.forName("UTF-8")));
+        }
+        newFile.close();
+        
+        buffer.add("Versions Updated!");
+        println("Versions Updated!");
+      }
     } catch (Exception err) { 
       err.printStackTrace();
       exitCode = 2;
@@ -420,7 +446,7 @@ class FileUpdateCheck extends Executioner {
             Double remoteVersion;
             remoteVersion = Double.parseDouble(parts[1]);
             if(remoteVersion > currentVersion){ //check if version on server is newer.
-              buffer.add("FOUND:\t"+parts[0]+"\t\tV"+version+"--->V"+parts[1]); //add file to the buffer.
+              buffer.add("FOUND:\t"+parts[0]+"\tVer:\t"+version+"--->\t"+parts[1]); //add file to the buffer.
               println(parts[0]);
               if (parts[0].equals("AstroEQUploaderUtility")){
                 exitCode = 3;
