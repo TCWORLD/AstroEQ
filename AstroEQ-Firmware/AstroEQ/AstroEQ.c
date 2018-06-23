@@ -1182,7 +1182,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             } else {
                 //Only :O commands to the RA axis are accepted.
                 progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-                if (progModeEntryCount != 20) {
+                if (progModeEntryCount < 19) {
                     //If we haven't sent enough entry commands to switch into programming mode
                     if ((progMode != PROGMODE) && (progMode != STOREMODE) && (progMode != REBUILDMODE)) {
                         //If we sent an entry command that asks for normal operation, reset the entry count.
@@ -1193,6 +1193,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                     }
                     command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface.
                 } else {
+                    progModeEntryCount = 20;
                     if (progMode != RUNMODE) {
                         motorStop(RA,1); //emergency axis stop.
                         motorDisable(RA); //shutdown driver power.
