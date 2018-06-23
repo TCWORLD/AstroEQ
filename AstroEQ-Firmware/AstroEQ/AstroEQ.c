@@ -80,17 +80,21 @@ byte accelTableIndex[2] = {0,0};
 #define GET_TERNARY_MACRO(m,_1,NAME,...) NAME
 #define SET_TERNARY_REGISTER(rt,rf,m,c) if(m) {rt = c;} else {rf = c;}
 #define GET_TERNARY_REGISTER(rt,rf,m)   ((m) ? rt : rf)
+#define GET_SINGULAR_MACRO(_1,NAME,...) NAME
+#define SET_SINGULAR_REGISTER(r,c) {r = c;}
+#define GET_SINGULAR_REGISTER(r)   (r)
 
 //Registers
 //For setting an RA/DC register -> macro(RA,setValue)
 //For getting an RA/DC register -> macro(DC)
-#define distributionSegment(...)      GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(GPIOR1,GPIOR2,__VA_ARGS__)
-#define currentMotorSpeed(...)        GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( OCR3A, OCR3B,__VA_ARGS__)
-#define irqToNextStep(...)            GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( OCR1A, OCR1B,__VA_ARGS__)
-#define timerCountRegister(...)       GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )( TCNT3, TCNT1,__VA_ARGS__)
-#define timerPrescalarRegister(...)   GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(TCCR3B,TCCR1B,__VA_ARGS__)
-#define interruptOVFCount(...)        GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(  ICR3,  ICR1,__VA_ARGS__)
-#define interruptControlRegister(...) GET_TERNARY_MACRO(__VA_ARGS__, SET_TERNARY_REGISTER , GET_TERNARY_REGISTER )(TIMSK3,TIMSK1,__VA_ARGS__)
+#define distributionSegment(...)       GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )(GPIOR1,GPIOR2,__VA_ARGS__)
+#define currentMotorSpeed(...)         GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )( OCR3A, OCR3B,__VA_ARGS__)
+#define irqToNextStep(...)             GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )( OCR1A, OCR1B,__VA_ARGS__)
+#define timerCountRegister(...)        GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )( TCNT3, TCNT1,__VA_ARGS__)
+#define timerPrescalarRegister(...)    GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )(TCCR3B,TCCR1B,__VA_ARGS__)
+#define interruptOVFCount(...)         GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )(  ICR3,  ICR1,__VA_ARGS__)
+#define interruptControlRegister(...)  GET_TERNARY_MACRO(__VA_ARGS__,  SET_TERNARY_REGISTER ,  GET_TERNARY_REGISTER )(TIMSK3,TIMSK1,__VA_ARGS__)
+#define polarscopeDutyRegister(...)   GET_SINGULAR_MACRO(__VA_ARGS__, SET_SINGULAR_REGISTER , GET_SINGULAR_REGISTER )(        OCR2A,__VA_ARGS__)
 #define gotoControlRegister GPIOR0
 //Bit Masks
 #define interruptControlBitMask(m)  (m ? _BV(ICIE3) : _BV(ICIE1))
@@ -429,6 +433,19 @@ void systemInitialiser(){
     TIMSK &= ~(_BV(TOIE0) | _BV(OCIE0));
     TCCR0 = 0;
 #endif
+
+    //Configure Polar Scope LED Pin
+    setPinDir  (pwmPin,OUTPUT);
+    setPinValue(pwmPin,LOW);
+
+    //Configure Polar Scope PWM Generator (Timer 2)
+    ASSR = 0;
+    polarscopeDutyRegister(0); //Start as off
+    TCCR2A = 0;
+    TCCR2B = 0;
+    //Enable Timer
+    TCCR2A |= _BV(WGM20) | _BV(COM2A1); //Set to phase-correct PWM mode, with OC2A (OC2 for m162) as output.
+    TCCR2B |= _BV(CS22); //~490Hz PWM output.
 
     //Ensure SPI is disabled
     SPI_disable();
@@ -1148,6 +1165,9 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             } else {
                 command = '\0'; //force sending of error packet!.
             }
+            break;
+        case 'V': //Set the polarscope LED brightness
+            polarscopeDutyRegister(synta_hexToByte(buffer));
             break;
             
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)

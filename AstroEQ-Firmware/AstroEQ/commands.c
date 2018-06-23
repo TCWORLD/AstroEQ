@@ -99,6 +99,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'P', 1, 0},
                                                  {'F', 0, 0},
                                                  {'L', 0, 0},
+                                                 {'V', 2, 0},
                                                  //Programmer Entry Command
                                                  {'O', 1, 0},
                                                  //Programmer Commands - Ignored in Run-Mode

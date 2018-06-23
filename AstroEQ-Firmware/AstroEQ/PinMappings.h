@@ -29,6 +29,9 @@
 #define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin
                              //GND (Header Pin 1)
 
+//PWM Pins:
+#define pwmPin_Define 9
+
 //Status Pins:
 #define statusPin_Define 13 
 
@@ -71,9 +74,14 @@
 //Warning: D30 to D37 inclusive are NOT allowed
 
 //GPIO Pins:
-#define gpioPin_0_Define 21  //IO0 [ATMega PD0] - Interrupt Capable (INT0)
-#define gpioPin_1_Define 22  //IO1 [ATMega PA0] - GPIO Pin
-#define gpioPin_2_Define 23  //IO2 [ATMega PA1] - GPIO Pin
+                             //VCC (Header Pin 5)
+#define gpioPin_0_Define 21  //IO0 (Header Pin 4) [ATMega PD0] - Interrupt Capable (INT0)
+#define gpioPin_1_Define 22  //IO1 (Header Pin 3) [ATMega PA0] - GPIO Pin
+#define gpioPin_2_Define 23  //IO2 (Header Pin 2) [ATMega PA1] - GPIO Pin
+                             //GND (Header Pin 1)
+
+//PWM Pins:
+#define pwmPin_Define 10
 
 //Status Pins:
 #define statusPin_Define 13
@@ -144,6 +152,25 @@
 
 #if defined(__AVR_ATmega162__)
 
+#ifndef TCCR2A
+#define TCCR2A TCCR2
+#endif
+
+#ifndef TCCR2B
+#define TCCR2B TCCR2
+#endif
+
+#ifndef COM2A0
+#define COM2A0 COM20
+#endif
+
+#ifndef COM2A1
+#define COM2A1 COM21
+#endif
+
+#ifndef OCR2A
+#define OCR2A OCR2
+#endif
 
 #ifndef USART0_TX_vect
 #define USART0_TX_vect USART0_TXC_vect

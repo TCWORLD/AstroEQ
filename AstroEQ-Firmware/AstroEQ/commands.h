@@ -64,7 +64,7 @@ typedef struct{
     AccelTableStruct accelTable     [2][AccelTableLength]; //Acceleration profile now controlled via lookup table. The first element will be used for cmd.minSpeed[]. max repeat=85
 } Commands;
 
-#define numberOfCommands 37
+#define numberOfCommands 38
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);
