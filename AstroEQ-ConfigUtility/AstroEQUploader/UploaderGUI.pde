@@ -1110,7 +1110,7 @@ class UploaderGUI {
             }
             //Finish up the array with the store commands.
             extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+0] = ":T10"; //store to EEPROM.
-            extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+1] = ":O10"; //reset the uC.
+            extraArgs[NUM_COMMANDS+2*ACCEL_TABLE_LEN+1] = ":O20"; //reset the uC.
             
             setDisplay(GUI_STORE_CONFIG);
             execute.resetStatus(); //finished with the thread, so clear.

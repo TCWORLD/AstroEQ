@@ -434,7 +434,7 @@ void systemInitialiser(){
     TCCR0 = 0;
 #endif
 
-    //Configure SNAP2 GPIO Pin
+    //Configure SNAP1 GPIO Pin
     setPinDir  (snapPin, OUTPUT);
     setPinValue(snapPin, LOW);
 
@@ -1176,9 +1176,10 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //set the programming mode.
-            if (axis == DC) {
+            if (axis == RA) {
                 //:O commands to the DC axis control GPIO1 (SNAP2 port)
                 setPinValue(snapPin,(buffer[0] - '0'));
+                progModeEntryCount = 0;
             } else {
                 //Only :O commands to the RA axis are accepted.
                 progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM

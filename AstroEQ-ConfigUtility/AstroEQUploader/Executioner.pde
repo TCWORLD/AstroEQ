@@ -234,9 +234,9 @@ public class EEPROMInterface extends Executioner {
     String readback = null;
     //Send the entry command 20 times and AstroEQ will only update programming mode after 10 successful entry requests.
     for (int i = 0; i < 20; i++) {
-      write(":O1"+mode+"\r");
-      buffer.add(":O1"+mode);
-      println(":O1"+mode);
+      write(":O2"+mode+"\r");
+      buffer.add(":O2"+mode);
+      println(":O2"+mode);
       
       readback = getResponse(10000,'\r'); //try to find a response within 10 seconds
       println(readback);
