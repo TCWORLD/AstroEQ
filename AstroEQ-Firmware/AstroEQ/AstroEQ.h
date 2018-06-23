@@ -155,6 +155,7 @@ typedef struct {
  */
  
 static const byte standalonePin[2] = {gpioPin_0_Define,gpioPin_2_Define};
+static const byte snapPin = gpioPin_1_Define;
 static const byte pwmPin = pwmPin_Define;
 static const byte statusPin = statusPin_Define;
 static const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};

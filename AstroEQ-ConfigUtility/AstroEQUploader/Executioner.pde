@@ -231,19 +231,26 @@ public class EEPROMInterface extends Executioner {
       
     }
     
-    String readback;
+    String readback = null;
     //Send the entry command 20 times and AstroEQ will only update programming mode after 10 successful entry requests.
     for (int i = 0; i < 20; i++) {
       write(":O1"+mode+"\r");
       buffer.add(":O1"+mode);
       println(":O1"+mode);
       
-      readback = getResponse(10000,'\r');
+      readback = getResponse(10000,'\r'); //try to find a response within 10 seconds
       println(readback);
-      if((readback==null) || !readback.equals("=\r")){ //try to find a response within 10 seconds
+      if(readback==null){ 
+        //If no response
         exitCode = 3; //could not set mode, fatal error
         println("Failed to recieve response.");
       }
+    }
+    //An error packet from AstroEQ is accepted for all but the final response when programming mode is finally entered.
+    if ((readback==null) || (!readback.equals("=\r"))) {
+        //If the final response was not a success status
+        exitCode = 3; //could not set mode, fatal error
+        println("Failed to recieve response.");
     }
     
     while ((args.size() > 0) && (exitCode == 0)) {

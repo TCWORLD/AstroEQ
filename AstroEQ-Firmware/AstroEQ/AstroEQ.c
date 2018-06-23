@@ -434,6 +434,10 @@ void systemInitialiser(){
     TCCR0 = 0;
 #endif
 
+    //Configure SNAP2 GPIO Pin
+    setPinDir  (snapPin, OUTPUT);
+    setPinValue(snapPin, LOW);
+
     //Configure Polar Scope LED Pin
     setPinDir  (pwmPin,OUTPUT);
     setPinValue(pwmPin,LOW);
@@ -1172,26 +1176,33 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //set the programming mode.
-            progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-            if (progModeEntryCount != 20) {
-                //If we haven't sent enough entry commands to switch into programming mode
-                if ((progMode != PROGMODE) && (progMode != STOREMODE) && (progMode != REBUILDMODE) && (axis != RA)) {
-                    //If we sent an entry command that asks for normal operation, reset the entry count.
-                    progModeEntryCount = 0;
-                } else {
-                    //Otherwise increment the count of entry requests.
-                    progModeEntryCount = progModeEntryCount + 1;
-                }
+            if (axis == DC) {
+                //:O commands to the DC axis control GPIO1 (SNAP2 port)
+                setPinValue(snapPin,(buffer[0] - '0'));
             } else {
-                if (progMode != RUNMODE) {
-                    motorStop(RA,1); //emergency axis stop.
-                    motorDisable(RA); //shutdown driver power.
-                    motorStop(DC,1); //emergency axis stop.
-                    motorDisable(DC); //shutdown driver power.
-                    readyToGo[RA] = 0;
-                    readyToGo[DC] = 0;
-                } else { //reset the uC to return to normal ops mode.
-                    success = false;
+                //Only :O commands to the RA axis are accepted.
+                progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
+                if (progModeEntryCount != 20) {
+                    //If we haven't sent enough entry commands to switch into programming mode
+                    if ((progMode != PROGMODE) && (progMode != STOREMODE) && (progMode != REBUILDMODE)) {
+                        //If we sent an entry command that asks for normal operation, reset the entry count.
+                        progModeEntryCount = 0;
+                    } else {
+                        //Otherwise increment the count of entry requests.
+                        progModeEntryCount = progModeEntryCount + 1;
+                    }
+                    command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface.
+                } else {
+                    if (progMode != RUNMODE) {
+                        motorStop(RA,1); //emergency axis stop.
+                        motorDisable(RA); //shutdown driver power.
+                        motorStop(DC,1); //emergency axis stop.
+                        motorDisable(DC); //shutdown driver power.
+                        readyToGo[RA] = 0;
+                        readyToGo[DC] = 0;
+                    } else { //reset the uC to return to normal ops mode.
+                        success = false;
+                    }
                 }
             }
             break;
