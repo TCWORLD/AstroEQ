@@ -51,6 +51,7 @@ byte readyToGo[2] = {0,0};
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
 bool encodeDirection[2];
 byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
+byte progModeEntryCount = 0; //Must send 10 non-zero progMode commands to switch out of run-time. This is to prevent accidental entry by EQMOD.
 byte microstepConf;
 byte driverVersion;
 bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
@@ -1065,6 +1066,10 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     byte axis = synta_getaxis();
     unsigned int correction;
     byte oldSREG;
+    if ((progMode == RUNMODE) && (command != 'O')) {
+        //If any command other than programming entry request is sent, reset the entry count.
+        progModeEntryCount = 0;
+    }
     switch(command) {
         case 'e': //read-only, return the eVal (version number)
             responseData = cmd.eVal[axis]; //response to the e command is stored in the eVal function for that axis.
@@ -1148,15 +1153,26 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //set the programming mode.
             progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-            if (progMode != RUNMODE) {
-                motorStop(RA,1); //emergency axis stop.
-                motorDisable(RA); //shutdown driver power.
-                motorStop(DC,1); //emergency axis stop.
-                motorDisable(DC); //shutdown driver power.
-                readyToGo[RA] = 0;
-                readyToGo[DC] = 0;
-            } else { //reset the uC to return to normal ops mode.
-                success = false;
+            if (progModeEntryCount != 20) {
+                //If we haven't sent enough entry commands to switch into programming mode
+                if ((progMode != PROGMODE) && (progMode != STOREMODE) && (progMode != REBUILDMODE) && (axis != RA)) {
+                    //If we sent an entry command that asks for normal operation, reset the entry count.
+                    progModeEntryCount = 0;
+                } else {
+                    //Otherwise increment the count of entry requests.
+                    progModeEntryCount = progModeEntryCount + 1;
+                }
+            } else {
+                if (progMode != RUNMODE) {
+                    motorStop(RA,1); //emergency axis stop.
+                    motorDisable(RA); //shutdown driver power.
+                    motorStop(DC,1); //emergency axis stop.
+                    motorDisable(DC); //shutdown driver power.
+                    readyToGo[RA] = 0;
+                    readyToGo[DC] = 0;
+                } else { //reset the uC to return to normal ops mode.
+                    success = false;
+                }
             }
             break;
 

@@ -99,7 +99,9 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'P', 1, 0},
                                                  {'F', 0, 0},
                                                  {'L', 0, 0},
-                                                 //Programmer Commands
+                                                 //Programmer Entry Command
+                                                 {'O', 1, 0},
+                                                 //Programmer Commands - Ignored in Run-Mode
                                                  {'A', 6, 0},
                                                  {'B', 6, 0},
                                                  {'S', 6, 0},
@@ -113,7 +115,6 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'z', 0, 2},
                                                  {'R', 6, 0},
                                                  {'r', 0, 6},
-                                                 {'O', 1, 0},
                                                  {'Q', 2, 0},
                                                  {'q', 0, 2},
                                                  {'X', 6, 0},
