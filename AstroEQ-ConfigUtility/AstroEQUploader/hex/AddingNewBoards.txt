@@ -1,0 +1,20 @@
+To add new boards (i.e. new custom firmware files), the following changes need to be made:
+
+1. Add a new line to the versions.txt file which is formatted as:
+
+	<Firmware File Name>\t<Firmware Version>\t<Name of Fimware>\t<Target Processor>\t<AVRDude Programmer>\t<Bootloader Baud Rate>\n
+
+   Where:
+	<Firmware File Name> = File name for firmware, without the .hex extension
+        \t = A single tab character
+	<Firmware Version> = Version of the AstroEQ firmware.
+	<Name of Firmware> = Name of Firmware which will appear in the drop-down menu in the config utility
+	<Target Processor> = Which CPU - atmega162, atmega1280, or atmega2560 only.
+	<AVRDude Programmer> = The Bootloader on the CPU - wiring for ATMega2560, arduino for others
+	<Bootloader Baud Rate> = The Baud Rate of Serial Comms with Bootloader - typically 115200 for ATMega2560, 57600 for others
+        \n = A New-Line Character, either Unix LF or Windows CR-LF style.
+
+2. Add the custom firmware hex file to the hex/ directory (same directory as this file).
+
+Note: When modifying the versions.txt files, add any custom boards to the *bottom of the file*, ensuring that there
+is a trailing new-line character.
