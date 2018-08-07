@@ -4,22 +4,72 @@
 #define __PINMAPPINGS_H__
 
 //
-// Useful Macros
-//
-
-#define setPinDir(p,d) {if(d){*digitalPinToDirectionReg((p)) |= _BV(digitalPinToBit((p)));}else{*digitalPinToDirectionReg((p)) &= ~_BV(digitalPinToBit((p)));}}
-#define setPinValue(p,v) {if(v){*digitalPinToPortReg((p)) |= _BV(digitalPinToBit((p)));}else{*digitalPinToPortReg((p)) &= ~_BV(digitalPinToBit((p)));}}
-#define getPinValue(p) (!!(*digitalPinToPinReg((p)) & _BV(digitalPinToBit((p)))))
-#define togglePin(p) {*digitalPinToPortReg((p)) ^= _BV(digitalPinToBit((p)));}
-
-
-//
 // Pin Mappings
 //
 
-#if defined(__AVR_ATmega162__)
+//For custom pin map, add a copy of the #if ... #el section below,
+//give it a name, e.g. titled "PIN_MAP_EXAMPLECUSTOMMAP" and add a
+//commented out #define below. You can then create a pull request on
+//Github if you want to share the new map.
+//To use a mapping, simply uncomment the required #define. If none
+//are uncommented, it will default to the standard AstroEQ mapping
+//for the current AVR.
 
-//----- User Configurable Pin Definitions for ATMega162 Variants -----
+//#define PIN_MAP_EXAMPLECUSTOMMAP
+
+#if defined(PIN_MAP_EXAMPLECUSTOMMAP)
+//
+//---- User Configurable Pin Definitions -----
+//
+
+//GPIO Pins:
+//VCC (Header Pin 5)
+#define gpioPin_0_Define 21  //IO0 (Header Pin 4) - Interrupt Capable (Must be INT0!)
+#define gpioPin_1_Define 22  //IO1 (Header Pin 3) - GPIO Pin
+#define gpioPin_2_Define 23  //IO2 (Header Pin 2) - GPIO Pin
+//GND (Header Pin 1)
+
+//PWM Pins:
+#define pwmPin_Define 10
+
+//Status Pins:
+#define statusPin_Define 13
+
+//Motor Driver Pins:
+#define resetPin_0_Define 55 //Analog 1
+#define resetPin_1_Define 54 //Analog 0
+
+#define dirPin_0_Define 3
+#define dirPin_1_Define 7
+
+#define enablePin_0_Define 4
+#define enablePin_1_Define 8
+
+#define stepPin_0_Define 5
+#define stepPin_1_Define 12
+
+#define modePins0_0_Define 15
+#define modePins1_0_Define 16
+#define modePins2_0_Define 17
+#define modePins0_1_Define 20
+#define modePins1_1_Define 19
+#define modePins2_1_Define 18
+
+//ST4 Pins:
+#define ST4AddPin_0_Define 50
+#define ST4AddPin_1_Define 51
+#define ST4SubPin_0_Define 53
+#define ST4SubPin_1_Define 52
+
+
+//
+//----- End User Configurable Pin Assignments -----
+//
+
+
+#elif defined(__AVR_ATmega162__)
+
+//----- Pin Definitions for ATMega162 Variants -----
 //Warning: D20 to D27 inclusive are NOT allowed
 
 //GPIO Header:
@@ -61,17 +111,15 @@
 #define ST4SubPin_0_Define 31
 #define ST4SubPin_1_Define 32
 
-//SPI Pins:
-#define SPIClockPin_Define 32 //(13)
-#define SPIMISOPin_Define  34 //(12) - Comments are hardware SPI pin. These are sadly partly used for other things.
-#define SPIMOSIPin_Define  33 //(11) - Instead we are currently doing software SPI on same pins as ST4.
-#define SPISSnPin_Define   31 //(6)
+
+//
+//----- Pin Definitions for ATMega162 Variants -----
+//
 
 
 #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
-//---- User Configurable Pin Definitions for ATMegaXXX0 Variants -----
-//Warning: D30 to D37 inclusive are NOT allowed
+//---- Pin Definitions for ATMegaXXX0 Variants -----
 
 //GPIO Pins:
                              //VCC (Header Pin 5)
@@ -107,26 +155,15 @@
 #define modePins2_1_Define 18
 
 //ST4 Pins:
-//#define ALTERNATE_ST4 //Uncomment this line to use the alternate mapping for the ST4 port, using A8 to A11 instead of 50 to 53
-
-//You only have a choice between two locations for the ST4 pins as controlled by the above #define.
-#ifdef ALTERNATE_ST4
-#define ST4AddPin_0_Define 62 //Analog 8
-#define ST4AddPin_1_Define 63 //Analog 9
-#define ST4SubPin_0_Define 64 //Analog 10
-#define ST4SubPin_1_Define 65 //Analog 11
-#else
 #define ST4AddPin_0_Define 50
 #define ST4AddPin_1_Define 51
 #define ST4SubPin_0_Define 53
 #define ST4SubPin_1_Define 52
-#endif
 
-//SPI Pins:
-#define SPIClockPin_Define ST4SubPin_1_Define //(52)
-#define SPIMISOPin_Define  ST4AddPin_0_Define //(50) - Comments are hardware SPI pin. These are sadly partly used for other things on M162 version.
-#define SPIMOSIPin_Define  ST4AddPin_1_Define //(51) - Instead we are currently doing software SPI on same pins as ST4.
-#define SPISSnPin_Define   ST4SubPin_0_Define //(53)
+
+//
+//----- End Pin Definitions for ATMegaXXX0 Variants -----
+//
 
 
 #endif
@@ -136,10 +173,35 @@
 
 
 
+//
+//
+//----- Do not modify anything below this line! ---------------------------------------
+//
+//
 
 
-// Do not modify anything below this line! ---------------------------------------
+//
+// Useful Macros
+//
 
+#define setPinDir(p,d) {if(d){*digitalPinToDirectionReg((p)) |= _BV(digitalPinToBit((p)));}else{*digitalPinToDirectionReg((p)) &= ~_BV(digitalPinToBit((p)));}}
+#define setPinValue(p,v) {if(v){*digitalPinToPortReg((p)) |= _BV(digitalPinToBit((p)));}else{*digitalPinToPortReg((p)) &= ~_BV(digitalPinToBit((p)));}}
+#define getPinValue(p) (!!(*digitalPinToPinReg((p)) & _BV(digitalPinToBit((p)))))
+#define togglePin(p) {*digitalPinToPortReg((p)) ^= _BV(digitalPinToBit((p)));}
+
+//
+//Advanced Hand Controller SPI Pins (Must be ST4 pins!):
+//
+
+#define SPIClockPin_Define ST4SubPin_1_Define
+#define SPIMISOPin_Define  ST4AddPin_0_Define
+#define SPIMOSIPin_Define  ST4AddPin_1_Define
+#define SPISSnPin_Define   ST4SubPin_0_Define
+
+
+//
+//Register Unification
+//
 
 #if (CS10 != CS30) || (CS11 != CS31) || (CS12 != CS32)
 #error incorrect assumption about prescale bits being equal between timer 1 and 3.
@@ -186,7 +248,7 @@
 #define USART1_RX_vect USART1_RXC_vect
 #endif
 
-//Pick some registers we are not going use for GPIOR
+//Pick some otherwise unused registers for GPIOR. Must be < 0x3F
 #define GPIOR0 PORTC
 #define GPIOR1 OCR0
 #define GPIOR2 TCNT0
@@ -205,6 +267,14 @@
 #ifndef ICIE1
 #define ICIE1 TICIE1
 #endif
+
+#endif
+
+//
+// Pin to Register Lookup Tables
+//
+
+#if defined(__AVR_ATmega162__)
 
 #define digitalPinToPortReg(P) \
 ((((P) >= 14 && (P) <= 17) || ((P) >= 31 && (P) <= 34)) ? &PORTA : \
