@@ -126,6 +126,10 @@ typedef uint8_t byte;
 #define ST4N (1)  //Negative ST4 Pin
 #define ST4O (-1) //Neither ST4 Pin
 
+#define MOTION_START_NOTREADY   0
+#define MOTION_START_REQUESTED  1
+#define MOTION_START_UPDATABLE  2
+
 #define MIN_IVAL 50
 #define MAX_IVAL 1200
 
