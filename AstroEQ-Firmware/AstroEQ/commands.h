@@ -32,6 +32,11 @@
 #define CMD_ENABLED         true
 #define CMD_DISABLED        false
 
+#define CMD_GVAL_LOWSPEED_GOTO  2
+#define CMD_GVAL_HIGHSPEED_GOTO 0
+#define CMD_GVAL_LOWSPEED_SLEW  1
+#define CMD_GVAL_HIGHSPEED_SLEW 3
+
 typedef struct{        
     //class variables
     unsigned long    jVal           [2]; //_jVal: Current position

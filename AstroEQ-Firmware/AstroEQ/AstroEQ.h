@@ -133,10 +133,6 @@ typedef uint8_t byte;
 
 #define nop() __asm__ __volatile__ ("nop \n\t")
 
-#define GVAL_HIGHSPEED 0
-#define GVAL_LOWSPEED_SLEW 1
-#define GVAL_LOWSPEED_GOTO 2
-
 /*
  * Standalone Pin Names
  */
