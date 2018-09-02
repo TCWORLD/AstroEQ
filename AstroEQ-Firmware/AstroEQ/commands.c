@@ -47,7 +47,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
         cmd.FVal[i] = CMD_DISABLED;
         cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
         cmd.IVal[i] = cmd.siderealIVal[i]; //Recieved Speed will be set by :I command.
-        cmd.GVal[i] = 0; //Mode recieved from :G command
+        cmd.GVal[i] = CMD_GVAL_LOWSPEED_SLEW; //Mode recieved from :G command
         cmd.HVal[i] = 0; //Value recieved from :H command
         cmd.eVal[i] = _eVal; //version number
         cmd.gVal[i] = _gVal; //High speed scalar
