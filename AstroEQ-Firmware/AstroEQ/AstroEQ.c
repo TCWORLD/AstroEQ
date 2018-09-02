@@ -1575,7 +1575,7 @@ void motorStopRA(bool emergency){
         timerDisable(RA);
         cmd_setGotoEn(RA,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(RA,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(RA, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        cmd_setGVal(RA,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
         readyToGo[RA] = MOTION_START_NOTREADY;
         clearGotoRunning(RA);
     } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
@@ -1585,7 +1585,9 @@ void motorStopRA(bool emergency){
         cli();
         cmd_setGotoEn(RA,CMD_DISABLED); //No longer in goto mode.
         clearGotoRunning(RA);
-        cmd_setGVal(RA, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        if (motionIsGoto(cmd.GVal[RA])){
+            cmd_setGVal(RA,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (if we just finished a GoTo)
+        }
         //interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
         if(cmd.currentIVal[RA] < cmd.minSpeed[RA]){
             if(cmd.stopSpeed[RA] > cmd.minSpeed[RA]){
@@ -1606,7 +1608,7 @@ void motorStopDC(bool emergency){
         timerDisable(DC);
         cmd_setGotoEn(DC,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(DC,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(DC, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        cmd_setGVal(DC,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
         readyToGo[DC] = MOTION_START_NOTREADY;
         clearGotoRunning(DC);
     } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
@@ -1615,8 +1617,10 @@ void motorStopDC(bool emergency){
         byte oldSREG = SREG;
         cli();
         cmd_setGotoEn(DC,CMD_DISABLED); //No longer in goto mode.
-        cmd_setGVal(DC, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
         clearGotoRunning(DC);
+        if (motionIsGoto(cmd.GVal[DC])){
+	        cmd_setGVal(DC,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (if we just finished a GoTo)
+        }
         //interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
         if(cmd.currentIVal[DC] < cmd.minSpeed[DC]){
             if(cmd.stopSpeed[DC] > cmd.minSpeed[DC]){
