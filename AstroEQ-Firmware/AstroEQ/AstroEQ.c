@@ -1448,6 +1448,13 @@ void gotoMode(byte axis){
     motorStart(axis); //Begin PWM
 }
 
+void clearGotoMode(const byte axis){
+	if (motionIsGoto(cmd.GVal[axis])){
+		cmd_setGotoEn(axis,CMD_DISABLED); //disable goto mode.
+		cmd_setGVal(axis,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
+	}
+}
+
 inline void timerEnable(byte motor) {
     if (motor == RA) {
         timerPrescalarRegister(RA, timerPrescalarRegister(RA) & ~((1<<CSn2) | (1<<CSn1)) );//00x
@@ -1573,9 +1580,8 @@ void motorStopRA(bool emergency){
     if (emergency) {
         //trigger instant shutdown of the motor in an emergency.
         timerDisable(RA);
-        cmd_setGotoEn(RA,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(RA,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(RA, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        clearGotoMode(RA);
         readyToGo[RA] = MOTION_START_NOTREADY;
         clearGotoRunning(RA);
     } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
@@ -1583,9 +1589,8 @@ void motorStopRA(bool emergency){
         //readyToGo[RA] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
         cli();
-        cmd_setGotoEn(RA,CMD_DISABLED); //No longer in goto mode.
+        clearGotoMode(RA);
         clearGotoRunning(RA);
-        cmd_setGVal(RA, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
         //interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
         if(cmd.currentIVal[RA] < cmd.minSpeed[RA]){
             if(cmd.stopSpeed[RA] > cmd.minSpeed[RA]){
@@ -1604,9 +1609,8 @@ void motorStopDC(bool emergency){
     if (emergency) {
         //trigger instant shutdown of the motor in an emergency.
         timerDisable(DC);
-        cmd_setGotoEn(DC,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(DC,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(DC, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        clearGotoMode(RA);
         readyToGo[DC] = MOTION_START_NOTREADY;
         clearGotoRunning(DC);
     } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
@@ -1614,8 +1618,7 @@ void motorStopDC(bool emergency){
         //readyToGo[DC] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
         cli();
-        cmd_setGotoEn(DC,CMD_DISABLED); //No longer in goto mode.
-        cmd_setGVal(DC, CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (in case we just finished a GoTo)
+        clearGotoMode(RA);
         clearGotoRunning(DC);
         //interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
         if(cmd.currentIVal[DC] < cmd.minSpeed[DC]){
