@@ -47,7 +47,7 @@ void wdt_init(void)
  * Global Variables
  */
 byte stepIncrement[2];
-byte readyToGo[2] = {0,0};
+byte readyToGo[2] = {MOTION_START_NOTREADY, MOTION_START_NOTREADY};
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
 bool encodeDirection[2];
 byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
@@ -127,15 +127,14 @@ inline void clearGotoDecelerating(const byte axis) {
     gotoControlRegister &= ~gotoDeceleratingBitMask(axis);
 }
 inline bool motionIsSlew(const unsigned char GVal) {
-    return !!(GVal & 1);
+    return !!(GVal & 1); // CMD_GVAL_HIGHSPEED_SLEW or CMD_GVAL_LOWSPEED_SLEW (Odd Nummbers)
 }
 inline bool motionIsGoto(const unsigned char GVal) {
-    return !(GVal & 1);
+    return !(GVal & 1); // CMD_GVAL_HIGHSPEED_GOTO or CMD_GVAL_LOWSPEED_GOTO (Even Numbers)
 }
 inline bool motionIsLowSpeed(const unsigned char GVal) {
-    return ((GVal == 1) || (GVal == 2));
+    return ((GVal == CMD_GVAL_LOWSPEED_SLEW) || (GVal == CMD_GVAL_LOWSPEED_GOTO));
 }
-
 
 /*
  * Generate Mode Mappings
@@ -751,15 +750,15 @@ int main(void) {
                     motorEnable(RA); //Ensure the motors are enabled
                     motorEnable(DC);
                     
-                    cmd_setGVal      (RA, 1); //Set both axes to slew mode.
-                    cmd_setGVal      (DC, 1);
+                    cmd_setGVal      (RA, CMD_GVAL_LOWSPEED_SLEW); //Set both axes to slew mode.
+                    cmd_setGVal      (DC, CMD_GVAL_LOWSPEED_SLEW);
                     cmd_setDir       (RA, CMD_FORWARD); //Store the current direction for that axis
                     cmd_updateStepDir(RA ,1);
                     cmd_setDir       (DC, CMD_FORWARD); //Store the current direction for that axis
                     cmd_updateStepDir(RA,1);
                     cmd_setIVal      (RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
                     
-                    readyToGo[RA] = 1; //Signal we are ready to go on the RA axis to start sidereal tracking
+                    readyToGo[RA] = MOTION_START_REQUESTED; //Signal we are ready to go on the RA axis to start sidereal tracking
                     
                     lastST4Pin[RA] = ST4O;
                     lastST4Pin[DC] = ST4O;
@@ -813,7 +812,7 @@ int main(void) {
                 char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
                 if (st4Pin != lastST4Pin[RA]) { 
                     //Only update speed/dir if the ST4 pin value has changed.
-                    if ((cmd.dir[RA] == CMD_FORWARD) && (readyToGo[RA] == 2)) {
+                    if ((cmd.dir[RA] == CMD_FORWARD) && (readyToGo[RA] == MOTION_START_UPDATABLE)) {
                         //In Synta mode, we only allow the ST-4 port to move forward, and only if EQMOD has configured us previously to be in tracking mode
                         //Update target speed.
                         if (st4Pin != ST4O) {
@@ -844,7 +843,7 @@ int main(void) {
                     if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir)) {
                         //If we are currently moving in the wrong direction
                         motorStopDC(false); //Stop the Dec motor
-                        readyToGo[DC]=0;    //No longer ready to go as we have now deleted any pre-running EQMOD movement.
+                        readyToGo[DC] = MOTION_START_NOTREADY;    //No longer ready to go as we have now deleted any pre-running EQMOD movement.
                         //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
                         //first we can come back in over and over until we have started the movement.
                     } else {
@@ -867,7 +866,7 @@ int main(void) {
             }
             
             //Check both axes - loop unraveled for speed efficiency - lots of Flash available.
-            if(readyToGo[RA]==1){
+            if(readyToGo[RA] == MOTION_START_REQUESTED){
                 //If we are ready to begin a movement which requires the motors to be reconfigured
                 if(cmd.stopped[RA] == CMD_STOPPED){
                     //Once the motor is stopped, we can accelerate to target speed.
@@ -899,16 +898,16 @@ int main(void) {
                     if(motionIsSlew(GVal)){
                         //This is the function that enables a slew type move.
                         slewMode(RA); //Slew type
-                        readyToGo[RA] = 2;
+                        readyToGo[RA] = MOTION_START_UPDATABLE;
                     } else {
                         //This is the function for goto mode. You may need to customise it for a different motor driver
                         gotoMode(RA); //Goto Mode
-                        readyToGo[RA] = 0;
+                        readyToGo[RA] = MOTION_START_NOTREADY;
                     }
                 } //Otherwise don't start the next movement until we have stopped.
             }
             
-            if(readyToGo[DC]==1){
+            if(readyToGo[DC] == MOTION_START_REQUESTED){
                 //If we are ready to begin a movement which requires the motors to be reconfigured
                 if(cmd.stopped[DC] == CMD_STOPPED){
                     //Once the motor is stopped, we can accelerate to target speed.
@@ -940,11 +939,11 @@ int main(void) {
                     if(motionIsSlew(GVal)){
                         //This is the function that enables a slew type move.
                         slewMode(DC); //Slew type
-                        readyToGo[DC] = 2; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
+                        readyToGo[DC] = MOTION_START_UPDATABLE; //We are now in a running mode which speed can be changed without stopping motor (unless a command changes the direction)
                     } else {
                         //This is the function for goto mode.
                         gotoMode(DC); //Goto Mode
-                        readyToGo[DC] = 0; //We are now in a mode where no further changes can be made to the motor (apart from requesting a stop) until the go-to movement is done.
+                        readyToGo[DC] = MOTION_START_NOTREADY; //We are now in a mode where no further changes can be made to the motor (apart from requesting a stop) until the go-to movement is done.
                     }
                 } //Otherwise don't start the next movement until we have stopped.
             }
@@ -1123,23 +1122,36 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             break;
         case 'K': //stop the motor, return empty response
             motorStop(axis,0); //normal ISR based deceleration trigger.
-            readyToGo[axis] = 0;
+            readyToGo[axis] = MOTION_START_NOTREADY;
             break;
         case 'L':
             motorStop(axis,1); //emergency axis stop.
             motorDisable(axis); //shutdown driver power.
             break;
         case 'G': //set mode and direction, return empty response
-            /*if (packetIn[0] == '0'){
-              packetIn[0] = '2'; //don't allow a high torque goto. But do allow a high torque slew.
-            }*/
-            cmd_setGVal(axis, (buffer[0] - '0')); //Store the current mode for the axis
-            cmd_setDir(axis, (buffer[1] != '0') ? CMD_REVERSE : CMD_FORWARD); //Store the current direction for that axis
-            readyToGo[axis] = 0;
+            {
+                signed char GVal = (buffer[0] - '0');
+                cmd_setGVal(axis, GVal); //Store the current mode for the axis
+                cmd_setDir(axis, (buffer[1] != '0') ? CMD_REVERSE : CMD_FORWARD); //Store the current direction for that axis
+                readyToGo[axis] = MOTION_START_NOTREADY;
+                //We may need to update flags early...
+                if(cmd.stopped[axis] == CMD_STOPPED){
+                    //If the motor is stopped, we update the high-speed mode flag immediately. This is to help IndiEQMOD in certain edge cases where it issues :G then :f
+                    if (canJumpToHighspeed) {
+                        //If we are allowed to enable high speed, see if we need to
+                        if (motionIsLowSpeed(GVal)) {
+                            //If a low speed mode command
+                            cmd.highSpeedMode[axis] = false; //Change flag to normal speed mode (we aren't actually in this mode yet, we will change on next :J command)
+                        } else {
+                            cmd.highSpeedMode[axis] = true; //Change flag to high speed mode (we aren't actually in this mode yet, we will change on next :J command)
+                        }
+                    }
+                }
+            }
             break;
         case 'H': //set goto position, return empty response (this sets the number of steps to move from current position if in goto mode)
             cmd_setHVal(axis, synta_hexToLong(buffer)); //set the goto position container (convert string to long first)
-            readyToGo[axis] = 0;
+            readyToGo[axis] = MOTION_START_NOTREADY;
             break;
         case 'I': //set slew speed, return empty response (this sets the speed to move at if in slew mode)
             responseData = synta_hexToLong(buffer); //convert string to long first
@@ -1149,12 +1161,12 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             }
             cmd_setIVal(axis, responseData); //set the speed container
             responseData = 0;
-            if (readyToGo[axis] == 2) {
+            if (readyToGo[axis] == MOTION_START_UPDATABLE) {
                 //If we are in a running mode which allows speed update without motor reconfiguration
                 motorStart(axis); //Simply update the speed.
             } else {
                 //Otherwise we are no longer ready to go until the next :J command is received
-                readyToGo[axis] = 0;
+                readyToGo[axis] = MOTION_START_NOTREADY;
             }
             break;
         case 'E': //set the current position, return empty response
@@ -1200,8 +1212,8 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         motorDisable(RA); //shutdown driver power.
                         motorStop(DC,1); //emergency axis stop.
                         motorDisable(DC); //shutdown driver power.
-                        readyToGo[RA] = 0;
-                        readyToGo[DC] = 0;
+                        readyToGo[RA] = MOTION_START_NOTREADY;
+                        readyToGo[DC] = MOTION_START_NOTREADY;
                     } else { //reset the uC to return to normal ops mode.
                         success = false;
                     }
@@ -1353,7 +1365,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
     
     if ((command == 'J') && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
-        readyToGo[axis] = 1; //So signal we are ready to go and when the last movement completes this one will execute.
+        readyToGo[axis] = MOTION_START_REQUESTED; //So signal we are ready to go and when the last movement completes this one will execute.
         if (motionIsGoto(cmd.GVal[axis])){
             //If go-to mode requested
             cmd_setGotoEn(axis,CMD_ENABLED);
@@ -1563,17 +1575,19 @@ void motorStopRA(bool emergency){
         timerDisable(RA);
         cmd_setGotoEn(RA,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(RA,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(RA, 0); //Switch back to slew mode (in case we just finished a GoTo)
-        readyToGo[RA] = 0;
+        cmd_setGVal(RA,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
+        readyToGo[RA] = MOTION_START_NOTREADY;
         clearGotoRunning(RA);
     } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based deceleration
-        //readyToGo[RA] = 0;
+        //readyToGo[RA] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
         cli();
         cmd_setGotoEn(RA,CMD_DISABLED); //No longer in goto mode.
         clearGotoRunning(RA);
-        cmd_setGVal(RA, 0); //Switch back to slew mode (in case we just finished a GoTo)
+        if (motionIsGoto(cmd.GVal[RA])){
+            cmd_setGVal(RA,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (if we just finished a GoTo)
+        }
         //interruptControlRegister(RA) &= ~interruptControlBitMask(RA); //Disable timer interrupt
         if(cmd.currentIVal[RA] < cmd.minSpeed[RA]){
             if(cmd.stopSpeed[RA] > cmd.minSpeed[RA]){
@@ -1594,17 +1608,19 @@ void motorStopDC(bool emergency){
         timerDisable(DC);
         cmd_setGotoEn(DC,CMD_DISABLED); //Not in goto mode.
         cmd_setStopped(DC,CMD_STOPPED); //mark as stopped
-        cmd_setGVal(DC, 0); //Switch back to slew mode (in case we just finished a GoTo)
-        readyToGo[DC] = 0;
+        cmd_setGVal(DC,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
+        readyToGo[DC] = MOTION_START_NOTREADY;
         clearGotoRunning(DC);
     } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based deceleration
-        //readyToGo[motor] = 0;
+        //readyToGo[DC] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
         cli();
         cmd_setGotoEn(DC,CMD_DISABLED); //No longer in goto mode.
-        cmd_setGVal(DC, 0); //Switch back to slew mode (in case we just finished a GoTo)
         clearGotoRunning(DC);
+        if (motionIsGoto(cmd.GVal[DC])){
+	        cmd_setGVal(DC,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode (if we just finished a GoTo)
+        }
         //interruptControlRegister(DC) &= ~interruptControlBitMask(DC); //Disable timer interrupt
         if(cmd.currentIVal[DC] < cmd.minSpeed[DC]){
             if(cmd.stopSpeed[DC] > cmd.minSpeed[DC]){

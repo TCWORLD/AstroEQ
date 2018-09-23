@@ -1,4 +1,4 @@
-*Last Updated: 2nd June 2018*
+*Last Updated: 4th September 2018*
 
 # AstroEQ Telescope Mount Controller
 
@@ -20,7 +20,7 @@ The AstroEQ code contains a custom developed protocol decoder which uses the sam
 The current software and hardware versions are as follows:
 
  * Config Utility Version: **3.9.0**
- * Software Verison: **8.12**
+ * Software Verison: **8.14**
  * Hardware Version: **4.6/4.7 - see note below**
 
 The AstroEQ configuration utility and precompiled firmware can be downloaded from the AstroEQ website at: https://astroeq.co.uk/download
