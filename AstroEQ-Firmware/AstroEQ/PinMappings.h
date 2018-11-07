@@ -15,7 +15,8 @@
 //are uncommented, it will default to the standard AstroEQ mapping
 //for the current AVR.
 
-//#define PIN_MAP_EXAMPLECUSTOMMAP
+//#define PIN_MAP_EXAMPLECUSTOMMAP   //Example, copy this one to form own
+//#define PIN_MAP_MKS_GEN_L          //MKS Gen L and RAMPS 1.4
 
 #if defined(PIN_MAP_EXAMPLECUSTOMMAP)
 //
@@ -24,7 +25,7 @@
 
 //GPIO Pins:
 //VCC (Header Pin 5)
-#define gpioPin_0_Define 21  //IO0 (Header Pin 4) - Interrupt Capable (Must be INT0!)
+#define gpioPin_0_Define 21  //IO0 (Header Pin 4) - GPIO Pin
 #define gpioPin_1_Define 22  //IO1 (Header Pin 3) - GPIO Pin
 #define gpioPin_2_Define 23  //IO2 (Header Pin 2) - GPIO Pin
 //GND (Header Pin 1)
@@ -67,6 +68,56 @@
 //
 
 
+#elif defined(PIN_MAP_MKS_GEN_L)
+//
+//---- MKS Gen L and RAMPS 1.4 Pin Definitions -----
+//
+
+//GPIO Pins:
+//VCC (Header Pin 5)
+#define gpioPin_0_Define 49  //IO0 - GPIO Pin
+#define gpioPin_1_Define 33  //IO1 - GPIO Pin
+#define gpioPin_2_Define 41  //IO2 - GPIO Pin
+//GND (Header Pin 1)
+
+//PWM Pins:
+#define pwmPin_Define 9
+
+//Status Pins:
+#define statusPin_Define 13
+
+//Motor Driver Pins:
+#define resetPin_0_Define 35 //Unused on RAMPS
+#define resetPin_1_Define 37 //Unused on RAMPS
+
+#define dirPin_0_Define 55
+#define dirPin_1_Define 61
+
+#define enablePin_0_Define 38
+#define enablePin_1_Define 56
+
+#define stepPin_0_Define 54
+#define stepPin_1_Define 60
+
+#define modePins0_0_Define 25
+#define modePins1_0_Define 27
+#define modePins2_0_Define 29
+#define modePins0_1_Define 16
+#define modePins1_1_Define 17
+#define modePins2_1_Define 23
+
+//ST4 Pins:
+#define ST4AddPin_0_Define 50
+#define ST4AddPin_1_Define 51
+#define ST4SubPin_0_Define 53
+#define ST4SubPin_1_Define 52
+
+
+//
+//----- MKS Gen L Pin Assignments -----
+//
+
+
 #elif defined(__AVR_ATmega162__)
 
 //----- Pin Definitions for ATMega162 Variants -----
@@ -74,7 +125,7 @@
 
 //GPIO Header:
                              //VCC (Header Pin 5)
-#define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - Interrupt Capable (INT0)
+#define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - GPIO Pin
 #define gpioPin_1_Define 29  //IO1 (Header Pin 3) [ATMega PE1] - GPIO Pin
 #define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin
                              //GND (Header Pin 1)
@@ -123,7 +174,7 @@
 
 //GPIO Pins:
                              //VCC (Header Pin 5)
-#define gpioPin_0_Define 21  //IO0 (Header Pin 4) [ATMega PD0] - Interrupt Capable (INT0)
+#define gpioPin_0_Define 21  //IO0 (Header Pin 4) [ATMega PD0] - GPIO Pin
 #define gpioPin_1_Define 22  //IO1 (Header Pin 3) [ATMega PA0] - GPIO Pin
 #define gpioPin_2_Define 23  //IO2 (Header Pin 2) [ATMega PA1] - GPIO Pin
                              //GND (Header Pin 1)

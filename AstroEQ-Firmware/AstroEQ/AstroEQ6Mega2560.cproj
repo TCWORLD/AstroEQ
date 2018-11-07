@@ -67,6 +67,8 @@
       </ToolNumber>
       <ToolName xmlns="">STK500</ToolName>
     </com_atmel_avrdbg_tool_stk500>
+    <ResetRule>0</ResetRule>
+    <EraseKey />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ATMega2560' ">
     <ToolchainSettings>
@@ -111,7 +113,7 @@
 
 set /p vernum=&lt; $(SolutionDir)VerNum.txt
 
-xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQArduinoMega2560.hex  /Y
+xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQArduinoMega2560.hex* /Y
 cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQArduinoMega2560 %vernum% "AstroEQ Arduino Mega 2560" "atmega2560" "wiring" "115200"
 
 exit /b
@@ -138,7 +140,11 @@ Set re = new regexp
 re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
 ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion &amp; VBTab &amp; FirmwareCommonName &amp; VBTab &amp; CPUName &amp; VBTab &amp; BootloaderName &amp; VBTab &amp; BaudRate
 
-strNewText = re.Replace(strText, ReplaceText)
+If re.Test(strText) Then
+    strNewText = re.Replace(strText, ReplaceText)
+Else
+    strNewText = Trim(strText) &amp; ReplaceText &amp; VBCrLf 
+End If
 
 Set objFile = objFSO.OpenTextFile(strFileName, ForWriting)
 objFile.Write strNewText

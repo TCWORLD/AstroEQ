@@ -13,7 +13,7 @@ AstroEQ-Firmware/**/*.componentinfo.xml
 
 # Build results
 
-AstroEQ-Firmware/**/ATMega*/
+AstroEQ-Firmware/**/*Mega*/
 AstroEQ-Firmware/**/.vs
 
 #############
