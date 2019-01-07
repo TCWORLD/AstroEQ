@@ -356,6 +356,10 @@ void systemInitialiser(){
     //Status pin to output low
     setPinDir  (statusPin,OUTPUT);
     setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
+    #ifdef statusPinShadow_Define
+    setPinDir  (statusPinShdw,OUTPUT);
+    setPinValue(statusPinShdw, (progMode == PROGMODE) ? HIGH : LOW);
+    #endif
 
     //Standalone Speed/IRQ pin to input no-pull-up
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
@@ -777,6 +781,9 @@ int main(void) {
             if ((decoded == -2) || Serial_available()) { //is there a byte in buffer or we still need to process the previous byte?
                 //Toggle on the LED to indicate activity.
                 togglePin(statusPin);
+                #ifdef statusPinShadow_Define
+                togglePin(statusPinShdw);
+                #endif
                 //See what character we need to parse
                 if (decoded != -2) {
                     //get the next character in buffer
@@ -801,6 +808,9 @@ int main(void) {
             }
             if (loopCount == 0) {
                 setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
+                #ifdef statusPinShadow_Define
+                setPinValue(statusPinShdw, (progMode == PROGMODE) ? HIGH : LOW);
+                #endif
             }
             
             //
@@ -958,6 +968,9 @@ int main(void) {
                 
                 //Update status LED
                 togglePin(statusPin); //Toggle status pin at roughly constant rate in basic mode as indicator
+                #ifdef statusPinShadow_Define
+                togglePin(statusPinShdw);
+                #endif
                 
                 //Check the speed
                 byte newBasicHCSpeed = checkBasicHCSpeed();

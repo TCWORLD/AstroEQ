@@ -16,7 +16,6 @@
 //for the current AVR.
 
 //#define PIN_MAP_EXAMPLECUSTOMMAP   //Example, copy this one to form own
-//#define PIN_MAP_MKS_GEN_L          //MKS Gen L and RAMPS 1.4
 
 #if defined(PIN_MAP_EXAMPLECUSTOMMAP)
 //
@@ -85,6 +84,7 @@
 
 //Status Pins:
 #define statusPin_Define 13
+#define statusPinShadow_Define 11 //Duplicate of status LED for boards which don't have on-board LED
 
 //Motor Driver Pins:
 #define resetPin_0_Define 35 //Unused on RAMPS
@@ -114,12 +114,13 @@
 
 
 //
-//----- MKS Gen L Pin Assignments -----
+//----- End MKS Gen L Pin Assignments -----
 //
 
 
 #elif defined(__AVR_ATmega162__)
 
+//
 //----- Pin Definitions for ATMega162 Variants -----
 //Warning: D20 to D27 inclusive are NOT allowed
 
@@ -164,7 +165,7 @@
 
 
 //
-//----- Pin Definitions for ATMega162 Variants -----
+//----- End Pin Definitions for ATMega162 Variants -----
 //
 
 
