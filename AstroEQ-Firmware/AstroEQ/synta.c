@@ -36,12 +36,12 @@ inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
     nibbleToHex(upper, nibbler.high);
 }
 
-void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData){
+void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData) {
     char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError,0); //get the number of data bytes for response
 
     if (replyLength < 0) {
         replyLength = 0;
-        dataPacket[0] = errorChar;  
+        dataPacket[0] = errorChar;
     } else {
         dataPacket[0] = startOutChar;
 
@@ -59,11 +59,10 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
             private_byteToHex(dataPacket+4,dataPacket+3,inter.lowByter.highNibbler);
             private_byteToHex(dataPacket+2,dataPacket+1,inter.lowByter.lowNibbler);
         }
-
+        dataPacket = dataPacket + (size_t)replyLength;
     }
-
-    dataPacket[(byte)replyLength + 1] = endChar;
-    dataPacket[(byte)replyLength + 2] = '\0';  
+    dataPacket[1] = endChar;
+    dataPacket[2] = '\0';
     return;
 }
 
