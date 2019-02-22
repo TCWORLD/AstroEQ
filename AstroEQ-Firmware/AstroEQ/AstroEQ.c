@@ -1397,6 +1397,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
 
 
 void motorEnable(byte axis){
+    motorStop(axis,true); //First perform an "emergency" stop which basically disengages the motors and clears all running flags.
     if (axis == RA){
         setPinValue(enablePin[RA],LOW); //IC enabled
         cmd_setFVal(RA,CMD_ENABLED);
