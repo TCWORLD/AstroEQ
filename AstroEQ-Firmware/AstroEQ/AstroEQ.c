@@ -1200,13 +1200,13 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             break;
             
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
-        case 'O': //set the programming mode.
+        case 'O': //Control GPIO1 or Programming Mode
             if (axis == RA) {
                 //:O commands to the DC axis control GPIO1 (SNAP2 port)
                 setPinValue(snapPin,(buffer[0] - '0'));
                 progModeEntryCount = 0;
             } else {
-                //Only :O commands to the RA axis are accepted.
+                //Only :O commands to the RA axis are accepted. DC enters and controls programming mode on special sequence.
                 progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
                 if (progModeEntryCount < 19) {
                     //If we haven't sent enough entry commands to switch into programming mode
@@ -1217,7 +1217,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         //Otherwise increment the count of entry requests.
                         progModeEntryCount = progModeEntryCount + 1;
                     }
-                    command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface.
+                    command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface).
                 } else {
                     progModeEntryCount = 20;
                     if (progMode != RUNMODE) {
