@@ -57,6 +57,7 @@ byte driverVersion;
 bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
 bool syntaMode = true; //And Synta processing is enabled.
 bool estop = false;
+bool snapPinIsOpenDrain = false;
 
 #define timerCountRate 8000000
 
@@ -338,6 +339,8 @@ void systemInitialiser(){
 
     allowAdvancedHCDetection = !EEPROM_readByte(AdvHCEnable_Address);
     
+    snapPinIsOpenDrain = !!EEPROM_readByte(SnapPinOD_Address);
+
     defaultSpeedState = (microstepConf >= 8) ? SPEEDNORM : SPEEDFAST;
     disableGearChange = !EEPROM_readByte(GearEnable_Address);
     canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
@@ -445,7 +448,11 @@ void systemInitialiser(){
 #endif
 
     //Configure SNAP1 GPIO Pin
-    setPinDir  (snapPin, OUTPUT);
+    if (snapPinIsOpenDrain) {
+        setPinDir  (snapPin, INPUT);
+    } else {
+        setPinDir  (snapPin, OUTPUT);
+    }
     setPinValue(snapPin, LOW);
 
     //Configure Polar Scope LED Pin
@@ -568,6 +575,7 @@ void storeEEPROM(){
     EEPROM_writeByte(!allowAdvancedHCDetection, AdvHCEnable_Address);
     EEPROM_writeInt(cmd.st4DecBacklash, DecBacklash_Address);
     EEPROM_writeByte(cmd.st4SpeedFactor, SpeedFactor_Address);
+    EEPROM_writeByte(snapPinIsOpenDrain, SnapPinOD_Address);
     EEPROM_writeAccelTable(cmd.accelTable[RA],AccelTableLength,AccelTable1_Address);
     EEPROM_writeAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address);
     //Then compute and store a valid CRC
@@ -1226,9 +1234,24 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //Control GPIO1 or Programming Mode
             if (axis == RA) {
-                //:O commands to the DC axis control GPIO1 (SNAP2 port)
-                setPinValue(snapPin,(buffer[0] - '0'));
-                progModeEntryCount = 0;
+                if (progMode != RUNMODE) {
+                    //:O command for RA in programming mode configures polarity of 
+                    snapPinIsOpenDrain = buffer[0] - '0';
+                } else {
+                    //:O commands to the DC axis control GPIO1 (SNAP2 port)
+                    if (snapPinIsOpenDrain) {
+                        //If open drain, we leave the pin value low
+                        setPinValue(snapPin,LOW);
+                        //And toggle the pin direction instead
+                        setPinDir  (snapPin,  (buffer[0] - '0') ? OUTPUT : INPUT);
+                    } else {
+                        //Otherwise if not open-drain, then we leave pin as an output
+                        setPinDir  (snapPin, OUTPUT);
+                        //And toggle the value.
+                        setPinValue(snapPin,(buffer[0] - '0'));
+                    }
+                    progModeEntryCount = 0;
+                }
             } else {
                 //Only :O commands to the RA axis are accepted. DC enters and controls programming mode on special sequence.
                 progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
@@ -1241,6 +1264,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         //Otherwise increment the count of entry requests.
                         progModeEntryCount = progModeEntryCount + 1;
                     }
+                    progMode = RUNMODE;
                     command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface).
                 } else {
                     progModeEntryCount = 20;
@@ -1279,14 +1303,14 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         cmd_setsideIVal(axis, synta_hexToLong(buffer)); //store sVal for that axis.
                         break;
                     case 'd': //return the driver version or step mode
-                        if (axis) {
+                        if (axis == DC) {
                             responseData = microstepConf; 
                         } else {
                             responseData = driverVersion;
                         }
                         break;
                     case 'D': //store the driver version and step modes
-                        if (axis) {
+                        if (axis == DC) {
                             microstepConf = synta_hexToByte(buffer); //store step mode.
                             canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
                         } else {
@@ -1294,14 +1318,21 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         }
                         break;
                     case 'r': //return the DEC backlash or st4 speed factor
-                        if (axis) {
+                        if (axis == DC) {
                             responseData = cmd.st4DecBacklash; 
                         } else {
                             responseData = cmd.st4SpeedFactor;
                         }
                         break;
+                    case 'o': //return the snap pin output type
+                        if (axis == RA) {
+                            responseData = snapPinIsOpenDrain;
+                        } else {
+                            command = '\0'; //Unsupported. Return failure
+                        }
+                        break;
                     case 'R': //store the DEC backlash or st4 speed factor
-                        if (axis) {
+                        if (axis == DC) {
                             unsigned long dataIn = synta_hexToLong(buffer); //store step mode.
                             if (dataIn > 65535) {
                                 command = '\0'; //If the step rate is out of range, force an error response packet.
@@ -1330,7 +1361,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         encodeDirection[axis] = buffer[0] - '0'; //store sVal for that axis.
                         break;
                     case 'q': //return the disableGearChange/allowAdvancedHCDetection setting  
-                        if (axis) {
+                        if (axis == DC) {
                             responseData = disableGearChange; 
                             canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
                         } else {
@@ -1338,7 +1369,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         }
                         break;
                     case 'Q': //store the disableGearChange/allowAdvancedHCDetection setting
-                        if (axis) {
+                        if (axis == DC) {
                             disableGearChange = synta_hexToByte(buffer); //store whether we can change gear
                         } else {
                             allowAdvancedHCDetection = synta_hexToByte(buffer); //store whether to allow advanced hand controller detection

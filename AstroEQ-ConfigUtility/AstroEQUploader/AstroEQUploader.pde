@@ -110,12 +110,12 @@ public final static int BORDER_COLOUR = #5070AA;//color(80,112,170);
 
 
 public final static int WINDOW_WIDTH = 510;
-public final static int WINDOW_HEIGHT = 520;
+public final static int WINDOW_HEIGHT = 525;
 public final static int LOGO_HEIGHT = 64;
 public final static int ELEMENT_HEIGHT = 16;
 public final static int TEXTBAR_HEIGHT = 20;
 public final static int FONT_HEIGHT = ELEMENT_HEIGHT-3;
-public final static int CONTROLP5_HEIGHT = 352;
+public final static int CONTROLP5_HEIGHT = 372;
 
 public final Dimensions headerDim    = new Dimensions(0,0,                         0,0,                    WINDOW_WIDTH,LOGO_HEIGHT + 2*TEXTBAR_HEIGHT       );
 public final Dimensions configDim    = new Dimensions(0,LOGO_HEIGHT+TEXTBAR_HEIGHT,0,0,                    WINDOW_WIDTH,TEXTBAR_HEIGHT                       );
@@ -142,7 +142,7 @@ void setup() {
   pixelDensity(displayDensity());
   
   println("Setting Window Size to: "+WINDOW_WIDTH+" x "+WINDOW_HEIGHT);
-  surface.setSize(510, 520); //STUPID F**ing Processing 3.0 not being able to use constants.
+  surface.setSize(510, 525); //STUPID F**ing Processing 3.0 not being able to use constants.
   
   SmoothCanvas sc = (SmoothCanvas) getSurface().getNative();
   jf = (JFrame) sc.getFrame();

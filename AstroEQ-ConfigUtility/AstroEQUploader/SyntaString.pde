@@ -3,12 +3,17 @@ static class SyntaString {
     public final static boolean encode = true;
     public final static boolean decode = false;
     
-    public final static boolean argIsByte = true;
-    public final static boolean argIsLong = false;
+    public final static int argIsBool = 1;
+    public final static int argIsByte = 2;
+    public final static int argIsLong = 6;
     
-    public static String syntaEncoder(String str, boolean length, boolean mode){
+    public static String syntaEncoder(String str, int length, boolean mode){
       if (mode == encode){
-        if( length == argIsByte){
+        if (length == argIsBool) {
+          int data = Integer.valueOf(str);
+          data = (data != 0) ? 1 : 0;
+          str = String.format("%01X", data);
+        } else if (length == argIsByte){
           int data = Integer.valueOf(str);
           data = data & 0xFF;
           str = String.format("%02X", data);
@@ -21,7 +26,14 @@ static class SyntaString {
           str = String.format("%02X%02X%02X", bytes[2],bytes[1],bytes[0]);
         }
       } else {
-        if( length == argIsByte){
+        if (length == argIsBool) {
+          if (str.length() != 1) {
+            return "0";
+          }
+          int data = Integer.parseInt(str, 16);
+          data = (data != 0) ? 1 : 0;
+          str = Integer.toString(data);
+        } else if (length == argIsByte){
           if (str.length() != 2) {
             return "0";
           }

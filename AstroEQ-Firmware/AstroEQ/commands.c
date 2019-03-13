@@ -118,6 +118,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in orde
                                                  {'r', 0, 6},
                                                  {'Q', 2, 0},
                                                  {'q', 0, 2},
+                                                 {'o', 0, 2},
                                                  {'X', 6, 0},
                                                  {'x', 0, 6},
                                                  {'Y', 2, 0},

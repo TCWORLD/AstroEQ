@@ -362,9 +362,9 @@ class UploaderGUI {
             Button gearChangeButton = currentScreen.getButton("ragearchangeEnableField");
             int usteps = getMicrostepMode();
             int fusteps = usteps;
-            String infoToPrint = "";
+            String infoToPrint = "\n";
             if ((usteps < 8) && gearChangeButton.isOn()) {
-              infoToPrint = "The ustep mode is <8, \"uStep Gear Changing\" is Disabled\n";
+              infoToPrint = "The ustep mode is <8, \"uStep Gear Changing\" is Disabled";
               gearChangeButton.setCaptionLabel("Disabled");
               gearChangeButton.setOff(); //Setting this will trigger button to appear pressed which will print ustep mode.
               gearChangeButton.lock(); //Prevent changing.
@@ -378,7 +378,7 @@ class UploaderGUI {
               } else {
                 gearChangeButton.lock(); //Prevent changing.
               }
-              infoToPrint = infoToPrint + ", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step\n";
+              infoToPrint = infoToPrint + ", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step";
             }
             //print out the current microstep mode.
             info.setText(info.getText()+infoToPrint);
@@ -428,6 +428,7 @@ class UploaderGUI {
       ":d24",
       ":q10",
       ":q21",
+      ":o10",
       ":z1",
       ":z2",
       ":V1",
@@ -652,8 +653,9 @@ class UploaderGUI {
                   Boolean foundGearChangeField = false;
                   Boolean foundMicrostepField = false;
                   Boolean foundAdvancedHCEnableField = false;
+                  Boolean foundSnapPinOpenDrainField = false;
                   
-                  info.setText(info.getText()+"Loading: " + file.getName()+(file.getName().endsWith(".conf") ? "\n" : ".conf\n"));
+                  info.setText(info.getText()+"\n"+"Loading: " + file.getName()+(file.getName().endsWith(".conf") ? "" : ".conf"));
                   println("Loading: "+file.getName()); 
                   
                   String loadName = file.getPath();
@@ -682,6 +684,8 @@ class UploaderGUI {
                         foundAdvancedHCEnableField = true;
                       } else if (responseDecoder[0].equals("microstepEnable")) {
                         foundMicrostepField = true;
+                      } else if (responseDecoder[0].equals("snapPinOpenDrain")) {
+                        foundSnapPinOpenDrainField = true;
                       }
                     }
                   }
@@ -701,16 +705,20 @@ class UploaderGUI {
                     args.add("ramicrostepEnable4");
                     println("uStep mode setting not found. Using default.");
                   }
+                  if (!foundSnapPinOpenDrainField) {
+                    args.add("snapPinOpenDrain0");
+                    println("Snap Pin output mode setting not found. Using default.");
+                  }
                   extraArgs = args.toArray(new String[args.size()]);
                   println("Load successful!"); 
-                  info.setText(info.getText()+"Load successful!" + "\n");
+                  info.setText(info.getText()+"\n"+"Load successful!");
                 } else { 
-                  info.setText(info.getText()+"Loading of file cancelled by User." + "\n");
+                  info.setText(info.getText()+"\n"+"Loading of file cancelled by User.");
                   println("Open command cancelled by user."); 
                 }
               } catch (Exception e) { 
                 //e.printStackTrace();  
-                info.setText(info.getText()+"File Load Failed with Exception" + "\n");
+                info.setText(info.getText()+"\n"+"File Load Failed with Exception");
                 println("File Load Failed with Exception"); 
               } 
             }
@@ -737,7 +745,7 @@ class UploaderGUI {
                   String raGotoStr = calculateGotoMultiplier(curScreen.getField("raIValField").getText(),curScreen.getField("raGotoField").getText(),canJumpToHighspeed(),minimumIVal[Arrays.asList(axisIDStrings).indexOf("ra")]);
                   String dcGotoStr = calculateGotoMultiplier(curScreen.getField("dcIValField").getText(),curScreen.getField("dcGotoField").getText(),canJumpToHighspeed(),minimumIVal[Arrays.asList(axisIDStrings).indexOf("dc")]);
                                     
-                  info.setText(info.getText()+"Saving: " + file.getName()+(file.getName().endsWith(".conf") ? "\n" : ".conf\n"));
+                  info.setText(info.getText()+"\n"+"Saving: " + file.getName()+(file.getName().endsWith(".conf") ? "" : ".conf"));
                   println("Saving: " + file.getName()+(file.getName().endsWith(".conf") ? "" : ".conf"));
                   String[] toSave = new String[]{ 
                     ":a1"+ curScreen.getField("raaValField").getText(),
@@ -754,6 +762,7 @@ class UploaderGUI {
                     ":d2"+ (Integer)curScreen.getScrollableListItem("ramicrostepEnableField"), 
                     ":q1"+ (curScreen.getButton("raadvancedHCEnableField").isOn() ? "1" : "0"),
                     ":q2"+ (curScreen.getButton("ragearchangeEnableField").isOn() ? "0" : "1"),
+                    ":o1"+ (curScreen.getButton("rasnapPinOpenDrainField").isOn() ? "1" : "0"),
                     ":r1"+ curScreen.getField("raGuideRateField").getText(),
                     ":z1"+ raGotoStr,
                     ":z2"+ dcGotoStr,
@@ -774,14 +783,14 @@ class UploaderGUI {
                   }
                   writer.close();
                   println("Save successful!"); 
-                  info.setText(info.getText()+"Save successful!" + "\n");
+                  info.setText(info.getText()+"\n"+"Save successful!");
                 } else { 
-                  info.setText(info.getText()+"Saving of file cancelled by User." + "\n");
+                  info.setText(info.getText()+"\n"+"Saving of file cancelled by User.");
                   println("Save command cancelled by user."); 
                 }
               } catch (Exception e) { 
                 //e.printStackTrace();  
-                info.setText(info.getText()+"File Save Failed with Exception" + "\n");
+                info.setText(info.getText()+"\n"+"File Save Failed with Exception");
                 println("File Save Failed with Exception"); 
               } 
             }
@@ -839,7 +848,7 @@ class UploaderGUI {
             sValStr = "0";
             IValStr = "0";
             ResolutionStr = "";
-            info.setText(info.getText()+id.toUpperCase()+" Axis: Please enter your mount configuration." + "\n");
+            info.setText(info.getText() + "\n"+id.toUpperCase()+" Axis: Please enter your mount configuration.");
             info.scroll(1);
           } else {
             double distnWidth = 32.0;
@@ -875,7 +884,7 @@ class UploaderGUI {
             }
             println("Minimised Error: "+String.format("%.5f",minError)+" seconds/sidereal day");
             if (maxIVal < MIN_IVAL) {
-              info.setText(info.getText()+id.toUpperCase()+": WARNING IVal small, non-sidereal speed accuracy lower" + "\n");
+              info.setText(info.getText()+"\n"+id.toUpperCase()+": WARNING IVal small, non-sidereal speed accuracy lower");
               info.scroll(1);
             }
             if (!wasSuccessful) {
@@ -885,7 +894,7 @@ class UploaderGUI {
               bValStr = "";
               sValStr = "";
               ResolutionStr = "";
-              info.setText(info.getText()+id.toUpperCase()+": ERROR! Could not find solution. Try reducing Steps/rev. :(" + "\n");
+              info.setText(info.getText()+"\n"+id.toUpperCase()+": ERROR! Could not find solution. Try reducing Steps/rev. :(");
               info.scroll(1);
             } else if (IVal < ABSOLUTE_MIN_IVAL) {
               IValStr = String.valueOf(IVal);
@@ -893,7 +902,7 @@ class UploaderGUI {
               bValStr = "";
               sValStr = "";
               ResolutionStr = "";
-              info.setText(info.getText()+id.toUpperCase()+": ERROR! IVal must be >"+ABSOLUTE_MIN_IVAL+". Try reducing Steps/rev. :(" + "\n");
+              info.setText(info.getText()+"\n"+id.toUpperCase()+": ERROR! IVal must be >"+ABSOLUTE_MIN_IVAL+". Try reducing Steps/rev. :(");
               info.scroll(1);
             } else if (IVal > ABSOLUTE_MAX_IVAL) {
               IValStr = String.valueOf(IVal);
@@ -901,7 +910,7 @@ class UploaderGUI {
               bValStr = "";
               sValStr = "";
               ResolutionStr = "";
-              info.setText(info.getText()+id.toUpperCase()+": ERROR! IVal must be <"+ABSOLUTE_MAX_IVAL+". Try larger uStep setting. :(" + "\n");
+              info.setText(info.getText()+"\n"+id.toUpperCase()+": ERROR! IVal must be <"+ABSOLUTE_MAX_IVAL+". Try larger uStep setting. :(");
               info.scroll(1);
             } else {
               bVal = (long)Math.round((double)IVal*(double)aVal/86164.0905);
@@ -911,7 +920,7 @@ class UploaderGUI {
               IValStr = String.valueOf(IVal);
               double resolutionVal = 1296000.0/aVal;
               ResolutionStr = String.format("%.3f", resolutionVal);
-              info.setText(info.getText()+id.toUpperCase()+" Axis: Combination generated " + ((maxIVal < MIN_IVAL) ? "with warning! :S" : "successfully! :D") + "\n");
+              info.setText(info.getText()+"\n"+id.toUpperCase()+" Axis: Combination generated " + ((maxIVal < MIN_IVAL) ? "with warning! :S" : "successfully! :D"));
               info.scroll(1);
               
               String gotoMult = calculateGotoMultiplier(IValStr,currentScreen.getField(id+"GotoField").getText(),canJumpToHighspeed(),minIVal);
@@ -935,7 +944,7 @@ class UploaderGUI {
               byte[] testRepeats = new byte[ACCEL_TABLE_LEN];
               boolean success = generateAccelerationTable((short)IVal, (int)bVal, ACCEL_TABLE_LEN, MAX_REPEATS, testSpeeds, testRepeats, id.toUpperCase());
               if (!success){
-                info.setText(info.getText() + id.toUpperCase() + " Axis: Failed to calculate Acceleration Table, Cannot Continue." + "\n");
+                info.setText(info.getText() + "\n" + id.toUpperCase() + " Axis: Failed to calculate Acceleration Table, Cannot Continue.");
               }
             }
           }
@@ -991,6 +1000,13 @@ class UploaderGUI {
           } else {
             advancedHCButton.setCaptionLabel("Disabled");
           }
+        } else if (name.substring(2).equals("snapPinOpenDrainField")) {
+          Button snapPinOpenDrainButton = currentScreen.getButton(name);
+          if (snapPinOpenDrainButton.isOn()) {
+            snapPinOpenDrainButton.setCaptionLabel("Open-Drain");
+          } else {
+            snapPinOpenDrainButton.setCaptionLabel("Push-Pull");
+          }
         } else if (name.substring(2).equals("gearchangeEnableField")) {
           Button gearChangeButton = currentScreen.getButton(name);
           if (gearChangeButton.isOn()){
@@ -999,11 +1015,11 @@ class UploaderGUI {
             gearChangeButton.setCaptionLabel("Disabled");
           }
           int usteps = getMicrostepMode();
-          info.setText(info.getText()+"Step Modes: Slow = "+usteps+(usteps>1?" usteps":" ustep")+"/stp");
+          info.setText(info.getText()+"\n"+"Step Modes: Slow = "+usteps+(usteps>1?" usteps":" ustep")+"/stp");
           if ((usteps >=8) && gearChangeButton.isOn()) {
             usteps /= 8;
           }
-          info.setText(info.getText()+", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step\n");
+          info.setText(info.getText()+", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step");
           info.scroll(1);
         } else if (name.equals("nextButton")) {
           if (testRun) {
@@ -1022,7 +1038,7 @@ class UploaderGUI {
               println(id[i].toUpperCase() + " Goto Mult=" + gotoMult);
               println(id[i].toUpperCase() + " Goto Fact=" + gotoFact);
               if ((gotoMult == null) || (gotoFact == null)){
-                info.setText(info.getText()+id[i].toUpperCase()+" Axis: Invalid Goto Speed, Cannot Continue." + "\n");
+                info.setText(info.getText()+"\n"+id[i].toUpperCase()+" Axis: Invalid Goto Speed, Cannot Continue.");
                 success = false;
                 break;
               }
@@ -1050,12 +1066,12 @@ class UploaderGUI {
             
             success = generateAccelerationTable(raIVal, rabVal, ACCEL_TABLE_LEN, MAX_REPEATS, raSpeeds, raRepeats, "RA");
             if (!success){
-              info.setText(info.getText()+"RA Axis: Failed to calculate Acceleration Table, Cannot Continue." + "\n");
+              info.setText(info.getText()+"\n"+"RA Axis: Failed to calculate Acceleration Table, Cannot Continue.");
               break; //can't continue.
             }
             success = generateAccelerationTable(dcIVal, dcbVal, ACCEL_TABLE_LEN, MAX_REPEATS, dcSpeeds, dcRepeats, "DC");
             if (!success){
-              info.setText(info.getText()+"DC Axis: Failed to calculate Acceleration Table, Cannot Continue." + "\n");
+              info.setText(info.getText()+"\n"+"DC Axis: Failed to calculate Acceleration Table, Cannot Continue.");
               break; //can't continue.
             }
             //Calculate ST4 rate 
@@ -1087,6 +1103,7 @@ class UploaderGUI {
               ":D2"+ SyntaString.syntaEncoder(""+(Integer)currentScreen.getScrollableListItem("ramicrostepEnableField"), SyntaString.argIsByte, SyntaString.encode), 
               ":Q1"+ SyntaString.syntaEncoder(""+(currentScreen.getButton("raadvancedHCEnableField").isOn() ? "1" : "0"), SyntaString.argIsByte, SyntaString.encode),
               ":Q2"+ SyntaString.syntaEncoder(""+(currentScreen.getButton("ragearchangeEnableField").isOn() ? "0" : "1"), SyntaString.argIsByte, SyntaString.encode), 
+              ":O1"+ SyntaString.syntaEncoder(""+(currentScreen.getButton("rasnapPinOpenDrainField").isOn() ? "1" : "0"), SyntaString.argIsBool, SyntaString.encode), 
               ":R1"+ SyntaString.syntaEncoder(""+st4Rate, SyntaString.argIsLong, SyntaString.encode),
               ":Z1"+ SyntaString.syntaEncoder(gotoMultiplier[0], SyntaString.argIsByte, SyntaString.encode),
               ":Z2"+ SyntaString.syntaEncoder(gotoMultiplier[1], SyntaString.argIsByte, SyntaString.encode), 
@@ -1571,6 +1588,7 @@ class UploaderGUI {
             ":d2",  //step mode
             ":q1",  //advanced hc detection enabled
             ":q2",  //gear change disabled.
+            ":o1",  //snap pin type
             ":r1",  //ST4 rate.
             ":z1",  //Goto Speed factor.
             ":z2"
@@ -1690,19 +1708,19 @@ class UploaderGUI {
       noStroke();
       rect(dimensionMaker.centre()-1, dimensionMaker.y()+2*TEXTBAR_HEIGHT+2, 2, dimensionMaker.height()-2*TEXTBAR_HEIGHT-2); //central divider
       rect(dimensionMaker.left(), dimensionMaker.y()+2*TEXTBAR_HEIGHT+2, dimensionMaker.width(), 4); //top divider
-      rect(dimensionMaker.left(), dimensionMaker.y()+5*TEXTBAR_HEIGHT+8, dimensionMaker.width(), 2); //middle divider
+      rect(dimensionMaker.left(), dimensionMaker.y()+6*TEXTBAR_HEIGHT+8, dimensionMaker.width(), 2); //middle divider
 
       //fill(#000000);
       //rect(0, dimensionMaker.y()+dimensionMaker.height()+1*TEXTBAR_HEIGHT+8, dimensionMaker.width(), height); //bottom divider
       
-      fill(10,21,75);
-      rect(0,529,516,2);
+      //fill(10,21,75);
+      //rect(0,529,516,2);
   
       fill(#ffffff);
-      rect(4, dimensionMaker.y()+6*TEXTBAR_HEIGHT+9, 144, 2);
-      rect(dimensionMaker.centre()+4, dimensionMaker.y()+6*TEXTBAR_HEIGHT+9, 113, 2);
-      rect(4, dimensionMaker.y()+12*TEXTBAR_HEIGHT+1, 158, 2);
-      rect(dimensionMaker.centre()+4, dimensionMaker.y()+12*TEXTBAR_HEIGHT+1, 164, 2);
+      rect(4, dimensionMaker.y()+7*TEXTBAR_HEIGHT+9, 144, 2);
+      rect(dimensionMaker.centre()+4, dimensionMaker.y()+7*TEXTBAR_HEIGHT+9, 113, 2);
+      rect(4, dimensionMaker.y()+13*TEXTBAR_HEIGHT+1, 158, 2);
+      rect(dimensionMaker.centre()+4, dimensionMaker.y()+13*TEXTBAR_HEIGHT+1, 164, 2);
       
       //rect(4, dimensionMaker.y()+dimensionMaker.height()+TEXTBAR_HEIGHT+3, 162, 2);
       stroke(#000000);
@@ -1812,6 +1830,17 @@ class UploaderGUI {
               } else {
                 gearchangeButton.setOff();
                 gearchangeButton.setCaptionLabel("Disabled");
+              }
+            }
+          } else if (name.substring(2).equals("snapPinOpenDrainField")) {
+            Button snapPinOpenDrainButton;
+            if ((snapPinOpenDrainButton = currentScreen.getButton(name)) != null) {
+              if (readBack.substring(id[0].length()).equals("1")){
+                snapPinOpenDrainButton.setOn();
+                snapPinOpenDrainButton.setCaptionLabel("Open-Drain");
+              } else {
+                snapPinOpenDrainButton.setOff();
+                snapPinOpenDrainButton.setCaptionLabel("Push-Pull");
               }
             }
           } else if (name.substring(2).equals("GuideRateField")) {
@@ -2381,7 +2410,7 @@ class UploaderGUI {
     final int lowerLabelWidth = 170;
     
     for (int i = 0; i < 2; i++) {
-      y = 5*TEXTBAR_HEIGHT+12;
+      y = 6*TEXTBAR_HEIGHT+12;
       dimensionLabel = new Dimensions(i*(dimensionMaker.centre()+1)+borderWidth, borderWidth,               0, y,                                            upperLabelWidth, ELEMENT_HEIGHT);
       dimension      = new Dimensions(i*(dimensionMaker.centre()+1)+borderWidth, borderWidth, upperLabelWidth, y, dimensionMaker.width()/2-upperLabelWidth-2-(2*borderWidth), ELEMENT_HEIGHT);
       screen.addTextLabel(control, id[i]+"Title", wl_font, title[i], color(#ffffff), dimensionLabel);
@@ -2458,6 +2487,12 @@ class UploaderGUI {
     y += TEXTBAR_HEIGHT;
     dimension.setY(y);
     dimensionLabel.setY(y);
+    screen.addTextLabel(control, "snapPinOpenDrainTitle", wl_font, "GPIO1 Drive Type:", color(#ffffff), dimensionLabel);
+    screen.addButton( control, "rasnapPinOpenDrainField", "Push-Pull", wl_font, 1, dimension).setSwitch(true);
+    
+    y += TEXTBAR_HEIGHT;
+    dimension.setY(y);
+    dimensionLabel.setY(y);
     Map<String,Integer> entries = new LinkedHashMap <String,Integer>();
     entries.put("A4988/3",DRIVER_A498x);
     entries.put("DRV882x",DRIVER_DRV882x);
@@ -2479,7 +2514,7 @@ class UploaderGUI {
     screen.addTextLabel(control, "gearchangeEnableTitle", wl_font, "uStep Gear Changing:", color(#ffffff), dimensionLabel);
     screen.addButton( control, "ragearchangeEnableField", "Disabled", wl_font, 1, dimension).setSwitch(true);
     
-    y += TEXTBAR_HEIGHT;
+    y += 2*TEXTBAR_HEIGHT;
     dimension.setY(y);
     dimensionLabel.setY(y);
     entries = populateMicrostepDropdown(DRIVER_A498x);

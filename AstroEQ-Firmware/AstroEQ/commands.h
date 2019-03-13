@@ -62,14 +62,14 @@ typedef struct{
     unsigned int     st4DecIVal;         //_IVal: for declination ST4 movements
     unsigned int     st4DecBacklash;     //Number of steps to perform on ST-4 direction change ---- Not yet implemented.
     unsigned int     siderealIVal   [2]; //_IVal: at sidereal rate
-    unsigned int     currentIVal    [2]; //this will be upldated to match the requested IVal once the motors are stopped.
+    unsigned int     currentIVal    [2]; //this will be updated to match the requested IVal once the motors are stopped.
     unsigned int     minSpeed       [2]; //slowest speed allowed
     unsigned int     normalGotoSpeed[2]; //IVal for normal goto movement.
     unsigned int     stopSpeed      [2]; //Speed at which mount should stop. May be lower than minSpeed if doing a very slow IVal.
     AccelTableStruct accelTable     [2][AccelTableLength]; //Acceleration profile now controlled via lookup table. The first element will be used for cmd.minSpeed[]. max repeat=85
 } Commands;
 
-#define numberOfCommands 38
+#define numberOfCommands 39
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);

@@ -154,6 +154,11 @@ public class ResponseLookup {
       mapGen.put("q2",temp);
       
       temp = new Object[2];
+      temp[0]="snapPinOpenDrain";
+      temp[1]=SyntaString.argIsByte;
+      mapGen.put("o1",temp);
+      
+      temp = new Object[2];
       temp[0]="GuideRate";
       temp[1]=SyntaString.argIsLong;
       mapGen.put("r1",temp);
@@ -276,7 +281,7 @@ public class EEPROMInterface extends Executioner {
         println(fetch);
         Object[] responseDecoder = responseLookup.get(arg.substring(1,2));
         if (responseDecoder != null){
-          boolean decodeLength = (Boolean)responseDecoder[1];
+          int decodeLength = (Integer)responseDecoder[1];
           String decodedValue = SyntaString.syntaEncoder(fetch.substring(1,fetch.length()-1),decodeLength,SyntaString.decode);
           String decodedString = ((arg.charAt(2)=='1')?"ra":"dc")+(String)responseDecoder[0]+decodedValue;
           buffer.add(decodedString);
@@ -284,7 +289,7 @@ public class EEPROMInterface extends Executioner {
         } else {
           responseDecoder = responseLookup.get(arg.substring(1,3));
           if (responseDecoder != null){
-            boolean decodeLength = (Boolean)responseDecoder[1];
+            int decodeLength = (Integer)responseDecoder[1];
             String decodedValue = SyntaString.syntaEncoder(fetch.substring(1,fetch.length()-1),decodeLength,SyntaString.decode);
             String decodedString = "ra"+(String)responseDecoder[0]+decodedValue;
             buffer.add(decodedString);
