@@ -27,6 +27,28 @@ extern "C"{
 #endif
 
 /*
+ * File Includes
+ */
+ 
+#include "PinMappings.h" //Read Pin Mappings
+#include "EEPROMAddresses.h" //Config file addresses
+#include "UnionHelpers.h"
+
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include <avr/pgmspace.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#include <inttypes.h>
+
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
+/*
  * Version number helper inline
  */
 
@@ -49,27 +71,6 @@ inline const char* astroEQ_verstr() {
     ;
 }
 
-/*
- * File Includes
- */
- 
-#include "PinMappings.h" //Read Pin Mappings
-#include "EEPROMAddresses.h" //Config file addresses
-#include "UnionHelpers.h"
-
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
-#include <avr/pgmspace.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#include <inttypes.h>
-
-#ifndef __cplusplus
-#include <stdbool.h>
-#endif
 
 /*
  * Useful Defines
@@ -101,6 +102,9 @@ inline const char* astroEQ_verstr() {
 
 #define SPEEDNORM 0
 #define SPEEDFAST 1
+
+#define STOPNORMAL false
+#define STOPEMERGENCY true
 
 #define REBUILDMODE 3
 #define STOREMODE 2
@@ -164,6 +168,9 @@ static const byte pwmPin = pwmPin_Define;
 static const byte statusPinShdw = statusPinShadow_Define;
 #endif
 static const byte statusPin = statusPin_Define;
+#ifdef estopPin_Define
+static const byte estopPin = estopPin_Define;
+#endif
 static const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
 static const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
 static const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};

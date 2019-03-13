@@ -23,17 +23,20 @@
 //
 
 //GPIO Pins:
-//VCC (Header Pin 5)
+                             //VCC (Header Pin 5)
 #define gpioPin_0_Define 21  //IO0 (Header Pin 4) - GPIO Pin
 #define gpioPin_1_Define 22  //IO1 (Header Pin 3) - GPIO Pin
 #define gpioPin_2_Define 23  //IO2 (Header Pin 2) - GPIO Pin
-//GND (Header Pin 1)
+                             //GND (Header Pin 1)
 
-//PWM Pins:
+//PWM Pin:
 #define pwmPin_Define 10
 
-//Status Pins:
+//Status Pin:
 #define statusPin_Define 13
+
+//E-Stop Pin:
+#define estopPin_Define 11
 
 //Motor Driver Pins:
 #define resetPin_0_Define 55 //Analog 1
@@ -73,18 +76,21 @@
 //
 
 //GPIO Pins:
-//VCC (Header Pin 5)
+                             //VCC (Header Pin 5)
 #define gpioPin_0_Define 49  //IO0 - GPIO Pin
 #define gpioPin_1_Define 33  //IO1 - GPIO Pin
 #define gpioPin_2_Define 41  //IO2 - GPIO Pin
-//GND (Header Pin 1)
+                             //GND (Header Pin 1)
 
-//PWM Pins:
+//PWM Pin:
 #define pwmPin_Define 9
 
 //Status Pins:
 #define statusPin_Define 13
 #define statusPinShadow_Define 11 //Duplicate of status LED for boards which don't have on-board LED
+
+//E-Stop Pin:
+#define estopPin_Define 18
 
 //Motor Driver Pins:
 #define resetPin_0_Define 35 //Unused on RAMPS
@@ -131,11 +137,14 @@
 #define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin
                              //GND (Header Pin 1)
 
-//PWM Pins:
+//PWM Pin:
 #define pwmPin_Define 9
 
-//Status Pins:
-#define statusPin_Define 13 
+//Status Pin:
+#define statusPin_Define 13
+
+//E-Stop Pin:
+#define estopPin_Define 11
 
 //Motor Driver Pins:
 #define resetPin_0_Define 15
@@ -185,6 +194,9 @@
 
 //Status Pins:
 #define statusPin_Define 13
+
+//E-Stop Pin:
+#define estopPin_Define 24
 
 //Motor Driver Pins:
 #define resetPin_0_Define 55 //Analog 1
