@@ -71,6 +71,9 @@ inline const char* astroEQ_verstr() {
     ;
 }
 
+inline bool astroEQ_verlessthan(unsigned long verReq) {
+    return (verReq < astroEQ_vernum());
+}
 
 /*
  * Useful Defines

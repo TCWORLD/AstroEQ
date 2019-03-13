@@ -498,14 +498,15 @@ unsigned char calculateEEPROMCRC(){
 
 bool checkEEPROM(bool skipCRC){
     char temp[4];
+    unsigned long eepromVernum;
     //First check header:
     EEPROM_readString(temp,3,AstroEQID_Address);
     if(strncmp(temp,"AEQ",3)){
         return false;
     }
     //Then match version number:
-    EEPROM_readString(temp,4,AstroEQVer_Address);
-    if(strncmp(temp,ASTROEQ_VER_STR,4)){
+    eepromVernum = EEPROM_readLong(AstroEQVer_Address);
+    if(eepromVernum != ASTROEQ_VER){
         return false; //EEPROM needs updating...
     }
     //Then validate CRC (unless skipping)
@@ -540,9 +541,9 @@ bool checkEEPROM(bool skipCRC){
 }
 
 void buildEEPROM(){
-    //We initialise with the identifier string
+    //We initialise with the identifier string and version number
     EEPROM_writeString("AEQ",3,AstroEQID_Address);
-    EEPROM_writeString(ASTROEQ_VER_STR,4,AstroEQVer_Address);
+    EEPROM_writeLong(ASTROEQ_VER,AstroEQVer_Address);
     //We don't blank out the EEPROM to allow data recovery when updating firmware to new version.
     //Configuration is now (theoretically) in a valid state, or invalid state with bad crc
 }
