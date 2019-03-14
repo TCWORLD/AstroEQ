@@ -70,7 +70,7 @@ public final static int VARIANT_PROCESSOR = 3;
 public final static int VARIANT_BOOTLOADER = 4;
 public final static int VARIANT_BAUDRATE = 5;
 public final static int VARIANT_FIELDCOUNT = 6;
-public String[][] variants;
+public ArrayList<String[]> variants;
 
 String [] defaultvariant = {"AstroEQV4-DIYBoard(includingKits)","1.0","AstroEQ V4-DIY Board (including Kits)","atmega162","arduino","57600"};
 
@@ -248,7 +248,7 @@ void setup() {
   port.setMoveable(false);
   version.setMoveable(false); 
   
-  firmwareVersion = variants[0][VARIANT_VERSION];
+  firmwareVersion = variants.get(0)[VARIANT_VERSION];
   
 }
 
@@ -368,16 +368,16 @@ String[] listFileNames(String dir) {
 }
 
 String[] listVersions() {
-  String versions[] = new String[variants.length];
-  for (int i = 0; i < variants.length; i++) {
-    versions[i] = variants[i][VARIANT_STRINGNAME];
+  String versions[] = new String[variants.size()];
+  for (int i = 0; i < variants.size(); i++) {
+    versions[i] = variants.get(i)[VARIANT_STRINGNAME];
   };
   return versions;
 }
 
 void populateVariants() {
   
-  List<String[]> variantsList = new ArrayList<String[]>();
+  variants = new ArrayList<String[]>();
   
   BufferedReader reader = null;
   println("Populating Firmware Variants");
@@ -401,11 +401,11 @@ void populateVariants() {
       variant = Arrays.copyOf(splitLine, VARIANT_FIELDCOUNT);
       
       println("Variant Found ->\n\t File:" + variant[VARIANT_FILENAME] + ".hex;\n\t Version: " + variant[VARIANT_VERSION] + ";\n\t Name:" + variant[VARIANT_STRINGNAME] + ";\n\t Processor:" + variant[VARIANT_PROCESSOR] + ";\n\t Bootloader:" + variant[VARIANT_BOOTLOADER] + ";\n\t Baud:" + variant[VARIANT_BAUDRATE]);
-      variantsList.add(variant);
+      variants.add(variant);
     }
     reader.close();
-    variants = new String[variantsList.size()][VARIANT_FIELDCOUNT];
-    variants = variantsList.toArray(variants);
+   // variants = new String[variantsList.size()][VARIANT_FIELDCOUNT];
+   // variants = variantsList.toArray(variants);
   } catch (Exception e) {
     e.printStackTrace();
   } finally {
@@ -506,10 +506,11 @@ void controlEvent(ControlEvent theEvent) {
   if(theEvent.isController()) {
     if( theEvent.getName().equals("version") ) {
       boardVersion = (Integer)getScrollableListEventItem(theEvent, "value");
-      curFile = variants[boardVersion][VARIANT_FILENAME];
+      String[] variant = variants.get(boardVersion);
+      curFile = variant[VARIANT_FILENAME];
       print("Board Version: ");
       println(curFile);
-      firmwareVersion = variants[boardVersion][VARIANT_VERSION];
+      firmwareVersion = variant[VARIANT_VERSION];
       
     } else if( theEvent.getName().equals("comport") ) {
       curPort = (String)getScrollableListEventItem(theEvent, "text");
@@ -601,10 +602,11 @@ void avrdudeRun(String myFile, String myPort, int index) {
   
   // remaining avrdude argument creation (hex and comport #)
   String[] args = (String[])avrdude.clone();//new String[avrdude[0].length];
+  String[] variant = variants.get(index);
   
-  args[5] = args[5] + variants[index][VARIANT_PROCESSOR];
-  args[6] = args[6] + variants[index][VARIANT_BOOTLOADER];
-  args[7] = args[7] + variants[index][VARIANT_BAUDRATE];
+  args[5] = args[5] + variant[VARIANT_PROCESSOR];
+  args[6] = args[6] + variant[VARIANT_BOOTLOADER];
+  args[7] = args[7] + variant[VARIANT_BAUDRATE];
   String sourceFile = "" + hexPath + java.io.File.separator + myFile + ".hex";
   if (isWindows()) {
     args[9] = "-P"+"\\\\.\\"+myPort;

@@ -347,16 +347,44 @@ class NewFirmwareFetcher extends Executioner {
     println("Fetching New Files...");
     List<String> fileList = new ArrayList<String>();
     List<String> verList = new ArrayList<String>();
+    List<String[]> newParamList = new ArrayList<String[]>();
+    List<Boolean> newList = new ArrayList<Boolean>();
     BufferedInputStream remoteFile = null;
     FileOutputStream newFile = null;
     try {
-      String marker = "FOUND:\t";
+      String[] marker = {"UPG:\t", "NEW:\t"};
       for (String arg : execArgs) {
-        if (arg.startsWith(marker)){
+        Boolean isUpgrade = arg.startsWith(marker[0]);
+        Boolean isNew = arg.startsWith(marker[1]);
+        if (isUpgrade || isNew){
           //this line is a file to fetch
           String[] parts = arg.split("\t"); //this will split the argument up. [0] will be the marker [1] will be the filename [2] doesn't matter
+          if (parts.length < 6) {
+            //Skip this one as cannot parse.
+            continue;
+          }
           fileList.add(parts[1]); //add the filename onto the list to add.
           verList.add(parts[4]);
+          String[] newParamParts;
+          if (isNew) {
+            //If new, we need to extract the variant description
+            //Create array to hold correct number of fields
+            newParamParts = new String[VARIANT_FIELDCOUNT];
+            //Extract description
+            String[] variantData = parts[5].split("\f");
+            if (variantData.length < VARIANT_FIELDCOUNT-2) {
+              //If the description is too short, skip it
+              continue;
+            }
+            //Populate variant parameter parts
+            System.arraycopy(variantData, 0, newParamParts, 2, VARIANT_FIELDCOUNT-2);
+            newParamParts[0] = parts[1];
+            newParamParts[1] = parts[4];
+          } else {
+            newParamParts = new String[0];
+          }
+          newParamList.add(newParamParts);
+          newList.add(isNew);
           println(parts[1] + "\t" + parts[4]);
         }
       }
@@ -365,11 +393,12 @@ class NewFirmwareFetcher extends Executioner {
         println("No files to fetch!");
         exitCode = 1; //no files to fetch.
       } else {
+        //File repository
         String urlPrefix = "https://github.com/TCWORLD/AstroEQ/raw/master/AstroEQ-ConfigUtility/hex/";
-        String[] filesToFetch = fileList.toArray(new String[fileList.size()]);
-        String[] versionsToFetch = verList.toArray(new String[verList.size()]);
-        for(int file = 0; file < filesToFetch.length; file++){
-          String filename = filesToFetch[file];
+        //For each file on the list
+        for(int file = 0; file < fileList.size(); file++){
+          //Download the file
+          String filename = fileList.get(file);
           println("Fetching: "+filename+".hex");
           buffer.add("Fetching: "+filename+".hex");
           remoteFile = new BufferedInputStream(new URL(""+urlPrefix+filename+".hex").openStream());
@@ -382,10 +411,16 @@ class NewFirmwareFetcher extends Executioner {
           }
           remoteFile.close();
           newFile.close();
-          //Update the variants table with new firmware version.
-          for (int variant = 0; variant < variants.length; variant++) {
-            if (variants[variant][VARIANT_FILENAME].equals(filename)) {
-              variants[variant][VARIANT_VERSION] = versionsToFetch[file];
+          //Update local cached variants list
+          if (newList.get(file)) {
+            //If a new file, add a new variant
+            variants.add(newParamList.get(file));
+          } else {
+            //Otherwise update the variants table with new firmware version.
+            for (int variant = 0; variant < variants.size(); variant++) {
+              if (variants.get(variant)[VARIANT_FILENAME].equals(filename)) {
+                variants.get(variant)[VARIANT_VERSION] = verList.get(file);
+              }
             }
           }
         }
@@ -401,8 +436,8 @@ class NewFirmwareFetcher extends Executioner {
         
         String configVerLine = "AstroEQUploaderUtility\t"+configVerNums[0]+"."+String.join("",configSubVerNums)+"\n";
         newFile.write(configVerLine.getBytes(Charset.forName("UTF-8")));
-        for (int variant = 0; variant < variants.length; variant++) {
-          String variantString = String.join("\t",variants[variant]) + "\n";
+        for (int variant = 0; variant < variants.size(); variant++) {
+          String variantString = String.join("\t",variants.get(variant)) + "\n";
           newFile.write(variantString.getBytes(Charset.forName("UTF-8")));
         }
         newFile.close();
@@ -445,7 +480,9 @@ class FileUpdateCheck extends Executioner {
         if(str.contains("\t")){
           println(str);
           String[] parts = str.split("\t");
-          files.put(parts[0],parts[1]); //filename then version.
+          if (parts.length >= 2) {
+            files.put(parts[0],parts[1]); //filename then version.
+          }
         }
       }
       reader.close();
@@ -457,15 +494,28 @@ class FileUpdateCheck extends Executioner {
       while ((str = reader.readLine()) != null) {
         if(str.contains("\t")){
           String[] parts = str.split("\t");
-          if (files.containsKey(parts[0])){
-            println(str);
-            String version = files.get(parts[0]);
-            Double currentVersion = Double.parseDouble(version);
+          if (parts.length >= 2) {
             Double remoteVersion;
-            remoteVersion = Double.parseDouble(parts[1]);
+            Double currentVersion;
+            String type;
+            String version;
+            String newParams;
+            if (files.containsKey(parts[0])){
+              println(str);
+              version = files.get(parts[0]);
+              currentVersion = Double.parseDouble(version);
+              remoteVersion = Double.parseDouble(parts[1]);
+              type = "UPG:";
+              newParams = " ";
+            } else {
+              println(str);
+              currentVersion = 0d;
+              remoteVersion = Double.parseDouble(parts[1]);
+              version = "?.??";
+              type = "NEW:";
+              newParams = String.join("\f",Arrays.copyOfRange(parts, 2, parts.length));
+            }
             if(remoteVersion > currentVersion){ //check if version on server is newer.
-              buffer.add("FOUND:\t"+parts[0]+"\tVer:\t"+version+"--->\t"+parts[1]); //add file to the buffer.
-              println(parts[0]);
               if (parts[0].equals("AstroEQUploaderUtility")){
                 exitCode = 3;
                 buffer.add("INFO:\tNew Version of AstroEQUploader Utility Available!"); //print to buffer
@@ -473,6 +523,8 @@ class FileUpdateCheck extends Executioner {
                 println("INFO:\tNew Version of AstroEQUploader Utility Available!");
                 break;
               }
+              buffer.add(type+"\t"+parts[0]+"\tVer:\t"+version+"--->\t"+parts[1]+"\t"+newParams); //add file to the buffer.
+              println(parts[0]);
               exitCode = 1; //There are new files.
             }
           }
