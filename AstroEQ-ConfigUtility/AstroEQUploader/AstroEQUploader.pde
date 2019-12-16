@@ -23,7 +23,7 @@
 */
 
 public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.9.0";
+public String configVersion = "3.9.1";
  
 import controlP5.*;
 import processing.serial.*;

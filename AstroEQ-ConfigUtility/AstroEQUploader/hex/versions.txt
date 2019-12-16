@@ -1,5 +1,6 @@
-AstroEQUploaderUtility	3.90
-AstroEQV4-DIYBoard(includingKits)	8.12	AstroEQ V4-DIY Board (including DIY)	atmega162	arduino	57600
-AstroEQArduinoMega2560	8.12	AstroEQ Arduino Mega 2560	atmega2560	wiring	115200
-AstroEQArduinoMega1280	8.12	AstroEQ Arduino Mega 1280	atmega1280	arduino	57600
-AstroEQV4-EQ5Board	8.12	AstroEQ V4-EQ5 Board	atmega162	arduino	57600
+AstroEQUploaderUtility	3.91
+AstroEQV4-DIYBoard(includingKits)	8.16	AstroEQ V4-DIY Board (including DIY)	atmega162	arduino	57600
+AstroEQArduinoMega2560	8.16	AstroEQ Arduino Mega 2560	atmega2560	wiring	115200
+AstroEQArduinoMega1280	8.16	AstroEQ Arduino Mega 1280	atmega1280	arduino	57600
+AstroEQV4-EQ5Board	8.16	AstroEQ V4-EQ5 Board	atmega162	arduino	57600
+AstroEQRamps14Mega2560	8.16	AstroEQ Ramps 1.4 w/ Mega 2560	atmega2560	wiring	115200
