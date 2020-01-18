@@ -378,7 +378,7 @@ class UploaderGUI {
               } else {
                 gearChangeButton.lock(); //Prevent changing.
               }
-              infoToPrint = infoToPrint + ", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step";
+              infoToPrint = infoToPrint + ", Fast = "+fusteps+(fusteps>1?" usteps":" ustep")+"/step";
             }
             //print out the current microstep mode.
             info.setText(info.getText()+infoToPrint);
@@ -1112,7 +1112,7 @@ class UploaderGUI {
             };
             
             //Create extraArgs array with enough space for main commands and accel table.
-            final int NUM_COMMANDS = 17;
+            final int NUM_COMMANDS =  encodedCommands.length;
             extraArgs = new String[NUM_COMMANDS+2*ACCEL_TABLE_LEN+2];
             //Initialise it, starting with the main commands.
             for (int i = 0; i < NUM_COMMANDS; i++) {
