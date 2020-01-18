@@ -378,7 +378,7 @@ class UploaderGUI {
               } else {
                 gearChangeButton.lock(); //Prevent changing.
               }
-              infoToPrint = infoToPrint + ", Fast = "+usteps+(usteps>1?" usteps":" ustep")+"/step";
+              infoToPrint = infoToPrint + ", Fast = "+fusteps+(fusteps>1?" usteps":" ustep")+"/step";
             }
             //print out the current microstep mode.
             info.setText(info.getText()+infoToPrint);
@@ -1112,7 +1112,7 @@ class UploaderGUI {
             };
             
             //Create extraArgs array with enough space for main commands and accel table.
-            final int NUM_COMMANDS = 17;
+            final int NUM_COMMANDS =  encodedCommands.length;
             extraArgs = new String[NUM_COMMANDS+2*ACCEL_TABLE_LEN+2];
             //Initialise it, starting with the main commands.
             for (int i = 0; i < NUM_COMMANDS; i++) {
@@ -2282,11 +2282,12 @@ class UploaderGUI {
     dimension.setSize(200, 3*ELEMENT_HEIGHT);
     int y = dimensionMaker.height()/2+(ELEMENT_HEIGHT+TEXTBAR_HEIGHT)/2;
     int x = dimensionMaker.width()/2-100;
+    
     dimension.setOrigin(x, y-15*TEXTBAR_HEIGHT/2);
-    screen.addButton( control, "configButton", "Configure", wl_font, 1, dimension);
+    screen.addButton( control, "uploadButton", "Update Firmware", wl_font, 1, dimension);
     
     dimension.setOrigin(x, y-9*TEXTBAR_HEIGHT/2);
-    screen.addButton( control, "uploadButton", "Update Firmware", wl_font, 1, dimension);
+    screen.addButton( control, "configButton", "Configure", wl_font, 1, dimension);
     
     dimension.setOrigin(x, y-3*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "firmwareButton", "Check For New Version", wl_font, 1, dimension);
