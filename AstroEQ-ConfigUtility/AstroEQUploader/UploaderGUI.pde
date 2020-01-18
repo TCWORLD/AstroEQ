@@ -2282,11 +2282,12 @@ class UploaderGUI {
     dimension.setSize(200, 3*ELEMENT_HEIGHT);
     int y = dimensionMaker.height()/2+(ELEMENT_HEIGHT+TEXTBAR_HEIGHT)/2;
     int x = dimensionMaker.width()/2-100;
+    
     dimension.setOrigin(x, y-15*TEXTBAR_HEIGHT/2);
-    screen.addButton( control, "configButton", "Configure", wl_font, 1, dimension);
+    screen.addButton( control, "uploadButton", "Update Firmware", wl_font, 1, dimension);
     
     dimension.setOrigin(x, y-9*TEXTBAR_HEIGHT/2);
-    screen.addButton( control, "uploadButton", "Update Firmware", wl_font, 1, dimension);
+    screen.addButton( control, "configButton", "Configure", wl_font, 1, dimension);
     
     dimension.setOrigin(x, y-3*TEXTBAR_HEIGHT/2);
     screen.addButton( control, "firmwareButton", "Check For New Version", wl_font, 1, dimension);
