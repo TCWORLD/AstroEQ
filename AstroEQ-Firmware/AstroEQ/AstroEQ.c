@@ -1254,20 +1254,21 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 }
             } else {
                 //Only :O commands to the RA axis are accepted. DC enters and controls programming mode on special sequence.
-                progMode = buffer[0] - '0';              //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-                if (progModeEntryCount < 19) {
-                    //If we haven't sent enough entry commands to switch into programming mode
-                    if ((progMode != PROGMODE) && (progMode != STOREMODE) && (progMode != REBUILDMODE)) {
+                //First check if we are already in programming mode (e.g. if EEPROM failed, or Config Utility has already put us there)
+                if ((progMode == RUNMODE) && (progModeEntryCount < 19)) {
+                    //If we are in run mode, and we've not sent enough commands to enter programming mode
+                    byte requestMode = buffer[0] - '0';
+                    if ((requestMode != PROGMODE) && (requestMode != STOREMODE) && (requestMode != REBUILDMODE)) {
                         //If we sent an entry command that asks for normal operation, reset the entry count.
                         progModeEntryCount = 0;
                     } else {
                         //Otherwise increment the count of entry requests.
                         progModeEntryCount = progModeEntryCount + 1;
                     }
-                    progMode = RUNMODE;
                     command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface).
                 } else {
-                    progModeEntryCount = 20;
+                    //Otherwise we are in programming mode, and config utility is sending a command
+                    progMode = buffer[0] - '0'; //Get the command
                     if (progMode != RUNMODE) {
                         motorStop(RA,STOPEMERGENCY); //emergency axis stop.
                         motorDisable(RA); //shutdown driver power.
