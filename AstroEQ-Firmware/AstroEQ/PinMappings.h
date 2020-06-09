@@ -77,33 +77,33 @@
 
 //GPIO Pins:
                              //VCC (Header Pin 5)
-#define gpioPin_0_Define 49  //IO0 - GPIO Pin
-#define gpioPin_1_Define 33  //IO1 - GPIO Pin
-#define gpioPin_2_Define 41  //IO2 - GPIO Pin
+#define gpioPin_0_Define 49  //IO0 - GPIO Pin - EXP2 Pin 7 (Gen L) or Aux-3 Pin 2 (Ramps 1.4)  - connect to ST-4 pin 1
+#define gpioPin_1_Define 33  //IO1 - GPIO Pin - EXP2 Pin 5 (Gen L) or Aux-4 Pin 11 (Ramps 1.4) - SNAP pin.
+#define gpioPin_2_Define 41  //IO2 - GPIO Pin - EXP2 Pin 10 (Gen L) or Aux-4 Pin 7 (Ramps 1.4) - connect via 1k resistor to EXP2, Pin 7
                              //GND (Header Pin 1)
 
 //PWM Pin:
-#define pwmPin_Define 9
+#define pwmPin_Define 9      // FAN_PIN (Gen L only)
 
 //Status Pins:
-#define statusPin_Define 13
-#define statusPinShadow_Define 11 //Duplicate of status LED for boards which don't have on-board LED
+#define statusPin_Define 13       // LED_PIN (Gen L only)
+#define statusPinShadow_Define 11 // Left servo header (Ramps 1.4 only) - connect to LED via suitable resistor. 
 
 //E-Stop Pin:
-#define estopPin_Define 18
+#define estopPin_Define 18     // Z_MIN_PIN
 
 //Motor Driver Pins:
-#define resetPin_0_Define 35 //Unused on RAMPS
-#define resetPin_1_Define 37 //Unused on RAMPS
+#define resetPin_0_Define 35   // Unused on RAMPS
+#define resetPin_1_Define 37   // Unused on RAMPS
 
-#define dirPin_0_Define 55
-#define dirPin_1_Define 61
+#define dirPin_0_Define 55     // X_DIR_PIN
+#define dirPin_1_Define 61     // Y_DIR_PIN
 
-#define enablePin_0_Define 38
-#define enablePin_1_Define 56
+#define enablePin_0_Define 38  // X_ENABLE_PIN
+#define enablePin_1_Define 56  // Y_ENABLE_PIN
 
-#define stepPin_0_Define 54
-#define stepPin_1_Define 60
+#define stepPin_0_Define 54    // X_STEP_PIN
+#define stepPin_1_Define 60    // Y_STEP_PIN
 
 #define modePins0_0_Define 25
 #define modePins1_0_Define 27
@@ -113,10 +113,11 @@
 #define modePins2_1_Define 23
 
 //ST4 Pins:
-#define ST4AddPin_0_Define 50
-#define ST4AddPin_1_Define 51
-#define ST4SubPin_0_Define 53
-#define ST4SubPin_1_Define 52
+#define ST4AddPin_0_Define 50  //EXP2, Pin 1 (Gen L) or Aux-3 Pin 3 (Ramps 1.4) = RA+  - Connect to st-4 pin 6
+#define ST4AddPin_1_Define 51  //EXP2, Pin 6 (Gen L) or Aux-3 Pin 4 (Ramps 1.4) = DC+  - Connect to st-4 pin 5
+#define ST4SubPin_0_Define 53  //EXP2, Pin 4 (Gen L) or Aux-3 Pin 6 (Ramps 1.4) = RA-  - Connect to st-4 pin 3
+#define ST4SubPin_1_Define 52  //EXP2, Pin 2 (Gen L) or Aux-3 Pin 5 (Ramps 1.4) = DC-  - Connect to st-4 pin 4
+                               //EXP2, Pin 9 (Gen L) or Aux-3 Pin 7 (Ramps 1.4) = GND  - Connect to st-4 pin 2
 
 
 //
