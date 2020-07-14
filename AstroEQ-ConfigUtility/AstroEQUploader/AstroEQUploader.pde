@@ -23,7 +23,7 @@
 */
 
 public final Boolean isBeta = false; //If a beta version.
-public String configVersion = "3.9.2";
+public String configVersion = "3.9.3";
  
 import controlP5.*;
 import processing.serial.*;
@@ -94,13 +94,19 @@ public static boolean isUnix() {
 
 public static String dir() throws URISyntaxException {
   URI path=AstroEQUploader.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-  String name= AstroEQUploader.class.getPackage().getName()+".jar";
+  String name= AstroEQUploader.class.getPackage().getName();
   String path2 = path.getRawPath();
   path2=path2.substring(1);
+  
+  println("Package Name: "+name);
 
   if (path2.contains(".jar"))
   {
-      path2=path2.replace(name, "");
+      path2=path2.replace(name+".jar", "");
+  }
+  if (path2.contains(".exe"))
+  {
+      path2=path2.replace(name+".exe", "");
   }
   return path2;
 } 
@@ -181,15 +187,11 @@ void setup() {
     e.printStackTrace();
   }
   if (isWindows()) {
+    filePath = sketchPath("");
     try {
-      System.loadLibrary("bin/jSSC-2.8");
+      System.loadLibrary("bin/jSSC-2.8-"+System.getProperty("os.arch"));
     } catch (UnsatisfiedLinkError e) {
       e.printStackTrace();
-    }
-    try {
-      filePath = dir() + java.io.File.separator;
-    } catch (Exception e) {
-      filePath = sketchPath("");
     }
     println("Current Dir: " + filePath);
     hexPath = filePath + "hex";      
