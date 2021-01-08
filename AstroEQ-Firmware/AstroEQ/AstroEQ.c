@@ -1434,11 +1434,17 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
     
     if ((command == 'J') && !estop && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
-        readyToGo[axis] = MOTION_START_REQUESTED; //So signal we are ready to go and when the last movement completes this one will execute.
+        
+        //Check if the motion is a go-to         
         if (motionIsGoto(cmd.GVal[axis])){
-            //If go-to mode requested
+            //Signal we are ready to start the next motion.
+            readyToGo[axis] = MOTION_START_REQUESTED;
+            //Set go-to mode requested
             cmd_setGotoEn(axis,CMD_ENABLED);
-        }
+        } else if (readyToGo[axis] != MOTION_START_UPDATABLE) {
+            //Otherwise if the axis is not in an updatable state (i.e. it was stopped with :K)
+            readyToGo[axis] = MOTION_START_REQUESTED; //Signal that we are ready to begin the requested movement when the last movement completes.
+        } //Otherwise, if in updatable mode, we ignore the :J command as it must be following an :I command sent to an already running axis (seems to be a GS Server thing. Indi doesn't issue the :J. EQMOD always issues :K first).
     }
     return success;
 }
