@@ -191,7 +191,7 @@ void buildModeMapping(byte microsteps, byte driverVersion){
                     break;
                 case 32:
                     // 1/32
-                    modeState[SPEEDNORM] = (( HIGH << MODE2) | ( HIGH << MODE1) | ( HIGH << MODE0));
+                    modeState[SPEEDNORM] = (( HIGH << MODE2) | (  LOW << MODE1) | ( HIGH << MODE0));
                     // 1/4
                     modeState[SPEEDFAST] = ((  LOW << MODE2) | ( HIGH << MODE1) | (  LOW << MODE0));
                     break;
