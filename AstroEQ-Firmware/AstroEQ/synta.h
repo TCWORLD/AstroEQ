@@ -3,11 +3,10 @@
 #define __SYNTA_H__
 
 #include "AstroEQ.h"
-#include "commands.h"
 
 void synta_initialise(unsigned long version, byte gVal);
-void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData);
-char synta_recieveCommand(char* dataPacket, char character);
+void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, bool isProg);
+char synta_recieveCommand(char* dataPacket, char character, bool isProg);
 byte synta_setaxis(byte axis);
 byte synta_getaxis();
 char synta_command();

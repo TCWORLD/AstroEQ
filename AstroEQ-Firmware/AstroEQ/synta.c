@@ -1,5 +1,6 @@
 
 #include "synta.h"
+#include "commands.h"
 #include <string.h>
 
 
@@ -36,8 +37,8 @@ inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
     nibbleToHex(upper, nibbler.high);
 }
 
-void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData) {
-    char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError,0); //get the number of data bytes for response
+void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, bool isProg) {
+    char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError, CMD_LEN_SEND, isProg); //get the number of data bytes for response
 
     if (replyLength < 0) {
         replyLength = 0;
@@ -66,13 +67,13 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
     return;
 }
 
-bool synta_validateCommand(byte len, char* decoded){
+bool synta_validateCommand(byte len, char* decoded, bool isProg){
     _command = commandString[0]; //first byte is command
     _axis = commandString[1] - '1'; //second byte is axis
     if(_axis > 1){
         return false; //incorrect axis
     }
-    char requiredLength = Commands_getLength(_command,1); //get the required length of this command
+    char requiredLength = Commands_getLength(_command, CMD_LEN_RECV, isProg); //get the required length of this command
     len -= 3; //Remove the command and axis bytes, aswell as the end char;
     if(requiredLength != len){ //If invalid command, or not required length
         return false;
@@ -85,7 +86,7 @@ bool synta_validateCommand(byte len, char* decoded){
     return true;
 }
 
-char synta_recieveCommand(char* dataPacket, char character){
+char synta_recieveCommand(char* dataPacket, char character, bool isProg){
     if(validPacket){
         if (character == startInChar){
             dataPacket[0] = errorChar;
@@ -98,7 +99,7 @@ char synta_recieveCommand(char* dataPacket, char character){
         commandString[commandIndex++] = character; //Add character to current string build
 
         if(character == endChar){
-            if(synta_validateCommand(commandIndex, dataPacket)){
+            if(synta_validateCommand(commandIndex, dataPacket, isProg)){
                 validPacket = 0;
                 return _command; //Successful decode (dataPacket contains decoded packet, return value is the current command)
             } else {

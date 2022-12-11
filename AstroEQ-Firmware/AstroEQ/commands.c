@@ -45,7 +45,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
         cmd.stopped[i] = CMD_STOPPED;
         cmd.gotoEn[i] = CMD_DISABLED;
         cmd.FVal[i] = CMD_DISABLED;
-        cmd.jVal[i] = 0x800000; //Current position, 0x800000 is the centre
+        cmd.jVal[i] = CMD_DEFAULT_INDEX;
         cmd.IVal[i] = cmd.siderealIVal[i]; //Recieved Speed will be set by :I command.
         cmd.GVal[i] = CMD_GVAL_LOWSPEED_SLEW; //Mode recieved from :G command
         cmd.HVal[i] = 0; //Value recieved from :H command
@@ -82,56 +82,68 @@ void Commands_configureST4Speed(byte mode) {
     }
 }
 
-const char cmd_commands[numberOfCommands][3] = { {'j', 0, 6}, //arranged in order of most frequently used to reduce searching time.
-                                                 {'f', 0, 3},
-                                                 {'I', 6, 0},
-                                                 {'G', 2, 0},
-                                                 {'J', 0, 0},
-                                                 {'K', 0, 0},
-                                                 {'H', 6, 0},
-                                                 {'M', 6, 0},
-                                                 {'e', 0, 6},
-                                                 {'a', 0, 6},
-                                                 {'b', 0, 6},
-                                                 {'g', 0, 2},
-                                                 {'s', 0, 6},
-                                                 {'E', 6, 0},
-                                                 {'P', 1, 0},
-                                                 {'F', 0, 0},
-                                                 {'L', 0, 0},
-                                                 {'V', 2, 0},
+// Note: The protocol was changed after I added programming commands, so some of the
+// commands used in programming mode are also used in run mode for different things.
+// For most cases this is not an issue as there are checks in the command handling to
+// see if we are in programming mode.
+// In the case of the 'q' command, annoyingly I use it for a different payload and
+// response length than the protocol does. In a dirty hack, the payload length is now
+// specified as two nibbles, the lower being run-time, and the upper being prog mode.
+ 
+#define CMD_LEN_SAME(b)    (((b) << 4) | ((b) & 0xF))
+#define CMD_LEN_DIFF(r, p) (((p) << 4) | ((r) & 0xF))
+#define CMD_GET_LEN(p, v) (p == CMD_LEN_RUN) ? ((v) & 0xF) :  ((v) >> 4)
+ 
+const char cmd_commands[numberOfCommands][3] = { {'j', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  }, //arranged in order of most frequently used to reduce searching time.
+                                                 {'f', CMD_LEN_SAME(0),   CMD_LEN_SAME(3)  },
+                                                 {'I', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'G', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'J', CMD_LEN_SAME(0),   CMD_LEN_SAME(0)  },
+                                                 {'K', CMD_LEN_SAME(0),   CMD_LEN_SAME(0)  },
+                                                 {'H', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'M', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'e', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'a', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'b', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'g', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
+                                                 {'s', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'E', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'P', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  },
+                                                 {'F', CMD_LEN_SAME(0),   CMD_LEN_SAME(0)  },
+                                                 {'L', CMD_LEN_SAME(0),   CMD_LEN_SAME(0)  },
+                                                 {'V', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'q', CMD_LEN_DIFF(6,0), CMD_LEN_DIFF(6,2)},
                                                  //Programmer Entry Command
-                                                 {'O', 1, 0},
+                                                 {'O', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  },
                                                  //Programmer Commands - Ignored in Run-Mode
-                                                 {'A', 6, 0},
-                                                 {'B', 6, 0},
-                                                 {'S', 6, 0},
-                                                 {'n', 0, 6},
-                                                 {'N', 6, 0},
-                                                 {'D', 2, 0},
-                                                 {'d', 0, 2},
-                                                 {'C', 1, 0},
-                                                 {'c', 0, 2},
-                                                 {'Z', 2, 0},
-                                                 {'z', 0, 2},
-                                                 {'R', 6, 0},
-                                                 {'r', 0, 6},
-                                                 {'Q', 2, 0},
-                                                 {'q', 0, 2},
-                                                 {'o', 0, 2},
-                                                 {'X', 6, 0},
-                                                 {'x', 0, 6},
-                                                 {'Y', 2, 0},
-                                                 {'T', 1, 0}
+                                                 {'A', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'B', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'S', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'n', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'N', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'D', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'d', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
+                                                 {'C', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  },
+                                                 {'c', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
+                                                 {'Z', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'z', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
+                                                 {'R', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'r', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'Q', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'o', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
+                                                 {'X', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'x', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
+                                                 {'Y', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'T', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  }
                                                };
 
-char Commands_getLength(char cmd, bool sendRecieve){
+char Commands_getLength(char cmd, bool sendRecieve, bool isProg){
     for(byte i = 0;i < numberOfCommands;i++){
         if(cmd_commands[i][0] == cmd){
-            if(sendRecieve){
-                return cmd_commands[i][1];
+            if(sendRecieve == CMD_LEN_SEND){
+                return CMD_GET_LEN(isProg, cmd_commands[i][2]);
             } else {
-                return cmd_commands[i][2];
+                return CMD_GET_LEN(isProg, cmd_commands[i][1]);
             }
         }
     }

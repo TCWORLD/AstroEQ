@@ -25,10 +25,12 @@
 #include "SerialLink.h" //Serial Port
 #include "UnionHelpers.h" //Union prototypes
 #include "synta.h" //Synta Communications Protocol.
+#include "commands.h" //Synta Communications Protocol.
 #include <util/delay.h>    
 #include <util/delay_basic.h>
 #include <util/crc16.h>
 #include <avr/wdt.h>
+#include <avr/common.h>
 
 
 // Watchdog disable on boot.
@@ -43,6 +45,8 @@ void wdt_init(void)
  * Defines
  */
 
+#define SET_PROG_MODE(newMode) progMode = (newMode); cmdIsProg = (progMode == RUNMODE) ? CMD_LEN_RUN : CMD_LEN_PROG
+
 /*
  * Global Variables
  */
@@ -51,6 +55,7 @@ byte readyToGo[2] = {MOTION_START_NOTREADY, MOTION_START_NOTREADY};
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
 bool encodeDirection[2];
 byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
+bool cmdIsProg = CMD_LEN_RUN;
 byte progModeEntryCount = 0; //Must send 10 non-zero progMode commands to switch out of run-time. This is to prevent accidental entry by EQMOD.
 byte microstepConf;
 byte driverVersion;
@@ -350,7 +355,7 @@ void systemInitialiser(){
     buildModeMapping(microstepConf, driverVersion);
     
     if(!checkEEPROM(false)){
-        progMode = PROGMODE; //prevent AstroEQ startup if EEPROM is blank.
+        SET_PROG_MODE(PROGMODE); //prevent AstroEQ startup if EEPROM is blank.
     } else {
         calculateRate(RA); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
         calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
@@ -750,7 +755,7 @@ int main(void) {
     
                     //And send welcome message
                     char welcome[3];
-                    synta_assembleResponse(welcome, '\0', 0 );
+                    synta_assembleResponse(welcome, '\0', 0, cmdIsProg );
                     Serial_writeStr(welcome); //Send error packet to trigger controller state machine.
                     
                 } else {
@@ -822,7 +827,7 @@ int main(void) {
                     recievedChar = Serial_read();
                 } //otherwise we will try to parse the previous character again.
                 //Append the current character and try to parse the command
-                decoded = synta_recieveCommand(decodedPacket,recievedChar); 
+                decoded = synta_recieveCommand(decodedPacket, recievedChar, cmdIsProg); 
                 //Once full command packet received, synta_recieveCommand populates either an error packet (and returns -1), or data packet (returns 1). If incomplete, decodedPacket is unchanged and 0 is returned
                 if (decoded != 0){ //Send a response
                     if (decoded > 0){ //Valid Packet, current command is in decoded variable.
@@ -1268,7 +1273,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                     command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface).
                 } else {
                     //Otherwise we are in programming mode, and config utility is sending a command
-                    progMode = buffer[0] - '0'; //Get the command
+                    SET_PROG_MODE(buffer[0] - '0'); // Set the programming mode
                     if (progMode != RUNMODE) {
                         motorStop(RA,STOPEMERGENCY); //emergency axis stop.
                         motorDisable(RA); //shutdown driver power.
@@ -1431,7 +1436,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             break;
     }
   
-    synta_assembleResponse(buffer, command, responseData); //generate correct response (this is required as is)
+    synta_assembleResponse(buffer, command, responseData, cmdIsProg); //generate correct response (this is required as is)
     
     if ((command == 'J') && !estop && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
         

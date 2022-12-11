@@ -32,10 +32,18 @@
 #define CMD_ENABLED         true
 #define CMD_DISABLED        false
 
+#define CMD_DEFAULT_INDEX 0x800000 //Current position, 0x800000 is the centre
+
 #define CMD_GVAL_LOWSPEED_GOTO  2
 #define CMD_GVAL_HIGHSPEED_GOTO 0
 #define CMD_GVAL_LOWSPEED_SLEW  1
 #define CMD_GVAL_HIGHSPEED_SLEW 3
+
+#define CMD_LEN_RECV true
+#define CMD_LEN_SEND false
+
+#define CMD_LEN_PROG true
+#define CMD_LEN_RUN  false
 
 typedef struct{        
     //class variables
@@ -73,7 +81,7 @@ typedef struct{
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);
-char Commands_getLength(char cmd, bool sendRecieve);
+char Commands_getLength(char cmd, bool sendRecieve, bool isProg);
   
 //Command definitions
 extern const char command[numberOfCommands][3];
