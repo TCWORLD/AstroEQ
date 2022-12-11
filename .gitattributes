@@ -14,5 +14,8 @@
 *.deb binary
 
 # Language detection
-*.h linguist-language=C++
+*.h linguist-language=C
+*.c linguist-language=C
+*.hex linguist-vendored=false
 AstroEQ-PIC-Firmware/* linguist-vendored=false
+AstroEQ-ConfigUtility/* linguist-vendored=false
