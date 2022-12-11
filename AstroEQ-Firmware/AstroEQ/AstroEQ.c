@@ -1235,6 +1235,26 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         case 'V': //Set the polarscope LED brightness
             polarscopeDutyRegister(synta_hexToByte(buffer));
             break;
+        case 'q': //Extended capabilities in run mode. Returns the disableGearChange/allowAdvancedHCDetection setting in prog mode
+            if (progMode != RUNMODE) {
+                if (axis == DC) {
+                    responseData = disableGearChange;
+                    canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
+                } else {
+                    responseData = allowAdvancedHCDetection;
+                }
+            } else {
+                byte id = buffer[0] - '0';
+                if (id == 0) {
+                    // Return original axis position (?). This is unclear in the spec. Might mean actual position. 
+                    responseData = CMD_DEFAULT_INDEX;
+                } else if (id == 1) {
+                    responseData = ((0x40) << 4) | ((0x7) << 2) | 0x00;
+                } else {
+                    command = '\0'; //force sending of error packet!.
+                }
+            }                
+            break;
             
         //Command required for entering programming mode. All other programming commands cannot be used when progMode = 0 (normal ops)
         case 'O': //Control GPIO1 or Programming Mode
@@ -1365,14 +1385,6 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         break;
                     case 'C': //store the axisDirectionReverse
                         encodeDirection[axis] = buffer[0] - '0'; //store sVal for that axis.
-                        break;
-                    case 'q': //return the disableGearChange/allowAdvancedHCDetection setting  
-                        if (axis == DC) {
-                            responseData = disableGearChange; 
-                            canJumpToHighspeed = (microstepConf >= 8) && !disableGearChange; //Gear change is enabled if the microstep mode can change by a factor of 8.
-                        } else {
-                            responseData = allowAdvancedHCDetection;
-                        }
                         break;
                     case 'Q': //store the disableGearChange/allowAdvancedHCDetection setting
                         if (axis == DC) {
