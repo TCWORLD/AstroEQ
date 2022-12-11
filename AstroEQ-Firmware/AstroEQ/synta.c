@@ -41,8 +41,11 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
     char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError, CMD_LEN_SEND, isProg); //get the number of data bytes for response
 
     if (replyLength < 0) {
-        replyLength = 0;
+        byte errorCode = responseData;
+        replyLength = 2;
         dataPacket[0] = errorChar;
+        dataPacket[1] = '0';
+        nibbleToHex(dataPacket+2, errorCode & 0xF);
     } else {
         dataPacket[0] = startOutChar;
 
@@ -60,52 +63,54 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
             private_byteToHex(dataPacket+4,dataPacket+3,inter.lowByter.highNibbler);
             private_byteToHex(dataPacket+2,dataPacket+1,inter.lowByter.lowNibbler);
         }
-        dataPacket = dataPacket + (size_t)replyLength;
     }
+    dataPacket = dataPacket + (size_t)replyLength;
     dataPacket[1] = endChar;
     dataPacket[2] = '\0';
     return;
 }
 
-bool synta_validateCommand(byte len, char* decoded, bool isProg){
+// Returns negative for success, otherwise an error code
+char synta_validateCommand(byte len, char* decoded, bool isProg){
     _command = commandString[0]; //first byte is command
     _axis = commandString[1] - '1'; //second byte is axis
     if(_axis > 1){
-        return false; //incorrect axis
+        return SYNTA_ERROR_INVALIDCHAR; //incorrect axis
     }
     char requiredLength = Commands_getLength(_command, CMD_LEN_RECV, isProg); //get the required length of this command
     len -= 3; //Remove the command and axis bytes, aswell as the end char;
     if(requiredLength != len){ //If invalid command, or not required length
-        return false;
+        return SYNTA_ERROR_CMDLENGTH;
     }
     byte i;
     for(i = 0;i < len;i++){
         decoded[i] = commandString[i + 2];
     }
     decoded[i] = '\0'; //Null
-    return true;
+    return -1; //No error
 }
 
 char synta_recieveCommand(char* dataPacket, char character, bool isProg){
+    char status = -1;
+    char errorCode;
     if(validPacket){
         if (character == startInChar){
-            dataPacket[0] = errorChar;
-            dataPacket[1] = endChar;
-            dataPacket[2] = '\0';
-            validPacket = 0; //new command without old finishing! (dataPacket contains error message)
-            return -2;
+            status = -2;
+            errorCode = SYNTA_ERROR_INVALIDCHAR;
+            goto error;
         }
 
         commandString[commandIndex++] = character; //Add character to current string build
 
         if(character == endChar){
-            if(synta_validateCommand(commandIndex, dataPacket, isProg)){
+            if((errorCode = synta_validateCommand(commandIndex, dataPacket, isProg)) < 0){
                 validPacket = 0;
                 return _command; //Successful decode (dataPacket contains decoded packet, return value is the current command)
             } else {
                 goto error; //Decode Failed (dataPacket contains error message)
             }
         } else if (commandIndex == sizeof(commandString)){
+            errorCode = SYNTA_ERROR_CMDLENGTH;
             goto error; //Message too long! (dataPacket contains error message)
         }
     } else if (character == startInChar){
@@ -117,10 +122,12 @@ char synta_recieveCommand(char* dataPacket, char character, bool isProg){
     return 0; //Decode not finished (dataPacket unchanged)
 error:
     dataPacket[0] = errorChar;
-    dataPacket[1] = endChar;
-    dataPacket[2] = '\0';
+    dataPacket[1] = '0';
+    nibbleToHex(dataPacket+2, errorCode & 0xF);
+    dataPacket[3] = '\0';
+    dataPacket[4] = endChar;
     validPacket = 0;
-    return -1;
+    return status;
 }
 
 inline byte hexToNibbler(char hex) {

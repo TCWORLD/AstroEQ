@@ -4,6 +4,13 @@
 
 #include "AstroEQ.h"
 
+#define SYNTA_ERROR_UNKNOWNCMD  0
+#define SYNTA_ERROR_CMDLENGTH   1
+#define SYNTA_ERROR_NOSTOPPED   2
+#define SYNTA_ERROR_INVALIDCHAR 3
+#define SYNTA_ERROR_NOTINIT     4
+#define SYNTA_ERROR_DRIVERSLEEP 5
+
 void synta_initialise(unsigned long version, byte gVal);
 void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, bool isProg);
 char synta_recieveCommand(char* dataPacket, char character, bool isProg);

@@ -754,8 +754,8 @@ int main(void) {
                     SPI_initialise();
     
                     //And send welcome message
-                    char welcome[3];
-                    synta_assembleResponse(welcome, '\0', 0, cmdIsProg );
+                    char welcome[5];
+                    synta_assembleResponse(welcome, '\0', SYNTA_ERROR_NOTINIT, cmdIsProg );
                     Serial_writeStr(welcome); //Send error packet to trigger controller state machine.
                     
                 } else {
@@ -1230,6 +1230,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 motorEnable(axis); //This enables the motors - gives the motor driver board power
             } else {
                 command = '\0'; //force sending of error packet!.
+                responseData = SYNTA_ERROR_NOTINIT;
             }
             break;
         case 'V': //Set the polarscope LED brightness
@@ -1252,6 +1253,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                     responseData = ((0x40) << 4) | ((0x7) << 2) | 0x00;
                 } else {
                     command = '\0'; //force sending of error packet!.
+                    responseData = SYNTA_ERROR_UNKNOWNCMD;
                 }
             }                
             break;
@@ -1291,6 +1293,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         progModeEntryCount = progModeEntryCount + 1;
                     }
                     command = '\0'; //force sending of error packet when not in programming mode (so that EQMOD knows not to use SNAP1 interface).
+                    responseData = SYNTA_ERROR_UNKNOWNCMD;
                 } else {
                     //Otherwise we are in programming mode, and config utility is sending a command
                     SET_PROG_MODE(buffer[0] - '0'); // Set the programming mode
@@ -1355,6 +1358,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             responseData = snapPinIsOpenDrain;
                         } else {
                             command = '\0'; //Unsupported. Return failure
+                            responseData = SYNTA_ERROR_UNKNOWNCMD;
                         }
                         break;
                     case 'R': //store the DEC backlash or st4 speed factor
@@ -1362,6 +1366,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             unsigned long dataIn = synta_hexToLong(buffer); //store step mode.
                             if (dataIn > 65535) {
                                 command = '\0'; //If the step rate is out of range, force an error response packet.
+                                responseData = SYNTA_ERROR_INVALIDCHAR;
                             } else {
                                 cmd_setst4DecBacklash(dataIn); //store st4 speed factor
                             }
@@ -1369,6 +1374,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             byte factor = synta_hexToByte(buffer);
                             if ((factor > 19) || (factor < 1)) {
                                 command = '\0'; //If the factor is out of range, force an error response packet.
+                                responseData = SYNTA_ERROR_INVALIDCHAR;
                             } else {
                                 cmd_setst4SpeedFactor(factor); //store st4 speed factor
                             }
@@ -1419,6 +1425,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         accelTableIndex[axis] = synta_hexToByte(buffer);
                         if (accelTableIndex[axis] >= AccelTableLength) {
                             command = '\0'; //If the address out of range, force an error response packet.
+                            responseData = SYNTA_ERROR_INVALIDCHAR;
                         }
                         break;
                     case 'T': //set mode, return empty response
@@ -1433,6 +1440,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                             if (!checkEEPROM(buffer[0]-'0')) { 
                                 //If invalid EEPROM configuration (excluding CRC if skipping CRC)
                                 command = '\0'; //force sending of an error packet if invalid EEPROM
+                                responseData = SYNTA_ERROR_INVALIDCHAR;
                             } else if (!checkEEPROMCRC()) {
                                 //If invalid EEPROM configuration is now only due to CRC
                                 EEPROM_writeByte(calculateEEPROMCRC(),AstroEQCRC_Address); //Recalculate and store the correct CRC
