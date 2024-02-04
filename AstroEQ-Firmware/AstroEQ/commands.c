@@ -34,6 +34,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
     cmd.normalGotoSpeed[DC] = EEPROM_readByte(DECGoto_Address); //IVal for normal goto speed
     cmd.st4SpeedFactor = EEPROM_readByte(SpeedFactor_Address);  //ST4 speed factor
     cmd.st4DecBacklash = EEPROM_readInt(DecBacklash_Address);   //DEC backlash steps
+    cmd.estop = CMD_NORMAL;
     
     EEPROM_readAccelTable(cmd.accelTable[RA],AccelTableLength,AccelTable1_Address); //Load the RA accel/decel table
     EEPROM_readAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address); //Load the DC accel/decel table

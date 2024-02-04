@@ -705,10 +705,10 @@ int main(void) {
     for(;;){ //Run loop
 
 #ifdef estopPin_Define
-        //If we have an emergency stop pin
-        estop = !getPinValue(estopPin); //Read in the value of the emergency stop pin
-        //Check if emergency stop high
-        if (estop) {
+        //If we have an emergency stop pin, check
+        //if it is asserted (pin pulled low)
+        if (!getPinValue(estopPin)) {
+            cmd_setEmergency(CMD_EMERGENCY);
             if (cmd.stopped[RA] != CMD_STOPPED) {
                 //If RA is not stopped, perform emergency stop.
                 motorStop(RA,STOPEMERGENCY);
@@ -717,6 +717,8 @@ int main(void) {
                 //If DC is not stopped, perform emergency stop.
                 motorStop(DC,STOPEMERGENCY);
             }
+        } else {
+            cmd_setEmergency(CMD_NORMAL);
         }
 #endif
 
@@ -852,7 +854,7 @@ int main(void) {
             //
             //ST4 button handling
             //
-            if (!estop && !standaloneMode && ((loopCount & 0xFF) == 0)){
+            if ((cmd.estop == CMD_NORMAL) && !standaloneMode && ((loopCount & 0xFF) == 0)){
                 //We only check the ST-4 buttons in EQMOD mode when not doing Go-To, and only every so often - this adds a little bit of debouncing time.
                 //Determine which RA ST4 pin if any
                 ST4Pin st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
@@ -1047,7 +1049,7 @@ int main(void) {
             //
             //NESW button handling - uses ST4 pins
             //
-            if (!estop && ((loopCount & 0xFF) == 0)){
+            if ((cmd.estop == CMD_NORMAL) && ((loopCount & 0xFF) == 0)){
                 //We only check the buttons every so often - this adds a little bit of debouncing time.
                 //Determine which if any RA ST4 Pin
                 char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
@@ -1457,7 +1459,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
   
     synta_assembleResponse(buffer, command, responseData, cmdIsProg); //generate correct response (this is required as is)
     
-    if ((command == 'J') && !estop && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
+    if ((command == 'J') && (cmd.estop == CMD_NORMAL) && (progMode == RUNMODE)) { //J tells us we are ready to begin the requested movement.
         
         //Check if the motion is a go-to         
         if (motionIsGoto(cmd.GVal[axis])){

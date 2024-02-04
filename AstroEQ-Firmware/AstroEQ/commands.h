@@ -25,6 +25,11 @@ typedef enum  __attribute__((packed)){
     CMD_ENABLED
 } CmdEnabled;
 
+typedef enum __attribute__((packed)){
+    CMD_NORMAL,
+    CMD_EMERGENCY
+} EmergencyStop;
+
 #define CMD_DEFAULT_INDEX 0x800000 //Current position, 0x800000 is the centre
 
 typedef enum __attribute__((packed)){
@@ -65,6 +70,7 @@ typedef struct{
     MotorDir         st4RAReverse;       //Reverse RA- axis direction if true.
     ST4SpeedMode     st4Mode;            //Current ST-4 mode
     byte             st4SpeedFactor;     //Multiplication factor to get st4 speed. min = 1 = 0.05x, max = 19 = 0.95x.
+    EmergencyStop    estop;
     unsigned int     st4RAIVal      [2]; //_IVal: for RA ST4 movements ({RA+,RA-});
     unsigned int     st4DecIVal;         //_IVal: for declination ST4 movements
     unsigned int     st4DecBacklash;     //Number of steps to perform on ST-4 direction change ---- Not yet implemented.
@@ -110,6 +116,9 @@ inline unsigned int cmd_fVal(MotorAxis target){ //_fVal: 0hds00er000f; h=high sp
     if (cmd.gotoEn[target] == CMD_DISABLED) {
         fVal |= (1 <<  8);
     }
+    if (cmd.estop == CMD_EMERGENCY) {
+        fVal |= (1 <<  5);
+    }
     if (cmd.stopped[target] == CMD_STOPPED) {
         fVal |= (1 <<  4);
     }
@@ -125,6 +134,10 @@ inline void cmd_setsideIVal(MotorAxis target, unsigned int _sideIVal){ //set Met
 
 inline void cmd_setStopped(MotorAxis target, MotorRunning stopped){ //Set Method
     cmd.stopped[target] = stopped;
+}
+
+inline void cmd_setEmergency(EmergencyStop estop){ //Set Method
+    cmd.estop = estop;
 }
 
 inline void cmd_setGotoEn(MotorAxis target, CmdEnabled gotoEn){ //Set Method
