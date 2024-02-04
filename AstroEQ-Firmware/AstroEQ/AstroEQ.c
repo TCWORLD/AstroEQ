@@ -1404,10 +1404,10 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                         }
                         break;
                     case 'x': {  //return the accelTable
-                        Inter responsePack = {0};
-                        responsePack.lowByter.integer = cmd.accelTable[axis][accelTableIndex[axis]].speed;
-                        responsePack.highByter.low = cmd.accelTable[axis][accelTableIndex[axis]].repeats; 
-                        responseData = responsePack.integer;
+                        FourBytes pack = {0};
+                        pack.array[0] = cmd.accelTable[axis][accelTableIndex[axis]].speed;
+                        pack.bytes[2] = cmd.accelTable[axis][accelTableIndex[axis]].repeats;
+                        responseData = pack.integer;
                         accelTableIndex[axis]++; //increment the index so we don't have to send :Y commands for every address if reading sequentially.
                         if (accelTableIndex[axis] >= AccelTableLength) {
                             accelTableIndex[axis] = 0; //Wrap around

@@ -161,12 +161,3 @@ char Commands_getLength(char cmd, CmdDirection sendRecieve, CmdProgMode isProg){
     }
     return -1;
 }
-
-//void Commands::setStepLength(byte target, byte stepLength) {
-//  if (stepDir[target] > 0) {
-//    stepDir[target] = stepLength;
-//  } else {
-//    stepDir[target] = -stepLength;
-//  }
-//}
-

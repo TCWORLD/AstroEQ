@@ -1,18 +1,18 @@
 
 #include "synta.h"
+
+#include <avr/builtins.h>
 #include <string.h>
 
+static bool validPacket;
+static char commandString[11];
+static byte commandIndex;
 
-bool validateCommand(byte len);
-bool validPacket;
-char commandString[11];
-byte commandIndex;
-
-MotorAxis _axis;
-char _command;
+static MotorAxis _axis;
+static char _command;
 
 //Axis conversion
-inline MotorAxis synta_mapAxis(char axis) {
+static inline MotorAxis mapAxis(char axis) {
     return (MotorAxis)(axis - '1');
 }
 
@@ -24,21 +24,20 @@ void synta_initialise(unsigned long eVal, byte gVal){
     Commands_init(eVal, gVal);
 }
 
-const char startInChar = ':';
-const char startOutChar = '=';
-const char errorChar = '!';
-const char endChar = '\r';
+static const char startInChar = ':';
+static const char startOutChar = '=';
+static const char errorChar = '!';
+static const char endChar = '\r';
 
-inline void nibbleToHex(char* hex, byte nibble) {
-    if (nibble > 9){
-        nibble += (('A'-'0')-0xA);
-    }
-    *hex = (nibble + '0');
+static void nibbleToHex(char* hex, byte nibble) {
+    nibble &= 0xF;
+    if (nibble > 9) *hex = nibble + 'A';
+    else *hex = nibble + '0';
 }
 
-inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
-    nibbleToHex(lower, nibbler.low);
-    nibbleToHex(upper, nibbler.high);
+static void byteToHex(char* hex, byte value){
+    nibbleToHex(hex, __builtin_avr_swap(value));
+    nibbleToHex(hex+1, value);
 }
 
 void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, CmdProgMode isProg) {
@@ -61,18 +60,14 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
         dataPacket[0] = startOutChar;
 
         if (replyLength == 2) {
-            Nibbler nibble = { responseData };
-            private_byteToHex(dataPacket+2,dataPacket+1,nibble);
+            byteToHex(dataPacket+1,responseData);
         } else if (replyLength == 3) {
-            DoubleNibbler nibble = { responseData };
-            nibbleToHex(dataPacket+3, nibble.low);
-            nibbleToHex(dataPacket+2, nibble.mid);
-            nibbleToHex(dataPacket+1, nibble.high);
+            nibbleToHex(dataPacket+1, responseData >> 8);
+            byteToHex(dataPacket+2, responseData);
         } else if (replyLength == 6) {
-            Inter inter = { responseData };
-            private_byteToHex(dataPacket+6,dataPacket+5,inter.highByter.lowNibbler);
-            private_byteToHex(dataPacket+4,dataPacket+3,inter.lowByter.highNibbler);
-            private_byteToHex(dataPacket+2,dataPacket+1,inter.lowByter.lowNibbler);
+            byteToHex(dataPacket+5,responseData >> 16);
+            byteToHex(dataPacket+3,responseData >> 8);
+            byteToHex(dataPacket+1,responseData);
         }
     }
     dataPacket = dataPacket + (size_t)replyLength;
@@ -84,7 +79,7 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
 // Returns negative for success, otherwise an error code
 SyntaError synta_validateCommand(byte len, char* decoded, CmdProgMode isProg){
     _command = commandString[0]; //first byte is command
-    _axis = synta_mapAxis(commandString[1]); //second byte is axis
+    _axis = mapAxis(commandString[1]); //second byte is axis
     if(_axis > AXIS_COUNT){
         return SYNTA_ERROR_INVALIDCHAR; //incorrect axis
     }
@@ -134,41 +129,33 @@ char synta_recieveCommand(char* dataPacket, char character, CmdProgMode isProg){
 error:
     dataPacket[0] = errorChar;
     dataPacket[1] = '0';
-    nibbleToHex(dataPacket+2, errorCode & 0xF);
+    nibbleToHex(dataPacket+2, errorCode);
     dataPacket[3] = '\0';
     dataPacket[4] = endChar;
     validPacket = 0;
     return status;
 }
 
-inline byte hexToNibbler(char hex) {
+static inline byte hexToNibble(char hex) {
     if (hex > '9'){
-        hex -= (('A'-'0')-0xA); //even if hex is lower case (e.g. 'a'), the lower nibble will have the correct value as (('a'-'A')&0x0F) = 0.
+        return (hex - 'A') & 0xF; //even if hex is lower case (e.g. 'a'), the lower nibble will have the correct value as (('a'-'A')&0x0F) = 0.
+    } else {
+        return (hex - '0') & 0xF; //as we are keeping the lower nibble, the -'0' gets optimised away.
     }
-    return (hex - '0'); //as we are keeping the lower nibble, the -'0' gets optimised away.
-}
-inline byte hexToByte(char* hex){
-    //nibble.low = hexToNibbler(hex[1]);
-    //nibble.high = hexToNibbler(hex[0]);
-    Nibbler low = {hexToNibbler(hex[1])};
-    Nibbler high = {hexToNibbler(hex[0])<<4};
-    return ((high.high<<4)|low.low);
 }
 
 byte synta_hexToByte(char* hex){
-    return hexToByte(hex);
+    byte asByte = hexToNibble(hex[1]) | __builtin_avr_swap(hexToNibble(hex[0]));
+    return asByte;
 }
-unsigned long synta_hexToLong(char* hex){
-    //  char *boo; //waste point for strtol
-    //  char str[7]; //Destination of rearranged hex
-    //  strncpy(str,&hex[4],2); //Lower Byte
-    //  strncpy(str+2,&hex[2],2); //Middle Byte
-    //  strncpy(str+4,hex,2); //Upper Byte
-    //  str[6] = 0;
-    //  return strtol(str,&boo,16); //convert hex to long integer
 
-    Inter inter = InterMaker(0,hexToByte(hex+4),hexToByte(hex+2),hexToByte(hex)); //create an inter 
-    return inter.integer; //and convert it to an integer
+unsigned long synta_hexToLong(char* hex){
+    // Convert bytes from little endian hex
+    FourBytes pack = {0};
+    pack.bytes[0] = synta_hexToByte(hex);
+    pack.bytes[1] = synta_hexToByte(hex+2);
+    pack.bytes[2] = synta_hexToByte(hex+4);
+    return pack.integer;
 }
 
 char synta_command(){

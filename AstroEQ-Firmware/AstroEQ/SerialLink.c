@@ -54,19 +54,19 @@ bool softSPIEnabled = false;
 
 //Initialise the hardware UART port and set baud rate.
 void Serial_initialise(const unsigned long baud) {
-    Byter baud_setting;
+    unsigned int baud_setting;
 
     UCSRnA = _BV(U2Xn);
-    baud_setting.integer = (F_CPU / 4 / baud - 1) / 2;
+    baud_setting = (F_CPU / 4 / baud - 1) / 2;
 
-    if (baud_setting.high & 0xF0) {
+    if ((baud_setting >> 8) & 0xF0) {
         UCSRnA = 0;
-        baud_setting.integer = (F_CPU / 8 / baud - 1) / 2;
+        baud_setting = (F_CPU / 8 / baud - 1) / 2;
     }
 
     // assign the baud_setting, a.k.a. ubbr (USART Baud Rate Register)
-    UBRRnH = baud_setting.high & 0x0F;
-    UBRRnL = baud_setting.low;
+    UBRRnH = (baud_setting >> 8) & 0x0F;
+    UBRRnL = baud_setting;
 
     //Drain the serial port of anything that might be in the buffer
     Serial_clear(); //Empty the buffer of any outstanding data.
