@@ -41,11 +41,18 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
     char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError, CMD_LEN_SEND, isProg); //get the number of data bytes for response
 
     if (replyLength < 0) {
-        byte errorCode = responseData;
-        replyLength = 2;
         dataPacket[0] = errorChar;
-        dataPacket[1] = '0';
-        nibbleToHex(dataPacket+2, errorCode & 0xF);
+        if (isProg == CMD_LEN_PROG) {
+            // Don't use error codes in programming mode
+            // as the config utility is not set up to
+            // handle them.
+            replyLength = 0;
+        } else {
+            byte errorCode = responseData;
+            replyLength = 2;
+            dataPacket[1] = '0';
+            nibbleToHex(dataPacket+2, errorCode);
+        }        
     } else {
         dataPacket[0] = startOutChar;
 
