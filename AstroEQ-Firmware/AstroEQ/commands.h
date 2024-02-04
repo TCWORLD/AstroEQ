@@ -1,17 +1,3 @@
-//_fVal Flag get/set callers -------------------------------------------------
-//
-//Data structure of _fVal Flag:
-//  _fVal = xxxx00ds000g000f where bits:
-//  x = dont care
-//  d = dir
-//  s = stopped
-//  g = goto
-//  f = energised
-//
-//Only dir can be used to set the direction, but stepDir method can be used
-//to returns it in a more useful format
-//
-//----------------------------------------------------------------------------
 
 #ifndef __COMMANDS_H__
 #define __COMMANDS_H__
@@ -19,54 +5,67 @@
 #include "AstroEQ.h"
 #include "EEPROMReader.h" //Read config file
 
-#define CMD_ST4_HIGHSPEED   2
-#define CMD_ST4_STANDALONE  1
-#define CMD_ST4_DEFAULT     0
+typedef enum __attribute__((packed)){
+    CMD_FORWARD,
+    CMD_REVERSE
+} MotorDir;
 
-#define CMD_FORWARD         false
-#define CMD_REVERSE         true
+typedef enum __attribute__((packed)){
+    CMD_STOPPED,
+    CMD_RUNNING
+} MotorRunning;
 
-#define CMD_STOPPED         true
-#define CMD_RUNNING         false
+typedef enum  __attribute__((packed)){
+    CMD_LOWSPEED,
+    CMD_HIGHSPEED
+} MotorSpeed;
 
-#define CMD_ENABLED         true
-#define CMD_DISABLED        false
+typedef enum  __attribute__((packed)){
+    CMD_DISABLED, 
+    CMD_ENABLED
+} CmdEnabled;
 
 #define CMD_DEFAULT_INDEX 0x800000 //Current position, 0x800000 is the centre
 
-#define CMD_GVAL_LOWSPEED_GOTO  2
-#define CMD_GVAL_HIGHSPEED_GOTO 0
-#define CMD_GVAL_LOWSPEED_SLEW  1
-#define CMD_GVAL_HIGHSPEED_SLEW 3
+typedef enum __attribute__((packed)){
+    CMD_GVAL_HIGHSPEED_GOTO = 0,
+    CMD_GVAL_LOWSPEED_SLEW,
+    CMD_GVAL_LOWSPEED_GOTO,
+    CMD_GVAL_HIGHSPEED_SLEW
+} CmdSlewMode;
 
-#define CMD_LEN_RECV true
-#define CMD_LEN_SEND false
+typedef enum __attribute__((packed)){
+    CMD_LEN_SEND,
+    CMD_LEN_RECV
+} CmdDirection;
 
-#define CMD_LEN_PROG true
-#define CMD_LEN_RUN  false
+typedef enum __attribute__((packed)){
+    CMD_LEN_RUN,
+    CMD_LEN_PROG
+} CmdProgMode;
 
 typedef struct{        
     //class variables
     unsigned long    jVal           [2]; //_jVal: Current position
     unsigned int     IVal           [2]; //_IVal: speed to move if in slew mode
     unsigned int     motorSpeed     [2]; //speed at which moving. Accelerates to IVal.
-    byte             GVal           [2]; //_GVal: slew/goto mode
     unsigned long    HVal           [2]; //_HVal: steps to move if in goto mode
-    volatile char    stepDir        [2]; 
-    bool             dir            [2];
-    bool             FVal           [2];
-    bool             gotoEn         [2];
-    bool             stopped        [2];
-    bool             highSpeedMode  [2];
+    CmdSlewMode      GVal           [2]; //_GVal: slew/goto mode
+    int8_t           stepDir        [2]; 
+    MotorDir         dir            [2];
+    CmdEnabled       FVal           [2];
+    CmdEnabled       gotoEn         [2];
+    MotorRunning     stopped        [2];
+    MotorSpeed       highSpeedMode  [2];
+    byte             gVal           [2]; //_gVal: Speed scalar for highspeed slew
     unsigned long    eVal           [2]; //_eVal: Version number
     unsigned long    aVal           [2]; //_aVal: Steps per axis revolution
     unsigned long    bVal           [2]; //_bVal: Sidereal Rate of axis
-    byte             gVal           [2]; //_gVal: Speed scalar for highspeed slew
     unsigned long    sVal           [2]; //_sVal: Steps per worm gear revolution
-    byte             st4Mode;            //Current ST-4 mode
+    MotorDir         st4RAReverse;       //Reverse RA- axis direction if true.
+    ST4SpeedMode     st4Mode;            //Current ST-4 mode
     byte             st4SpeedFactor;     //Multiplication factor to get st4 speed. min = 1 = 0.05x, max = 19 = 0.95x.
     unsigned int     st4RAIVal      [2]; //_IVal: for RA ST4 movements ({RA+,RA-});
-    bool             st4RAReverse;       //Reverse RA- axis direction if true.
     unsigned int     st4DecIVal;         //_IVal: for declination ST4 movements
     unsigned int     st4DecBacklash;     //Number of steps to perform on ST-4 direction change ---- Not yet implemented.
     unsigned int     siderealIVal   [2]; //_IVal: at sidereal rate
@@ -81,18 +80,18 @@ typedef struct{
 
 void Commands_init(unsigned long _eVal, byte _gVal);
 void Commands_configureST4Speed(byte mode);
-char Commands_getLength(char cmd, bool sendRecieve, bool isProg);
+char Commands_getLength(char cmd, CmdDirection sendRecieve, CmdProgMode isProg);
   
 //Command definitions
 extern const char command[numberOfCommands][3];
 extern Commands cmd;
 
 //Methods for accessing command variables
-inline void cmd_setDir(byte target, bool _dir){ //Set Method
-    cmd.dir[target] = _dir ? CMD_REVERSE : CMD_FORWARD; //set direction
+inline void cmd_setDir(MotorAxis target, MotorDir dir){ //Set Method
+    cmd.dir[target] = dir; //set direction
 }
 
-inline void cmd_updateStepDir(byte target, byte stepSize){
+inline void cmd_updateStepDir(MotorAxis target, byte stepSize){
     if(cmd.dir[target] == CMD_REVERSE){
         cmd.stepDir[target] = -stepSize; //set step direction
     } else {
@@ -100,75 +99,75 @@ inline void cmd_updateStepDir(byte target, byte stepSize){
     }
 }
 
-inline unsigned int cmd_fVal(byte target){ //_fVal: 0hds000r000f; h=high speed, d = dir, s = slew, r = running, f = energised
+inline unsigned int cmd_fVal(MotorAxis target){ //_fVal: 0hds00er000f; h=high speed, d = dir, s = slew, e = estop, r = running, f = energised
     unsigned int fVal = 0;
-    if (cmd.highSpeedMode[target]) {
+    if (cmd.highSpeedMode[target] == CMD_HIGHSPEED) {
         fVal |= (1 << 10);
     }
-    if (cmd.dir[target]) {
+    if (cmd.dir[target] == CMD_REVERSE) {
         fVal |= (1 <<  9);
     }
-    if (!cmd.gotoEn[target]) {
+    if (cmd.gotoEn[target] == CMD_DISABLED) {
         fVal |= (1 <<  8);
     }
-    if (!cmd.stopped[target]) {
+    if (cmd.stopped[target] == CMD_STOPPED) {
         fVal |= (1 <<  4);
     }
-    if (cmd.FVal[target]){
+    if (cmd.FVal[target] == CMD_ENABLED){
         fVal |= (1 <<  0);
     }
     return fVal;
 }
 
-inline void cmd_setsideIVal(byte target, unsigned int _sideIVal){ //set Method
+inline void cmd_setsideIVal(MotorAxis target, unsigned int _sideIVal){ //set Method
     cmd.siderealIVal[target] = _sideIVal;
 }
 
-inline void cmd_setStopped(byte target, bool _stopped){ //Set Method
-    cmd.stopped[target] = _stopped;
+inline void cmd_setStopped(MotorAxis target, MotorRunning stopped){ //Set Method
+    cmd.stopped[target] = stopped;
 }
 
-inline void cmd_setGotoEn(byte target, bool _gotoEn){ //Set Method
-    cmd.gotoEn[target] = _gotoEn;
+inline void cmd_setGotoEn(MotorAxis target, CmdEnabled gotoEn){ //Set Method
+    cmd.gotoEn[target] = gotoEn;
 }
 
-inline void cmd_setFVal(byte target, bool _FVal){ //Set Method
-    cmd.FVal[target] = _FVal;
+inline void cmd_setFVal(MotorAxis target, CmdEnabled motor){ //Set Method
+    cmd.FVal[target] = motor;
 }
 
-inline void cmd_setjVal(byte target, unsigned long _jVal){ //Set Method
+inline void cmd_setjVal(MotorAxis target, unsigned long _jVal){ //Set Method
     cmd.jVal[target] = _jVal;
 }
 
-inline void cmd_setIVal(byte target, unsigned int _IVal){ //Set Method
+inline void cmd_setIVal(MotorAxis target, unsigned int _IVal){ //Set Method
     cmd.IVal[target] = _IVal;
 }
 
-inline void cmd_setaVal(byte target, unsigned long _aVal){ //Set Method
+inline void cmd_setaVal(MotorAxis target, unsigned long _aVal){ //Set Method
     cmd.aVal[target] = _aVal;
 }
 
-inline void cmd_setbVal(byte target, unsigned long _bVal){ //Set Method
+inline void cmd_setbVal(MotorAxis target, unsigned long _bVal){ //Set Method
     cmd.bVal[target] = _bVal;
 }
 
-inline void cmd_setsVal(byte target, unsigned long _sVal){ //Set Method
+inline void cmd_setsVal(MotorAxis target, unsigned long _sVal){ //Set Method
     cmd.sVal[target] = _sVal;
 }
 
-inline void cmd_setHVal(byte target, unsigned long _HVal){ //Set Method
+inline void cmd_setHVal(MotorAxis target, unsigned long _HVal){ //Set Method
     cmd.HVal[target] = _HVal;
 }
 
-inline void cmd_setGVal(byte target, byte _GVal){ //Set Method
+inline void cmd_setGVal(MotorAxis target, CmdSlewMode _GVal){ //Set Method
     cmd.GVal[target] = _GVal;
 }
 
-inline void cmd_setst4SpeedFactor(byte _factor){ //Set Method
+inline void cmd_setST4SpeedFactor(byte _factor){ //Set Method
     cmd.st4SpeedFactor = _factor;
 }
 
-inline void cmd_setst4DecBacklash(unsigned int _backlash){ //Set Method
+inline void cmd_setST4DecBacklash(unsigned int _backlash){ //Set Method
     cmd.st4DecBacklash = _backlash;
 }
 

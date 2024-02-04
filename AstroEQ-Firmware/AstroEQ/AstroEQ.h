@@ -94,25 +94,35 @@ inline bool astroEQ_verlessthan(unsigned long verReq) {
 #define HIGH 1
 #define LOW 0
 
-#define OUTPUT 1
-#define INPUT 0
+enum __attribute__((packed)) {
+    INPUT = 0,
+    OUTPUT
+};
 
-#define A498x 0
-#define DRV882x 1
-#define DRV8834 2
-#define TMC2100 3
-#define DRIVER_MAX 3
+enum __attribute__((packed)) {
+    A498x = 0,
+    DRV882x,
+    DRV8834,
+    TMC2100,
+    DRIVER_MAX = TMC2100
+};
 
-#define SPEEDNORM 0
-#define SPEEDFAST 1
+enum __attribute__((packed)) {
+    SPEEDNORM = 0,
+    SPEEDFAST
+};
 
-#define STOPNORMAL false
-#define STOPEMERGENCY true
+enum __attribute__ ((packed)) {
+    STOPNORMAL = false,
+    STOPEMERGENCY = true
+};
 
-#define REBUILDMODE 3
-#define STOREMODE 2
-#define PROGMODE 1
-#define RUNMODE 0
+typedef enum __attribute__((packed)) {
+    RUNMODE = 0,
+    PROGMODE,
+    STOREMODE,
+    REBUILDMODE
+} ExecMode;
 
 #ifdef abs
 #undef abs
@@ -124,18 +134,34 @@ inline bool astroEQ_verlessthan(unsigned long verReq) {
 #define max(a,b) ((a > b) ? a : b)
 #endif
 
-typedef uint8_t byte;
+typedef enum __attribute__((packed)) {
+    ST4P = 0, //Positive ST4 Pin
+    ST4N = 1, //Negative ST4 Pin
+    ST4O = -1 //Neither ST4 Pin
+} ST4Pin;
 
-#define RA 0 //Right Ascension is AstroEQ axis 0 (Synta axis '1')
-#define DC 1 //Declination is AstroEQ axis 1 (Synta axis '2')
+typedef enum __attribute__((packed)) {
+    MOTION_START_NOTREADY = 0,
+    MOTION_START_REQUESTED,
+    MOTION_START_UPDATABLE
+} MotionStart;
 
-#define ST4P (0)  //Positive ST4 Pin
-#define ST4N (1)  //Negative ST4 Pin
-#define ST4O (-1) //Neither ST4 Pin
+typedef enum __attribute__((packed)){
+    CMD_ST4_DEFAULT = 0,
+    CMD_ST4_STANDALONE,
+    CMD_ST4_HIGHSPEED,
+} ST4SpeedMode;
+typedef enum __attribute__((packed)) {
+    EQMOD_MODE = 0,
+    BASIC_HC_MODE,
+    ADVANCED_HC_MODE
+} CommsMode;
 
-#define MOTION_START_NOTREADY   0
-#define MOTION_START_REQUESTED  1
-#define MOTION_START_UPDATABLE  2
+typedef enum __attribute__((packed)){
+    RA, //Right Ascension is AstroEQ axis 0 (Synta axis '1')
+    DC, //Declination is AstroEQ axis 1 (Synta axis '2')
+    AXIS_COUNT
+} MotorAxis;
 
 #define MIN_IVAL 50
 #define MAX_IVAL 1200
@@ -150,10 +176,6 @@ typedef uint8_t byte;
 
 #define STANDALONE_IRQ   0
 #define STANDALONE_PULL  1
-
-#define EQMOD_MODE 0
-#define BASIC_HC_MODE 1
-#define ADVANCED_HC_MODE 2
 
 typedef struct {
     unsigned int speed;
@@ -192,7 +214,8 @@ bool checkEEPROM(bool skipCRC);
 void buildEEPROM();
 void storeEEPROM();
 void systemInitialiser();
-byte standaloneModeTest();
+CommsMode standaloneModeTest();
+ST4SpeedMode checkBasicHCSpeed();
 int main(void);
 bool decodeCommand(char command, char* packetIn);
 void calculateRate(byte axis);

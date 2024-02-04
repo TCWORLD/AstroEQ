@@ -3,17 +3,27 @@
 #define __SYNTA_H__
 
 #include "AstroEQ.h"
+#include "commands.h"
 
-#define SYNTA_ERROR_UNKNOWNCMD  0
-#define SYNTA_ERROR_CMDLENGTH   1
-#define SYNTA_ERROR_NOSTOPPED   2
-#define SYNTA_ERROR_INVALIDCHAR 3
-#define SYNTA_ERROR_NOTINIT     4
-#define SYNTA_ERROR_DRIVERSLEEP 5
+enum __attribute__((packed)) {
+    PACKET_ERROR_BADCHAR = -2,
+    PACKET_ERROR_GENERAL = -1,
+    PACKET_ERROR_PARTIAL = 0
+};
+
+typedef enum __attribute__((packed)) {
+    SYNTA_NOERROR = -1,
+    SYNTA_ERROR_UNKNOWNCMD = 0,
+    SYNTA_ERROR_CMDLENGTH,
+    SYNTA_ERROR_NOSTOPPED,
+    SYNTA_ERROR_INVALIDCHAR,
+    SYNTA_ERROR_NOTINIT,
+    SYNTA_ERROR_DRIVERSLEEP
+} SyntaError;
 
 void synta_initialise(unsigned long version, byte gVal);
-void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, bool isProg);
-char synta_recieveCommand(char* dataPacket, char character, bool isProg);
+void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, CmdProgMode isProg);
+char synta_recieveCommand(char* dataPacket, char character, CmdProgMode isProg);
 byte synta_setaxis(byte axis);
 byte synta_getaxis();
 char synta_command();

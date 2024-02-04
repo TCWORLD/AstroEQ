@@ -1,6 +1,5 @@
 
 #include "synta.h"
-#include "commands.h"
 #include <string.h>
 
 
@@ -9,14 +8,19 @@ bool validPacket;
 char commandString[11];
 byte commandIndex;
 
-byte _axis;
+MotorAxis _axis;
 char _command;
+
+//Axis conversion
+inline MotorAxis synta_mapAxis(char axis) {
+    return (MotorAxis)(axis - '1');
+}
 
 void synta_initialise(unsigned long eVal, byte gVal){
     validPacket = 0;
     commandIndex = 0;
     memset(commandString,0,sizeof(commandString));
-    _axis = 0;
+    _axis = RA;
     Commands_init(eVal, gVal);
 }
 
@@ -37,7 +41,7 @@ inline void private_byteToHex(char* lower, char* upper, Nibbler nibbler){
     nibbleToHex(upper, nibbler.high);
 }
 
-void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, bool isProg) {
+void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long responseData, CmdProgMode isProg) {
     char replyLength = (commandOrError == '\0') ? -1 : Commands_getLength(commandOrError, CMD_LEN_SEND, isProg); //get the number of data bytes for response
 
     if (replyLength < 0) {
@@ -78,10 +82,10 @@ void synta_assembleResponse(char* dataPacket, char commandOrError, unsigned long
 }
 
 // Returns negative for success, otherwise an error code
-char synta_validateCommand(byte len, char* decoded, bool isProg){
+SyntaError synta_validateCommand(byte len, char* decoded, CmdProgMode isProg){
     _command = commandString[0]; //first byte is command
-    _axis = commandString[1] - '1'; //second byte is axis
-    if(_axis > 1){
+    _axis = synta_mapAxis(commandString[1]); //second byte is axis
+    if(_axis > AXIS_COUNT){
         return SYNTA_ERROR_INVALIDCHAR; //incorrect axis
     }
     char requiredLength = Commands_getLength(_command, CMD_LEN_RECV, isProg); //get the required length of this command
@@ -94,15 +98,15 @@ char synta_validateCommand(byte len, char* decoded, bool isProg){
         decoded[i] = commandString[i + 2];
     }
     decoded[i] = '\0'; //Null
-    return -1; //No error
+    return SYNTA_NOERROR; //No error
 }
 
-char synta_recieveCommand(char* dataPacket, char character, bool isProg){
-    char status = -1;
-    char errorCode;
+char synta_recieveCommand(char* dataPacket, char character, CmdProgMode isProg){
+    char status = PACKET_ERROR_GENERAL;
+    SyntaError errorCode;
     if(validPacket){
         if (character == startInChar){
-            status = -2;
+            status = PACKET_ERROR_BADCHAR;
             errorCode = SYNTA_ERROR_INVALIDCHAR;
             goto error;
         }
@@ -110,7 +114,7 @@ char synta_recieveCommand(char* dataPacket, char character, bool isProg){
         commandString[commandIndex++] = character; //Add character to current string build
 
         if(character == endChar){
-            if((errorCode = synta_validateCommand(commandIndex, dataPacket, isProg)) < 0){
+            if((errorCode = synta_validateCommand(commandIndex, dataPacket, isProg)) == SYNTA_NOERROR){
                 validPacket = 0;
                 return _command; //Successful decode (dataPacket contains decoded packet, return value is the current command)
             } else {
@@ -126,7 +130,7 @@ char synta_recieveCommand(char* dataPacket, char character, bool isProg){
         validPacket = 1;
         commandString[0] = '\0';
     }
-    return 0; //Decode not finished (dataPacket unchanged)
+    return PACKET_ERROR_PARTIAL; //Decode not finished (dataPacket unchanged)
 error:
     dataPacket[0] = errorChar;
     dataPacket[1] = '0';
@@ -171,14 +175,14 @@ char synta_command(){
     return _command;
 }
 
-byte synta_setaxis(byte axis){
-	if(axis < 2){
+MotorAxis synta_setaxis(MotorAxis axis){
+	if(axis < AXIS_COUNT){
 		_axis = axis;
 	}
 	return _axis;
 }
 
-byte synta_getaxis(){
+MotorAxis synta_getaxis(){
 	return _axis;
 }
 

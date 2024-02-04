@@ -129,7 +129,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', CMD_LEN_SAME(0),   CMD_LE
                                                  {'z', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
                                                  {'R', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
                                                  {'r', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
-                                                 {'Q', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
+                                                 {'Q', CMD_LEN_DIFF(4,2), CMD_LEN_SAME(0)  },
                                                  {'o', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
                                                  {'X', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
                                                  {'x', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
@@ -137,7 +137,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', CMD_LEN_SAME(0),   CMD_LE
                                                  {'T', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  }
                                                };
 
-char Commands_getLength(char cmd, bool sendRecieve, bool isProg){
+char Commands_getLength(char cmd, CmdDirection sendRecieve, CmdProgMode isProg){
     for(byte i = 0;i < numberOfCommands;i++){
         if(cmd_commands[i][0] == cmd){
             if(sendRecieve == CMD_LEN_SEND){

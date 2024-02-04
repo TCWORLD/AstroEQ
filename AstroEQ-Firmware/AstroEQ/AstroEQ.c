@@ -51,17 +51,16 @@ void wdt_init(void)
  * Global Variables
  */
 byte stepIncrement[2];
-byte readyToGo[2] = {MOTION_START_NOTREADY, MOTION_START_NOTREADY};
+MotionStart readyToGo[2] = {MOTION_START_NOTREADY, MOTION_START_NOTREADY};
 unsigned long gotoPosn[2] = {0UL,0UL}; //where to slew to
 bool encodeDirection[2];
-byte progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
-bool cmdIsProg = CMD_LEN_RUN;
+ExecMode progMode = RUNMODE; //MODES:  0 = Normal Ops (EQMOD). 1 = Validate EEPROM. 2 = Store to EEPROM. 3 = Rebuild EEPROM
+CmdProgMode cmdIsProg = CMD_LEN_RUN;
 byte progModeEntryCount = 0; //Must send 10 non-zero progMode commands to switch out of run-time. This is to prevent accidental entry by EQMOD.
 byte microstepConf;
 byte driverVersion;
 bool standaloneMode = false; //Initially not in standalone mode (EQMOD mode)
 bool syntaMode = true; //And Synta processing is enabled.
-bool estop = false;
 bool snapPinIsOpenDrain = false;
 
 #define timerCountRate 8000000
@@ -600,7 +599,7 @@ void storeEEPROM(){
  * Standalone Helpers
  */
 
-byte standaloneModeTest() {
+CommsMode standaloneModeTest() {
     //We need to test what sort of controller is attached.
     //The IRQ pin on the ST4 connector is used to determine this. It has the following
     //states:
@@ -640,7 +639,7 @@ byte standaloneModeTest() {
 }
 
 
-byte checkBasicHCSpeed() {
+ST4SpeedMode checkBasicHCSpeed() {
     //Here we check what the speed is for the basic hand controller.
     //
     //By using both external and internal pull-ups, the following three speeds are possible:
@@ -654,7 +653,7 @@ byte checkBasicHCSpeed() {
     //
     //Note: if we don't have an external pull-up resistor, this function will return either ST-4 Rate (0,0) or GoTo Rate (1,1)
     //
-    byte speed;
+    ST4SpeedMode speed;
     if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
         //Must be a ST-4 rate as IRQ pin is low when external pull-up enabled
         speed = CMD_ST4_DEFAULT;
@@ -696,11 +695,11 @@ int main(void) {
     bool mcuReset = false; //Not resetting the MCU after programming command
     
     bool isST4Move[2] = {false, false};
-    char lastST4Pin[2] = {ST4O, ST4O};
+    ST4Pin lastST4Pin[2] = {ST4O, ST4O};
     
     unsigned int loopCount = 0;
     char recievedChar = 0; //last character we received
-    int8_t decoded = 0; //Whether we have decoded the packet
+    char decoded = 0; //Whether we have decoded the packet
     char decodedPacket[11]; //temporary store for completed command ready to be processed
     
     for(;;){ //Run loop
@@ -725,7 +724,7 @@ int main(void) {
 
         if (!standaloneMode && (loopCount == 0) && (progMode == RUNMODE)) { 
             //If we are not in standalone mode and are in run mode, periodically check if we have just entered it
-            byte mode = standaloneModeTest();
+            CommsMode mode = standaloneModeTest();
             if (mode != EQMOD_MODE) {
                 //If we have just entered stand-alone mode, then we enable the motors and configure the mount
                 motorStop(RA, STOPEMERGENCY); //Ensure both motors are stopped
@@ -815,21 +814,21 @@ int main(void) {
         //
             //Check if we need to run the command parser
             
-            if ((decoded == -2) || Serial_available()) { //is there a byte in buffer or we still need to process the previous byte?
+            if ((decoded == PACKET_ERROR_BADCHAR) || Serial_available()) { //is there a byte in buffer or we still need to process the previous byte?
                 //Toggle on the LED to indicate activity.
                 togglePin(statusPin);
                 #ifdef statusPinShadow_Define
                 togglePin(statusPinShdw);
                 #endif
                 //See what character we need to parse
-                if (decoded != -2) {
+                if (decoded != PACKET_ERROR_BADCHAR) {
                     //get the next character in buffer
                     recievedChar = Serial_read();
                 } //otherwise we will try to parse the previous character again.
                 //Append the current character and try to parse the command
                 decoded = synta_recieveCommand(decodedPacket, recievedChar, cmdIsProg); 
                 //Once full command packet received, synta_recieveCommand populates either an error packet (and returns -1), or data packet (returns 1). If incomplete, decodedPacket is unchanged and 0 is returned
-                if (decoded != 0){ //Send a response
+                if (decoded != PACKET_ERROR_PARTIAL){ //Send a response
                     if (decoded > 0){ //Valid Packet, current command is in decoded variable.
                         mcuReset = !decodeCommand(decoded,decodedPacket); //decode the valid packet and populate response.
                     }
@@ -856,7 +855,7 @@ int main(void) {
             if (!estop && !standaloneMode && ((loopCount & 0xFF) == 0)){
                 //We only check the ST-4 buttons in EQMOD mode when not doing Go-To, and only every so often - this adds a little bit of debouncing time.
                 //Determine which RA ST4 pin if any
-                char st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
+                ST4Pin st4Pin = !getPinValue(st4Pins[RA][ST4N]) ? ST4N : (!getPinValue(st4Pins[RA][ST4P]) ? ST4P : ST4O);
                 if (st4Pin != lastST4Pin[RA]) { 
                     //Only update speed/dir if the ST4 pin value has changed.
                     if ((cmd.dir[RA] == CMD_FORWARD) && (readyToGo[RA] == MOTION_START_UPDATABLE)) {
@@ -879,7 +878,7 @@ int main(void) {
                 }
                 //Determine which if any DEC ST4 Pin
                 st4Pin = !getPinValue(st4Pins[DC][ST4N]) ? ST4N : (!getPinValue(st4Pins[DC][ST4P]) ? ST4P : ST4O);
-                if (!cmd.gotoEn[DC] && (st4Pin != lastST4Pin[DC])) {
+                if ((cmd.gotoEn[DC] == CMD_DISABLED) && (st4Pin != lastST4Pin[DC])) {
                     //Only update speed/dir if the ST4 pin value has changed, and we are not in GoTo mode.
                     //Determine the new direction
                     byte dir = CMD_FORWARD;
@@ -1010,7 +1009,7 @@ int main(void) {
                 #endif
                 
                 //Check the speed
-                byte newBasicHCSpeed = checkBasicHCSpeed();
+                ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();
                 if (newBasicHCSpeed != cmd.st4Mode) {
                     //Only update speed if changed.
                     Commands_configureST4Speed(newBasicHCSpeed); //Change the ST4 speeds
@@ -1180,7 +1179,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             break;
         case 'G': //set mode and direction, return empty response
             {
-                signed char GVal = (buffer[0] - '0');
+                CmdSlewMode GVal = (CmdSlewMode)(buffer[0] - '0');
                 cmd_setGVal(axis, GVal); //Store the current mode for the axis
                 cmd_setDir(axis, (buffer[1] != '0') ? CMD_REVERSE : CMD_FORWARD); //Store the current direction for that axis
                 readyToGo[axis] = MOTION_START_NOTREADY;
@@ -1368,7 +1367,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                                 command = '\0'; //If the step rate is out of range, force an error response packet.
                                 responseData = SYNTA_ERROR_INVALIDCHAR;
                             } else {
-                                cmd_setst4DecBacklash(dataIn); //store st4 speed factor
+                                cmd_setST4DecBacklash(dataIn); //store st4 DEC backlash
                             }
                         } else {
                             byte factor = synta_hexToByte(buffer);
@@ -1376,7 +1375,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                                 command = '\0'; //If the factor is out of range, force an error response packet.
                                 responseData = SYNTA_ERROR_INVALIDCHAR;
                             } else {
-                                cmd_setst4SpeedFactor(factor); //store st4 speed factor
+                                cmd_setST4SpeedFactor(factor); //store st4 speed factor
                             }
                         }
                         break;
