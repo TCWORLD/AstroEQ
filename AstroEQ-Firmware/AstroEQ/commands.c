@@ -57,10 +57,10 @@ void Commands_init(unsigned long _eVal, byte _gVal){
         cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
         cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
     }
-    Commands_configureST4Speed(CMD_ST4_DEFAULT);
+    Commands_configureST4Speed(CMD_ST4_DEFAULT, AXIS_COUNT, CMD_ST4_EQMOD_COUNT);
 }
 
-void Commands_configureST4Speed(byte mode) {
+void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpeed speed) {
     cmd.st4Mode = mode;
     if (mode == CMD_ST4_HIGHSPEED) {
         //Set the ST4 speeds to highspeed standalone mode (goto speeds)
@@ -70,16 +70,27 @@ void Commands_configureST4Speed(byte mode) {
         cmd.st4DecIVal      = cmd.normalGotoSpeed[DC];
     } else if (mode == CMD_ST4_STANDALONE) {
         //Set the ST4 speeds to standalone mode (2x around sidereal speed)
-        cmd.st4RAIVal[ST4P] =(cmd.siderealIVal[RA])/3; //3x speed
-        cmd.st4RAIVal[ST4N] =(cmd.siderealIVal[RA])  ; //-1x speed
+        cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA])/3; //3x speed
+        cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA])  ; //-1x speed
         cmd.st4RAReverse    = CMD_REVERSE;
-        cmd.st4DecIVal      =(cmd.siderealIVal[DC])/2; //2x speed
+        cmd.st4DecIVal      = (cmd.siderealIVal[DC])/2; //2x speed
+    } else if (mode == CMD_ST4_EQMOD) {
+        byte speedFactors[CMD_ST4_EQMOD_COUNT] = {8,6,4,2,1};
+        if (speed >= CMD_ST4_EQMOD_COUNT) return;
+        //Set the ST4 speeds to eqmod mode (0.125x increments around sidereal speed)
+        if (target == RA) {
+            cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA] * 8)/(8 + speedFactors[speed]); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
+            cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA] * 8)/(8 - speedFactors[speed]); //(1-SpeedFactor)x speed
+            cmd.st4RAReverse    = CMD_FORWARD;
+        } else if (target == DC) {        
+            cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 8)/(0 + speedFactors[speed]); //(SpeedFactor)x speed
+        }        
     } else {
-        //Set the ST4 speeds to normal mode (0.25x around sidereal speed)
-        cmd.st4RAIVal[ST4P] =(cmd.siderealIVal[RA] * 20)/(20 + cmd.st4SpeedFactor); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
-        cmd.st4RAIVal[ST4N] =(cmd.siderealIVal[RA] * 20)/(20 - cmd.st4SpeedFactor); //(1-SpeedFactor)x speed
+        //Set the ST4 speeds to normal mode (0.05x increments around sidereal speed)
+        cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA] * 20)/(20 + cmd.st4SpeedFactor); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
+        cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA] * 20)/(20 - cmd.st4SpeedFactor); //(1-SpeedFactor)x speed
         cmd.st4RAReverse    = CMD_FORWARD;
-        cmd.st4DecIVal      =(cmd.siderealIVal[DC] * 20)/( 0 + cmd.st4SpeedFactor); //(SpeedFactor)x speed
+        cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 20)/( 0 + cmd.st4SpeedFactor); //(SpeedFactor)x speed
     }
 }
 

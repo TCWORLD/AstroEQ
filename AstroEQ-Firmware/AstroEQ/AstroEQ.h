@@ -150,7 +150,18 @@ typedef enum __attribute__((packed)){
     CMD_ST4_DEFAULT = 0,
     CMD_ST4_STANDALONE,
     CMD_ST4_HIGHSPEED,
+    CMD_ST4_EQMOD
 } ST4SpeedMode;
+
+typedef enum __attribute__((packed)){
+    CMD_ST4_EQMOD_1X = 0,
+    CMD_ST4_EQMOD_p75X,
+    CMD_ST4_EQMOD_p5X,
+    CMD_ST4_EQMOD_p25X,
+    CMD_ST4_EQMOD_p125X,
+    CMD_ST4_EQMOD_COUNT
+} ST4EqmodSpeed;
+
 typedef enum __attribute__((packed)) {
     EQMOD_MODE = 0,
     BASIC_HC_MODE,

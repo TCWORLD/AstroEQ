@@ -784,7 +784,7 @@ int main(void) {
                     setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR)));
                     
                     
-                    Commands_configureST4Speed(CMD_ST4_DEFAULT); //Change the ST4 speeds to default
+                    Commands_configureST4Speed(CMD_ST4_DEFAULT, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds to default
                     
                     cmd.highSpeedMode[RA] = false;
                     cmd.highSpeedMode[DC] = false;
@@ -1014,7 +1014,7 @@ int main(void) {
                 ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();
                 if (newBasicHCSpeed != cmd.st4Mode) {
                     //Only update speed if changed.
-                    Commands_configureST4Speed(newBasicHCSpeed); //Change the ST4 speeds
+                    Commands_configureST4Speed(newBasicHCSpeed, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds
                     byte state;
                     if (canJumpToHighspeed && (newBasicHCSpeed == CMD_ST4_HIGHSPEED)) {
                         //If we can jump to high torque mode, and we are requesting Go-To s
@@ -1233,6 +1233,9 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 command = '\0'; //force sending of error packet!.
                 responseData = SYNTA_ERROR_NOTINIT;
             }
+            break;
+        case 'P': //Set auto-guide speed
+            Commands_configureST4Speed(CMD_ST4_EQMOD, axis, (ST4EqmodSpeed)(buffer[0] - '0'));
             break;
         case 'V': //Set the polarscope LED brightness
             polarscopeDutyRegister(synta_hexToByte(buffer));
