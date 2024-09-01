@@ -31,7 +31,7 @@ static const char endChar = '\r';
 
 static void nibbleToHex(char* hex, byte nibble) {
     nibble &= 0xF;
-    if (nibble > 9) *hex = nibble + 'A';
+    if (nibble > 9) *hex = nibble + 'A' - 10;
     else *hex = nibble + '0';
 }
 
@@ -138,7 +138,7 @@ error:
 
 static inline byte hexToNibble(char hex) {
     if (hex > '9'){
-        return (hex - 'A') & 0xF; //even if hex is lower case (e.g. 'a'), the lower nibble will have the correct value as (('a'-'A')&0x0F) = 0.
+        return (hex - 'A' + 10) & 0xF; //even if hex is lower case (e.g. 'a'), the lower nibble will have the correct value as (('a'-'A')&0x0F) = 0.
     } else {
         return (hex - '0') & 0xF; //as we are keeping the lower nibble, the -'0' gets optimised away.
     }
