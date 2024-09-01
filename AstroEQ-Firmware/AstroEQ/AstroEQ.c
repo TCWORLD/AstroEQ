@@ -1456,6 +1456,9 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                     default: //Return empty response (deals with commands that don't do anything before the response sent (i.e 'J', 'R'), or do nothing at all (e.g. 'M') )
                         break;
                 }
+            } else {
+                command = '\0'; //force sending of an error packet as commands not available
+                responseData = SYNTA_ERROR_UNKNOWNCMD;
             }
             break;
     }

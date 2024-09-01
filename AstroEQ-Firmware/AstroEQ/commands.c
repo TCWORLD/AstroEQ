@@ -143,7 +143,7 @@ const char cmd_commands[numberOfCommands][3] = { {'j', CMD_LEN_SAME(0),   CMD_LE
                                                  {'r', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
                                                  {'Q', CMD_LEN_DIFF(4,2), CMD_LEN_SAME(0)  },
                                                  {'o', CMD_LEN_SAME(0),   CMD_LEN_SAME(2)  },
-                                                 {'X', CMD_LEN_SAME(6),   CMD_LEN_SAME(0)  },
+                                                 {'X', CMD_LEN_DIFF(4,6), CMD_LEN_SAME(0)  },
                                                  {'x', CMD_LEN_SAME(0),   CMD_LEN_SAME(6)  },
                                                  {'Y', CMD_LEN_SAME(2),   CMD_LEN_SAME(0)  },
                                                  {'T', CMD_LEN_SAME(1),   CMD_LEN_SAME(0)  }
