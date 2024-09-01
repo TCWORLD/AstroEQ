@@ -11,8 +11,8 @@ typedef enum __attribute__((packed)){
 } MotorDir;
 
 typedef enum __attribute__((packed)){
-    CMD_STOPPED,
-    CMD_RUNNING
+    CMD_RUNNING,
+    CMD_STOPPED
 } MotorRunning;
 
 typedef enum  __attribute__((packed)){
@@ -119,7 +119,7 @@ inline unsigned int cmd_fVal(MotorAxis target){ //_fVal: 0hds00er000f; h=high sp
     if (cmd.estop == CMD_EMERGENCY) {
         fVal |= (1 <<  5);
     }
-    if (cmd.stopped[target] == CMD_STOPPED) {
+    if (cmd.stopped[target] != CMD_STOPPED) {
         fVal |= (1 <<  4);
     }
     if (cmd.FVal[target] == CMD_ENABLED){

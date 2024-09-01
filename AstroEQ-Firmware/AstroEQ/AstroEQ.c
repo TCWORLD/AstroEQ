@@ -1597,7 +1597,7 @@ void motorStartRA(){
     } else {
         stoppingSpeed = cmd.minSpeed[RA];
     }
-    if(cmd.stopped[RA]) {
+    if(cmd.stopped[RA] == CMD_STOPPED) {
         startSpeed = stoppingSpeed;
     } else if (currentIVal < cmd.minSpeed[RA]) {
         startSpeed = currentIVal;
@@ -1611,7 +1611,7 @@ void motorStartRA(){
     cmd.stopSpeed[RA] = stoppingSpeed;
     setPinValue(dirPin[RA],(encodeDirection[RA] != cmd.dir[RA]));
     
-    if(cmd.stopped[RA]) { //if stopped, configure timers
+    if(cmd.stopped[RA] == CMD_STOPPED) { //if stopped, configure timers
         irqToNextStep(RA, 1);
         accelTableRepeatsLeft[RA] = cmd.accelTable[RA][0].repeats; //If we are stopped, we must do the required number of repeats for the first entry in the speed table.
         accelTableIndex[RA] = 0;
@@ -1638,7 +1638,7 @@ void motorStartDC(){
     } else {
         stoppingSpeed = cmd.minSpeed[DC];
     }
-    if(cmd.stopped[DC]) {
+    if(cmd.stopped[DC] == CMD_STOPPED) {
         startSpeed = stoppingSpeed;
     } else if (currentIVal < cmd.minSpeed[DC]) {
         startSpeed = currentIVal;
@@ -1652,7 +1652,7 @@ void motorStartDC(){
     cmd.stopSpeed[DC] = stoppingSpeed;
     setPinValue(dirPin[DC],(encodeDirection[DC] != cmd.dir[DC]));
     
-    if(cmd.stopped[DC]) { //if stopped, configure timers
+    if(cmd.stopped[DC] == CMD_STOPPED) { //if stopped, configure timers
         irqToNextStep(DC, 1);
         accelTableRepeatsLeft[DC] = cmd.accelTable[DC][0].repeats; //If we are stopped, we must do the required number of repeats for the first entry in the speed table.
         accelTableIndex[DC] = 0;
@@ -1683,7 +1683,7 @@ void motorStopRA(bool emergency){
         cmd_setGVal(RA,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
         readyToGo[RA] = MOTION_START_NOTREADY;
         clearGotoRunning(RA);
-    } else if (!cmd.stopped[RA]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
+    } else if (cmd.stopped[RA] != CMD_STOPPED){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based deceleration
         //readyToGo[RA] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
@@ -1716,7 +1716,7 @@ void motorStopDC(bool emergency){
         cmd_setGVal(DC,CMD_GVAL_LOWSPEED_SLEW); //Switch back to slew mode
         readyToGo[DC] = MOTION_START_NOTREADY;
         clearGotoRunning(DC);
-    } else if (!cmd.stopped[DC]){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
+    } else if (cmd.stopped[DC] != CMD_STOPPED){  //Only stop if not already stopped - for some reason EQMOD stops both axis when slewing, even if one isn't currently moving?
         //trigger ISR based deceleration
         //readyToGo[DC] = MOTION_START_NOTREADY;
         byte oldSREG = SREG;
