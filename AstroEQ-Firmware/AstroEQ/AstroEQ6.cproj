@@ -108,62 +108,9 @@
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
     </ToolchainSettings>
-    <PostBuildEvent>&lt;!-- : Begin batch script
-@echo off
-
-set /p vernum=&lt; $(SolutionDir)VerNum.txt
-
-xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-DIYBoard(includingKits).hex* /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-DIYBoard(includingKits) %vernum% "AstroEQ V4-DIY Board (including DIY)" "atmega162" "arduino" "57600"
-
-xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQV4-EQ5Board.hex  /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQV4-EQ5Board %vernum% "AstroEQ V4-EQ5 Board" "atmega162" "arduino" "57600"
-
-exit /b
-
------ Begin wsf script ---&gt;
-&lt;job&gt;&lt;script language="VBScript"&gt;
-Const ForReading = 1
-Const ForWriting = 2
-
-strFileName = Wscript.Arguments(0)
-FirmwareName = Wscript.Arguments(1)
-NewVersion = Wscript.Arguments(2)
-FirmwareCommonName = Wscript.Arguments(3)
-CPUName = Wscript.Arguments(4)
-BootloaderName = Wscript.Arguments(5)
-BaudRate = Wscript.Arguments(6)
-
-Set objFSO = CreateObject("Scripting.FileSystemObject")
-Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
-strText = objFile.ReadAll
-objFile.Close
-
-Set re = new regexp
-re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
-ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion &amp; VBTab &amp; FirmwareCommonName &amp; VBTab &amp; CPUName &amp; VBTab &amp; BootloaderName &amp; VBTab &amp; BaudRate
-
-If re.Test(strText) Then
-    strNewText = re.Replace(strText, ReplaceText)
-Else
-    strNewText = Trim(strText) &amp; ReplaceText &amp; VBCrLf 
-End If
-
-Set objFile = objFSO.OpenTextFile(strFileName, ForWriting)
-objFile.Write strNewText
-objFile.Close
-&lt;/script&gt;&lt;/job&gt;</PostBuildEvent>
-    <PreBuildEvent>&lt;!-- : Begin batch script
-@echo off
-
-set /p vernum=&lt; $(SolutionDir)VerNum.txt
-
-echo "%vernum%" &gt; $(SolutionDir)VerNumStr.txt
-echo //AUTO GENERATED - DO NOT MODIFY &gt;&gt; $(SolutionDir)VerNumStr.txt
-
-exit /b
-
------ End Batch ---&gt;</PreBuildEvent>
+    <PostBuildEvent>start /wait /D "$(SolutionDir)AstroEQ\" PostBuild.bat "$(SolutionDir)" "$(OutputDirectory)" "$(OutputFileName)" "AstroEQV4-DIYBoard(includingKits)" "AstroEQ V4-DIY Board (including DIY)" atmega162 arduino 57600
+start /wait /D "$(SolutionDir)AstroEQ\" PostBuild.bat "$(SolutionDir)" "$(OutputDirectory)" "$(OutputFileName)" "AstroEQV4-EQ5Board" "AstroEQ V4-EQ5 Board" atmega162 arduino 57600</PostBuildEvent>
+    <PreBuildEvent>start /wait /D "$(SolutionDir)AstroEQ\" PreBuild.bat "$(SolutionDir)"</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AstroEQ.c">
@@ -205,6 +152,14 @@ exit /b
     <Compile Include="UnionHelpers.h">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PostBuild.bat">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="PreBuild.bat">
+      <SubType>compile</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

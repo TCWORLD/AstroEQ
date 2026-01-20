@@ -109,59 +109,8 @@
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
     </ToolchainSettings>
-    <PostBuildEvent>&lt;!-- : Begin batch script
-@echo off
-
-set /p vernum=&lt; $(SolutionDir)VerNum.txt
-
-xcopy $(OutputDirectory)\$(OutputFileName).hex $(SolutionDir)..\AstroEQ-ConfigUtility\hex\AstroEQRamps14Mega2560.hex* /Y
-cscript //nologo "%~f0?.wsf" $(SolutionDir)..\AstroEQ-ConfigUtility\hex\versions.txt AstroEQRamps14Mega2560 %vernum% "AstroEQ Ramps 1.4 w/ Mega 2560" "atmega2560" "wiring" "115200"
-
-exit /b
-
------ Begin wsf script ---&gt;
-&lt;job&gt;&lt;script language="VBScript"&gt;
-Const ForReading = 1
-Const ForWriting = 2
-
-strFileName = Wscript.Arguments(0)
-FirmwareName = Wscript.Arguments(1)
-NewVersion = Wscript.Arguments(2)
-FirmwareCommonName = Wscript.Arguments(3)
-CPUName = Wscript.Arguments(4)
-BootloaderName = Wscript.Arguments(5)
-BaudRate = Wscript.Arguments(6)
-
-Set objFSO = CreateObject("Scripting.FileSystemObject")
-Set objFile = objFSO.OpenTextFile(strFileName, ForReading)
-strText = objFile.ReadAll
-objFile.Close
-
-Set re = new regexp
-re.Pattern = Replace(Replace(FirmwareName &amp; ".*", "(", "\("), ")", "\)")
-ReplaceText = FirmwareName &amp; VBTab &amp; NewVersion &amp; VBTab &amp; FirmwareCommonName &amp; VBTab &amp; CPUName &amp; VBTab &amp; BootloaderName &amp; VBTab &amp; BaudRate
-
-If re.Test(strText) Then
-    strNewText = re.Replace(strText, ReplaceText)
-Else
-    strNewText = Trim(strText) &amp; ReplaceText &amp; VBCrLf 
-End If
-
-Set objFile = objFSO.OpenTextFile(strFileName, ForWriting)
-objFile.Write strNewText
-objFile.Close
-&lt;/script&gt;&lt;/job&gt;</PostBuildEvent>
-    <PreBuildEvent>&lt;!-- : Begin batch script
-@echo off
-
-set /p vernum=&lt; $(SolutionDir)VerNum.txt
-
-echo "%vernum%" &gt; $(SolutionDir)VerNumStr.txt
-echo //AUTO GENERATED - DO NOT MODIFY &gt;&gt; $(SolutionDir)VerNumStr.txt
-
-exit /b
-
------ End Batch ---&gt;</PreBuildEvent>
+    <PostBuildEvent>start /wait /D "$(SolutionDir)AstroEQ\" PostBuild.bat "$(SolutionDir)" "$(OutputDirectory)" "$(OutputFileName)" "AstroEQRamps14Mega2560" "AstroEQ Ramps 1.4 w/ Mega 2560" atmega2560 wiring 115200</PostBuildEvent>
+    <PreBuildEvent>start /wait /D "$(SolutionDir)AstroEQ\" PreBuild.bat "$(SolutionDir)"</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AstroEQ.c">
