@@ -375,9 +375,15 @@ void systemInitialiser(){
     setPinValue(estopPin, HIGH); //enable pull-up to pull E-stop pin high.
     #endif
 
-    //Standalone Speed/IRQ pin to input no-pull-up
+    //Standalone Speed/IRQ pin to input pull-up
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
-    setPinValue(standalonePin[  STANDALONE_IRQ],  HIGH); //enable pull-up to pull IRQ high.
+    setPinValue(standalonePin[  STANDALONE_IRQ],  HIGH);
+
+#ifdef TARGET_SPEED_GPIO_PIN
+    //Standalone tracking rate pin to input pull-up
+    setPinDir  (standalonePin[  STANDALONE_TGT], INPUT);
+    setPinValue(standalonePin[  STANDALONE_TGT],  HIGH);
+#endif
 
     //Standalone Pull-up/Pull-down pin to output high
     setPinDir  (standalonePin[ STANDALONE_PULL],OUTPUT);

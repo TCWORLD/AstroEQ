@@ -189,6 +189,7 @@ typedef enum __attribute__((packed)){
 
 #define STANDALONE_IRQ   0
 #define STANDALONE_PULL  1
+#define STANDALONE_TGT   2
 
 typedef struct {
     unsigned int speed;
@@ -198,8 +199,12 @@ typedef struct {
 /*
  * Declare constant arrays of pin numbers
  */
- 
-static const byte standalonePin[2] = {gpioPin_0_Define,gpioPin_2_Define};
+#ifndef gpioPin_3_Define
+#define gpioPin_3_Define 255
+#else
+#define TARGET_SPEED_GPIO_PIN
+#endif
+static const byte standalonePin[3] = {gpioPin_0_Define,gpioPin_2_Define,gpioPin_3_Define};
 static const byte snapPin = gpioPin_1_Define;
 static const byte pwmPin = pwmPin_Define;
 #ifdef statusPinShadow_Define
