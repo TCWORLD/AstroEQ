@@ -645,26 +645,14 @@ CommsMode standaloneModeTest() {
 }
 
 
-ST4SpeedMode checkBasicHCSpeed() {
-    //Here we check what the speed is for the basic hand controller.
-    //
-    //By using both external and internal pull-ups, the following three speeds are possible:
-    // +-----------+-----+-----+
-    // |  Pull-Up: | Ext | Int |
-    // +-----------+-----+-----+
-    // | ST-4 Rate |  0  |  0  |
-    // |   2x Rate |  1  |  0  |
-    // | GoTo Rate |  1  |  1  |
-    // +-----------+-----+-----+
-    //
-    //Note: if we don't have an external pull-up resistor, this function will return either ST-4 Rate (0,0) or GoTo Rate (1,1)
-    //
-    ST4SpeedMode speed;
-    if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
-        //Must be a ST-4 rate as IRQ pin is low when external pull-up enabled
-        speed = CMD_ST4_DEFAULT;
+static int8_t checkTernaryPinState(byte ioPin) {
+    int8_t retVal;
+    if(!getPinValue(ioPin)) {
+        // Pin pulled low even though external pull-up resistor is trying to drive high
+        // Ext 0, Int x
+        retVal = 0;
     } else {
-        //Otherwise check which high-speed mode it is
+        // Otherwise check whether a weak or no external pull-down.
         setPinValue(standalonePin[STANDALONE_PULL],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
         for (byte i = 10; i > 0; i--) {
             nop(); //Short delay to drain capacitance.
@@ -673,15 +661,66 @@ ST4SpeedMode checkBasicHCSpeed() {
         for (byte i = 200; i > 0; i--) {
             nop(); //Short delay to allow line to rebound.
         }
-        if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
-            //Must be a 2x rate as IRQ pin goes low when external pull-up disabled
-            speed = CMD_ST4_STANDALONE;
+        if(!getPinValue(ioPin)) {
+            // Low value with internal pull-up means external pull-down resistor.
+            // Ext 1, Int 0
+            retVal = 1;
         } else {
-            speed = CMD_ST4_HIGHSPEED;
+            // High value with internal pull-up means pin floating.
+            // Ext 1, Int 1
+            retVal = -1;
         }
     }
-    setPinDir  (standalonePin[STANDALONE_PULL],OUTPUT); //Ensure we leave an external pull-up of IRQ.
+    //Ensure we leave an external pull-up of IRQ.
+    setPinDir  (standalonePin[STANDALONE_PULL],OUTPUT);
     setPinValue(standalonePin[STANDALONE_PULL],HIGH);
+    return retVal;
+}
+
+ST4SpeedMode checkBasicHCSpeed() {
+    //Here we check what the speed is for the basic hand controller.
+    //
+    //By using both external and internal pull-ups, the following three speeds are possible:
+    //
+    //  - Default Speed Select
+    //     +-----------+-----+-----+
+    //     |  Pull-Up: | Int | Ext |
+    //     +-----------+-----+-----+
+    //     | ST-4 Rate |  0  |  0  |
+    //     |   2x Rate |  0  |  1  |
+    //     | GoTo Rate |  1  |  1  |
+    //     +-----------+-----+-----+
+    //
+    //  - Tracking Speed Select (only used if ST-4 Rate selected)
+    //
+    //     +-----------+-----+-----+
+    //     |  Pull-Up: | Int | Ext |
+    //     +-----------+-----+-----+
+    //     |     Lunar |  0  |  0  |
+    //     |     Solar |  0  |  1  |
+    //     |  Sidereal |  1  |  1  |
+    //     +-----------+-----+-----+
+    //
+    //Note: if we don't have an external pull-up resistor, this function will return either ST-4 Rate (0,0) or GoTo Rate (1,1)
+    //
+    
+    // Read speed selection
+    ST4SpeedMode speed;
+    int8_t hcPinState = checkTernaryPinState(standalonePin[STANDALONE_IRQ]);
+    speed = !hcPinState      ? CMD_ST4_DEFAULT    : // ST-4 rate if strongly pulled down
+            (hcPinState > 0) ? CMD_ST4_STANDALONE : // 2x rate if weakly pulled down
+                               CMD_ST4_HIGHSPEED;   // Go-To rate if floating.
+                               
+#ifdef TARGET_SPEED_GPIO_PIN
+    if (!hcPinState) {
+        // If we have a target speed control pin, and currently ST4 speed, select tracking target
+        hcPinState = checkTernaryPinState(standalonePin[STANDALONE_TGT]);
+        speed = !hcPinState      ? CMD_ST4_LUNAR    : // Lunar rate
+                (hcPinState > 0) ? CMD_ST4_SOLAR    : // Solar rate
+                                   CMD_ST4_DEFAULT;   // Sidereal rate otherwise.
+    }
+#endif
+    
     //And return the new speed
     return speed;
 }
@@ -1278,10 +1317,10 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         case 'O': //Control GPIO1 or Programming Mode
             if (axis == RA) {
                 if (progMode != RUNMODE) {
-                    //:O command for RA in programming mode configures polarity of 
+                    //:O command for RA in programming mode configures output mode for snap pin 
                     snapPinIsOpenDrain = buffer[0] - '0';
                 } else {
-                    //:O commands to the DC axis control GPIO1 (SNAP2 port)
+                    //:O commands to the RA axis in run mode control GPIO1 (SNAP2 port)
                     if (snapPinIsOpenDrain) {
                         //If open drain, we leave the pin value low
                         setPinValue(snapPin,LOW);
