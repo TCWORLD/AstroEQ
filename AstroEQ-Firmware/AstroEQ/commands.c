@@ -60,10 +60,28 @@ void Commands_init(unsigned long _eVal, byte _gVal){
     Commands_configureST4Speed(CMD_ST4_DEFAULT, AXIS_COUNT, CMD_ST4_EQMOD_COUNT);
 }
 
+
+// Sidereal day is 23hr 56min 4.0905 sec = 86164.0905 seconds
+// Solar day is 24hr = 86400 seconds
+// Lunar day is 24hr 50min = 89400 seconds
+//
+// To convert from sidereal IVal to Solar IVal, need to multiply by 86400 / 86164.0905
+// To convert from sidereal IVal to Lunar IVal, need to multiply by 89400 / 86164.0905
+//
+// IVal is 16bit integer. We can do fixed point math by using Q16.16 in a 32bit integer as:
+//    IVal(target) = (IVal * round(conversion factor * 65536)) / 65536
+//
+// This should give a reasonable precision (<10ppm). Factors are:
+//    Solar = round((86400 / 86164.0905) * 65536) = 65715 [.43165...]
+//    Lunar = round((89400 / 86164.0905) * 65536) = 67997 [.21747...]
+//
+#define CMD_IVal_SiderealToSolar(IVal) (int)(((uint32_t)IVal * 65715UL) >> 16)
+#define CMD_IVal_SiderealToLunar(IVal) (int)(((uint32_t)IVal * 67997UL) >> 16)
+
 void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpeed speed) {
     cmd.st4Mode = mode;
     if (mode == CMD_ST4_HIGHSPEED) {
-        //Set the ST4 speeds to highspeed standalone mode (goto speeds)
+        //Set the ST4 speeds to high-speed standalone mode (goto speeds)
         cmd.st4RAIVal[ST4P] = cmd.normalGotoSpeed[RA];
         cmd.st4RAIVal[ST4N] = cmd.normalGotoSpeed[RA];
         cmd.st4RAReverse    = CMD_REVERSE;
@@ -86,13 +104,26 @@ void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpe
             cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 8)/(0 + speedFactors[speed]); //(SpeedFactor)x speed
         }        
     } else {
-        //Set the ST4 speeds to normal mode (0.05x increments around sidereal speed)
-        cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA] * 20)/(20 + cmd.st4SpeedFactor); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
-        cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA] * 20)/(20 - cmd.st4SpeedFactor); //(1-SpeedFactor)x speed
+        int raBaseIVal = cmd.siderealIVal[RA];
+        int dcBaseIVal = cmd.siderealIVal[DC];
+        if (mode == CMD_ST4_SOLAR) {
+            // Convert sidereal base to solar speeds
+            raBaseIVal = CMD_IVal_SiderealToSolar(raBaseIVal);
+            dcBaseIVal = CMD_IVal_SiderealToSolar(dcBaseIVal);
+        } else if (mode == CMD_ST4_LUNAR) {
+            // Convert sidereal base to lunar speeds
+            raBaseIVal = CMD_IVal_SiderealToLunar(raBaseIVal);
+            dcBaseIVal = CMD_IVal_SiderealToLunar(dcBaseIVal);
+        }
+        //Set the ST4 speeds to normal mode (0.05x increments around base speed)
+        cmd.st4RAIVal[ST4P] = (raBaseIVal * 20)/(20 + cmd.st4SpeedFactor); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
+        cmd.st4RAIVal[ST4N] = (raBaseIVal * 20)/(20 - cmd.st4SpeedFactor); //(1-SpeedFactor)x speed
         cmd.st4RAReverse    = CMD_FORWARD;
-        cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 20)/( 0 + cmd.st4SpeedFactor); //(SpeedFactor)x speed
+        cmd.st4DecIVal      = (dcBaseIVal * 20)/( 0 + cmd.st4SpeedFactor); //(SpeedFactor)x speed
     }
 }
+
+
 
 // Note: The protocol was changed after I added programming commands, so some of the
 // commands used in programming mode are also used in run mode for different things.
