@@ -135,7 +135,7 @@
                              //VCC (Header Pin 5)
 #define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - GPIO Pin
 #define gpioPin_1_Define 29  //IO1 (Header Pin 3) [ATMega PE1] - GPIO Pin
-#define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin
+#define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin - connected via 1k resistor to IO0
                              //GND (Header Pin 1)
 #define gpioPin_3_Define 12  //IO3 (Prog Header Pin 1) [ATMega PB6] - Input Pin
 
@@ -188,7 +188,7 @@
                              //VCC (Header Pin 5)
 #define gpioPin_0_Define 21  //IO0 (Header Pin 4) [ATMega PD0] - GPIO Pin
 #define gpioPin_1_Define 22  //IO1 (Header Pin 3) [ATMega PA0] - GPIO Pin
-#define gpioPin_2_Define 23  //IO2 (Header Pin 2) [ATMega PA1] - GPIO Pin
+#define gpioPin_2_Define 23  //IO2 (Header Pin 2) [ATMega PA1] - GPIO Pin - connected via 1k resistor to IO0
                              //GND (Header Pin 1)
 #define gpioPin_3_Define 25  //IO3 [ATMega PA3] - Input Pin
 
