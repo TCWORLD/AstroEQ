@@ -864,7 +864,7 @@ int main(void) {
                     cmd_updateStepDir(RA ,1);
                     cmd_setDir       (DC, CMD_FORWARD); //Store the current direction for that axis
                     cmd_updateStepDir(RA,1);
-                    cmd_setIVal      (RA, cmd.siderealIVal[RA]); //Set RA speed to sidereal
+                    cmd_setIVal      (RA, cmd.st4RATrackIVal); //Set RA speed to normal tracking speed
                     
                     readyToGo[RA] = MOTION_START_REQUESTED; //Signal we are ready to go on the RA axis to start sidereal tracking
                     
@@ -937,7 +937,7 @@ int main(void) {
                         }
                         else if (isST4Move[RA]) { 
                             //Only return to sidereal speed if we are in an ST4 move.
-                            cmd_setIVal(RA,cmd.siderealIVal[RA]);
+                            cmd_setIVal(RA,cmd.st4RATrackIVal);
                             motorStartRA();
                             isST4Move[RA] = false; //No longer ST4 movement
                         }
@@ -957,7 +957,7 @@ int main(void) {
                     if ((cmd.stopped[DC] != CMD_STOPPED) && (cmd.dir[DC] != dir)) {
                         //If we are currently moving in the wrong direction
                         motorStopDC(STOPNORMAL); //Stop the Dec motor
-                        readyToGo[DC] = MOTION_START_NOTREADY;    //No longer ready to go as we have now deleted any pre-running EQMOD movement.
+                        readyToGo[DC] = MOTION_START_NOTREADY;    //No longer ready to go as we have now deleted any prior running EQMOD movement.
                         //We don't keep track of last ST4 pin here so that if we were requesting a movement but had to stop
                         //first we can come back in over and over until we have started the movement.
                     } else {
@@ -1139,7 +1139,7 @@ int main(void) {
                         //Otherwise we are now free to change to the new required speed
                         // - If no RA button is pressed, go at sidereal rate
                         // - Otherwise go at rate corresponding with the pressed button
-                        cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.siderealIVal[RA] : cmd.st4RAIVal[(byte)st4Pin]);
+                        cmd_setIVal(RA, (st4Pin == ST4O) ? cmd.st4RATrackIVal : cmd.st4RAIVal[(byte)st4Pin]);
                         cmd_setDir(RA,dir);
                         cmd_updateStepDir(RA,cmd.highSpeedMode[RA] ? cmd.gVal[RA] : 1);
                         if ((st4Pin == ST4O) && (cmd.st4Mode == CMD_ST4_HIGHSPEED)) {
@@ -1309,7 +1309,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
         case 'P': //Set auto-guide speed
             Commands_configureST4Speed(CMD_ST4_EQMOD, axis, (ST4EqmodSpeed)(buffer[0] - '0'));
             break;
-        case 'V': //Set the polarscope LED brightness
+        case 'V': //Set the polar scope LED brightness
             polarscopeDutyRegister(synta_hexToByte(buffer));
             break;
         case 'q': //Extended capabilities in run mode. Returns the disableGearChange/allowAdvancedHCDetection setting in prog mode
