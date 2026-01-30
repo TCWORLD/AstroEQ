@@ -71,6 +71,7 @@ typedef struct{
     ST4SpeedMode     st4Mode;            //Current ST-4 mode
     byte             st4SpeedFactor;     //Multiplication factor to get st4 speed. min = 1 = 0.05x, max = 19 = 0.95x.
     EmergencyStop    estop;
+    unsigned int     st4RATrackIVal;     //_IVal: for RA ST4 tracking. Accounts for e.g. solar/lunar tracking modes
     unsigned int     st4RAIVal      [2]; //_IVal: for RA ST4 movements ({RA+,RA-});
     unsigned int     st4DecIVal;         //_IVal: for declination ST4 movements
     unsigned int     st4DecBacklash;     //Number of steps to perform on ST-4 direction change ---- Not yet implemented.
