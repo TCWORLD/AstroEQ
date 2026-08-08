@@ -48,3 +48,11 @@ $RECYCLE.BIN/
 # Mac crap
 .DS_Store
 
+#############
+## Eagle PCB
+#############
+
+# Eagle Backups
+*.b#*
+*.s#*
+*.l#*

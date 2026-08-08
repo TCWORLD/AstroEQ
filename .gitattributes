@@ -7,10 +7,7 @@
 *.jpg binary
 *.hex binary
 *.zip binary
-*.sch binary
-*.brd binary
 *.epf binary
-*.lbr binary
 *.deb binary
 
 # Language detection
@@ -19,3 +16,12 @@
 *.hex linguist-vendored=false
 AstroEQ-PIC-Firmware/* linguist-vendored=false
 AstroEQ-ConfigUtility/* linguist-vendored=false
+
+# Custom for Eagle
+*.brd linguist-language=Eagle
+*.sch linguist-language=Eagle
+*.lbr linguist-language=Eagle
+
+*.brd linguist-detectable
+*.sch linguist-detectable
+*.lbr linguist-detectable
