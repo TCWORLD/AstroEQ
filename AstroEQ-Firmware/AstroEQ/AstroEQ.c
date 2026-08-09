@@ -1286,6 +1286,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
                 readyToGo[axis] = MOTION_START_NOTREADY;
             }
             break;
+        case 'M': //Go-To midpoint is unused. But ensure it is a recognized command.
         case 'J': //Start operation. Will be handled after response sent, but ensure it is a recognized command.
             if (progMode != RUNMODE) { //only allow movements to be initiated outside of programming mode.
                 command = '\0'; //force sending of error packet!.
