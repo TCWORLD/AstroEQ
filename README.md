@@ -20,7 +20,7 @@ The AstroEQ code contains a custom developed protocol decoder which uses the sam
 The current software and hardware versions are as follows:
 
  * Config Utility Version: **3.9.3**
- * Firmware Verison: **8.24**
+ * Firmware Verison: **8.25**
  * Hardware Version: **4.6/4.7 - see note below**
 
 The AstroEQ configuration utility and precompiled firmware can be downloaded from either the Downloads folder, or the AstroEQ website at: https://astroeq.co.uk/download
