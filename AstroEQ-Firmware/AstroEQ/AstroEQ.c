@@ -360,35 +360,40 @@ void systemInitialiser(){
         calculateRate(DC); //Initialise the interrupt speed table. This now only has to be done once at the beginning.
         calculateDecelerationLength(RA);
         calculateDecelerationLength(DC);
-    }    
-    //Status pin to output low
+    }
+    
+    //Status pin to output
     setPinDir  (statusPin,OUTPUT);
     setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
-    #ifdef statusPinShadow_Define
+#ifdef STATUS_SHADOW_GPIO_PIN
     setPinDir  (statusPinShdw,OUTPUT);
     setPinValue(statusPinShdw, (progMode == PROGMODE) ? HIGH : LOW);
-    #endif
+#endif
 
     //Emergency-Stop pin to input pull-up
-    #ifdef estopPin_Define
+#ifdef ESTOP_GPIO_PIN
     setPinDir  (estopPin,INPUT);
     setPinValue(estopPin, HIGH); //enable pull-up to pull E-stop pin high.
-    #endif
+#endif
 
     //Standalone Speed/IRQ pin to input pull-up
     setPinDir  (standalonePin[  STANDALONE_IRQ], INPUT);
     setPinValue(standalonePin[  STANDALONE_IRQ],  HIGH);
 
-#ifdef TARGET_SPEED_GPIO_PIN
-    //Standalone tracking rate pin to input pull-up
+    //Standalone Speed/IRQ control resistor pin to output high
+    setPinDir  (standalonePin[ STANDALONE_RIRQ],OUTPUT);
+    setPinValue(standalonePin[ STANDALONE_RIRQ],  HIGH);
+
+#ifdef TARGET_SELECT_GPIO_PIN
+    //Standalone celestial target pin to input pull-up
     setPinDir  (standalonePin[  STANDALONE_TGT], INPUT);
     setPinValue(standalonePin[  STANDALONE_TGT],  HIGH);
+    
+    //Standalone celestial target control resistor pin output high
+    setPinDir  (standalonePin[ STANDALONE_RTGT],OUTPUT);
+    setPinValue(standalonePin[ STANDALONE_RTGT],  HIGH);
 #endif
 
-    //Standalone Pull-up/Pull-down pin to output high
-    setPinDir  (standalonePin[ STANDALONE_PULL],OUTPUT);
-    setPinValue(standalonePin[ STANDALONE_PULL],  HIGH);
-    
     //ST4 pins to input with pull-up
     setPinDir  (st4Pins[RA][ST4P],INPUT);
     setPinValue(st4Pins[RA][ST4P],HIGH );
@@ -619,7 +624,7 @@ CommsMode standaloneModeTest() {
     //Otherwise if pin follows us then it must be floating.
 
     //To start we check for an advanced controller
-    setPinValue(standalonePin[STANDALONE_PULL],LOW); //Pull low
+    setPinValue(standalonePin[STANDALONE_RIRQ],LOW); //Pull low
     nop(); // Input synchronizer takes a couple of cycles
     nop();
     nop();
@@ -629,7 +634,7 @@ CommsMode standaloneModeTest() {
         return ADVANCED_HC_MODE;
     }
     //Otherwise we check for a basic controller
-    setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Convert to external pull-up of IRQ
+    setPinValue(standalonePin[STANDALONE_RIRQ],HIGH); //Convert to external pull-up of IRQ
     nop(); // Input synchronizer takes a couple of cycles
     nop();
     nop();
@@ -644,103 +649,163 @@ CommsMode standaloneModeTest() {
     return EQMOD_MODE;
 }
 
+typedef enum __attribute__((packed)) {
+    RATE_GOTO   = -1,
+    RATE_TRACK  = 0,
+    RATE_2X_TRK = 1
+} hc_speed_t;
 
-static int8_t checkTernarySpeedPinState() {
-    int8_t hcPinState;
+typedef enum __attribute__((packed)) {
+    TARGET_SOLAR    = -1,
+    TARGET_SIDEREAL = 0,
+    TARGET_LUNAR    = 1
+} hc_target_t;
+
+
+static hc_speed_t checkTernarySpeedPinState() {
+    hc_speed_t hcPinState;
     if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
-        // Pin pulled low even though external pull-up resistor is trying to drive high
+        // Pin pulled low even though strong external pull-up resistor is trying to drive high
         // Ext 0, Int x
-        hcPinState = 0;
+        hcPinState = RATE_TRACK;
     } else {
         // Otherwise check whether a weak or no external pull-down.
-        setPinValue(standalonePin[STANDALONE_PULL],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
+        setPinValue(standalonePin[STANDALONE_RIRQ],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
         for (byte i = 10; i > 0; i--) {
-            nop(); //Short delay to drain capacitance.
+            nop(); // Short delay to drain capacitance.
         }
-        setPinDir  (standalonePin[STANDALONE_PULL],INPUT); //Disable external resistor by switching to input
+        setPinDir  (standalonePin[STANDALONE_RIRQ],INPUT); //Disable external resistor by switching to input
         for (byte i = 200; i > 0; i--) {
-            nop(); //Short delay to allow line to rebound.
+            nop(); // Short delay to allow line to rebound.
         }
         if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
             // Low value with internal pull-up means external pull-down resistor.
             // Ext 1, Int 0
-            hcPinState = 1;
+            hcPinState = RATE_2X_TRK;
         } else {
             // High value with internal pull-up means pin floating.
             // Ext 1, Int 1
-            hcPinState = -1;
+            hcPinState = RATE_GOTO;
         }
     }
-    //Ensure we leave an external pull-up of IRQ.
-    setPinDir  (standalonePin[STANDALONE_PULL],OUTPUT);
-    setPinValue(standalonePin[STANDALONE_PULL],HIGH);
+    // Ensure we leave an external strong pull-up of IRQ.
+    setPinDir  (standalonePin[STANDALONE_RIRQ],OUTPUT);
+    setPinValue(standalonePin[STANDALONE_RIRQ],HIGH);
     return hcPinState;
 }
+
+static hc_target_t checkTernaryTargetPinState() {
+    hc_target_t hcPinState;
+#ifdef TARGET_SELECT_GPIO_PIN
+    if(!getPinValue(standalonePin[STANDALONE_TGT])) {
+        // Pin pulled low even though strong external pull-up resistor is trying to drive high
+        // Ext 0, Int x
+        hcPinState = TARGET_SIDEREAL;
+    } else {
+        // Otherwise check whether a weak or no external pull-down.
+        setPinValue(standalonePin[STANDALONE_RTGT],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
+        for (byte i = 10; i > 0; i--) {
+            nop(); // Short delay to drain capacitance.
+        }
+        setPinDir  (standalonePin[STANDALONE_RTGT],INPUT); //Disable external resistor by switching to input
+        for (byte i = 200; i > 0; i--) {
+            nop(); // Short delay to allow line to rebound.
+        }
+        if(!getPinValue(standalonePin[STANDALONE_TGT])) {
+            // Low value with internal pull-up means external pull-down resistor.
+            // Ext 1, Int 0
+            hcPinState = TARGET_LUNAR;
+        } else {
+            // High value with internal pull-up means pin floating.
+            // Ext 1, Int 1
+            hcPinState = TARGET_SOLAR;
+        }            
+    }
+    // Ensure we leave an external strong pull-up of IRQ.
+    setPinDir  (standalonePin[STANDALONE_RTGT],OUTPUT);
+    setPinValue(standalonePin[STANDALONE_RTGT],HIGH);
+#else
+    // If we don't have target pin state, assume Ext 0, Int x (sidereal target)
+    hcPinState = TARGET_SIDEREAL;
+#endif
+    return hcPinState;
+}
+
 
 ST4SpeedMode checkBasicHCSpeed() {
     // Here we check what the speed is for the basic hand controller.
     //
-    // The HC speed pin is externally connected to a switch which selects between:
+    // The HC speed pin and target select pin if we have it, are each externally connected to a
+    // switch which selects between:
     //   - Floating (default)
     //   - 3.9k resistor to GND
     //   - short to GND
     //
-    // By using both external 1k and internal pull-ups on the IO0 pin, we can determine
+    // By using both external 1k and internal pull-ups on the io pin, we can determine
     // which state the pin is in as follows.
     //
     //   - Pin states
-    //      +-----------+-----+-----+------+------------+
-    //      |  Pull-Up: | Int | Ext | Res  | hcPinState |
-    //      +-----------+-----+-----+------+------------+
-    //      | ST-4 Rate |  0  |  0  | GND  |  0         |
-    //      |   2x Rate |  0  |  1  | 3.9k |  1         |
-    //      | GoTo Rate |  1  |  1  | Hi-Z | -1         |
-    //      +-----------+-----+-----+------+------------+
+    //      +-----------+-----+-----+------+----------------+
+    //      |  Pull-Up: | Int | Ext | Res  | hc/tgtPinState |
+    //      +-----------+-----+-----+------+----------------+
+    //      | ST-4 Rate |  0  |  0  | GND  |  0             |
+    //      |   2x Rate |  0  |  1  | 3.9k |  1             |
+    //      | GoTo Rate |  1  |  1  | Hi-Z | -1             |
+    //      +-----------+-----+-----+------+----------------+
     //
-    // The speed selection maps as follows:
+    // The speed selection maps as follows (track rate is selected based on target):
     //
-    //   - When STANDALONE_TGT is high (pull-up), uses the default speed options :
-    //      +------------+-----------+
-    //      | hcPinState |     Speed |
-    //      +------------+-----------+
-    //      |  0         | ST-4 Rate |
-    //      |  1         |   2x Rate |
-    //      | -1         | GoTo Rate |
-    //      +------------+-----------+
+    //      +------------+------------+
+    //      | hcPinState |      Speed |
+    //      +------------+------------+
+    //      |  0         | Track Rate |
+    //      |  1         |    2x Rate |
+    //      | -1         |  GoTo Rate |
+    //      +------------+------------+
     //
-    //   - When STANDALONE_TGT is pulled low, uses the tracking speed options :
+    // When the target IO pin is available, the following target is selected depending on the pin state:
     //
-    //      +------------+-----------+
-    //      | hcPinState |  Pull-Up: |
-    //      +------------+-----------+
-    //      |  0         |  Sidereal |
-    //      |  1         |     Solar |
-    //      | -1         |     Lunar |
-    //      +------------+-----------+
+    //      +-------------+-----------+
+    //      | tgtPinState |    Target |
+    //      +-------------+-----------+
+    //      |  0          |  Sidereal |
+    //      |  1          |     Lunar |
+    //      | -1          |     Solar |
+    //      +-------------+-----------+
     //
-    // Note: if we don't have an external pull-up resistor, this function will return either ST-4 Rate (0,0) or GoTo Rate (1,1)
+    // Notes:
+    // * If target pin is unavailable, always selects sidereal target
+    // * If we don't have an external pull-up resistor, this function will return either Sidereal ST-4 Rate (0,0) or GoTo Rate (1,1)
     //
     
     // Read speed selection
-    int8_t hcPinState = checkTernarySpeedPinState();
+    hc_speed_t hcPinState = checkTernarySpeedPinState();
+    hc_target_t tgtPinState = checkTernaryTargetPinState();
     
-    // Map pin value to the correct speed
-    ST4SpeedMode speed;                         
-#ifdef TARGET_SPEED_GPIO_PIN
-    if ( !getPinValue(standalonePin[STANDALONE_TGT]) ) {
-        // If we have a target speed control pin, and currently default ST4 speed, select tracking target
-        speed = (hcPinState == 0) ? CMD_ST4_DEFAULT  : // Sidereal rate
-                (hcPinState >  0) ? CMD_ST4_SOLAR    : // Solar rate
-                                    CMD_ST4_LUNAR;     // Lunar rate
+    // Select target base speed
+    ST4SpeedMode speed;
+    switch (hcPinState) {
+        case RATE_GOTO:
+            speed = CMD_ST4_HIGHSPEED;
+            break;
+        case RATE_2X_TRK:
+            speed = CMD_ST4_STANDALONE;
+            break;
+        default: {
+            switch (tgtPinState) {
+                case TARGET_LUNAR:
+                    speed = CMD_ST4_LUNAR;
+                    break;
+                case TARGET_SOLAR:
+                    speed = CMD_ST4_SOLAR;
+                    break;
+                default:
+                    speed = CMD_ST4_DEFAULT;
+                    break;
+            }
+            break;
+        }
     }
-    else
-#endif
-    {
-        // Default Speed mapping range
-        speed = (hcPinState == 0) ? CMD_ST4_DEFAULT    : // ST-4 rate
-                (hcPinState >  0) ? CMD_ST4_STANDALONE : // 2x rate
-                                    CMD_ST4_HIGHSPEED;   // Go-To rate
-    }      
     
     //And return the new speed
     return speed;
@@ -770,7 +835,7 @@ int main(void) {
     
     for(;;){ //Run loop
 
-#ifdef estopPin_Define
+#ifdef ESTOP_GPIO_PIN
         //If we have an emergency stop pin, check
         //if it is asserted (pin pulled low)
         if (!getPinValue(estopPin)) {
@@ -832,7 +897,11 @@ int main(void) {
                     syntaMode = false;
                     
                     //For basic mode we need a pull up resistor on the speed/IRQ line
-                    setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Pull high
+                    setPinValue(standalonePin[STANDALONE_RIRQ],HIGH); //Pull high
+#ifdef TARGET_SELECT_GPIO_PIN
+                    //And the target pin too if we have it
+                    setPinValue(standalonePin[STANDALONE_RTGT],HIGH); //Pull high
+#endif
                     
                     //And then we need to initialise the controller manually so the basic controller can help us move
                     byte state = modeState[defaultSpeedState]; //Extract the default mode - for basic HC we won't change from default mode.
@@ -885,9 +954,9 @@ int main(void) {
             if ((decoded == PACKET_ERROR_BADCHAR) || Serial_available()) { //is there a byte in buffer or we still need to process the previous byte?
                 //Toggle on the LED to indicate activity.
                 togglePin(statusPin);
-                #ifdef statusPinShadow_Define
+#ifdef STATUS_SHADOW_GPIO_PIN
                 togglePin(statusPinShdw);
-                #endif
+#endif
                 //See what character we need to parse
                 if (decoded != PACKET_ERROR_BADCHAR) {
                     //get the next character in buffer
@@ -912,9 +981,9 @@ int main(void) {
             }
             if (loopCount == 0) {
                 setPinValue(statusPin, (progMode == PROGMODE) ? HIGH : LOW);
-                #ifdef statusPinShadow_Define
+#ifdef STATUS_SHADOW_GPIO_PIN
                 setPinValue(statusPinShdw, (progMode == PROGMODE) ? HIGH : LOW);
-                #endif
+#endif
             }
             
             //
@@ -1072,9 +1141,9 @@ int main(void) {
                 
                 //Update status LED
                 togglePin(statusPin); //Toggle status pin at roughly constant rate in basic mode as indicator
-                #ifdef statusPinShadow_Define
+#ifdef STATUS_SHADOW_GPIO_PIN
                 togglePin(statusPinShdw);
-                #endif
+#endif
                 
                 //Check the speed
                 ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();

@@ -111,7 +111,7 @@ void SPI_initialise() {
     setPinDir  (SPISSnPin_Define,  OUTPUT); //SSn is output idle high
     setPinValue(SPISSnPin_Define,    HIGH);
     //Standalone pin is switching to SPI ready, so ensure we out pull-up is to high.
-    setPinValue(standalonePin[STANDALONE_PULL],HIGH); //Pull high
+    setPinValue(standalonePin[STANDALONE_RIRQ],HIGH); //Pull high
     //Drain the serial port of anything that might be in the buffer
     Serial_clear(); //Empty the buffer of any outstanding data.
     

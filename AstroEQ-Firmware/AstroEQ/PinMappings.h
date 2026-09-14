@@ -23,20 +23,20 @@
 //
 
 //GPIO Pins:
-                             //VCC (Header Pin 5)
-#define gpioPin_0_Define 21  //IO0 (Header Pin 4) - GPIO Pin
-#define gpioPin_1_Define 22  //IO1 (Header Pin 3) - GPIO Pin
-#define gpioPin_2_Define 23  //IO2 (Header Pin 2) - GPIO Pin
-                             //GND (Header Pin 1)
+#define gpioPin_0_Define 2   // GPIO Pin - HC Detect/Speed
+#define gpioPin_1_Define 29  // Output Pin - General purpose output (EQMOD "SNAP" 1)
+#define gpioPin_2_Define 28  // Control Pin - connected via 1k resistor to IO0
+#define gpioPin_3_Define 12  // Input Pin - HC celestial target selection (Star/Sun/Moon)
+#define gpioPin_4_Define 11  // Control Pin - connected via 1k resistor to IO3
 
 //PWM Pin:
-#define pwmPin_Define 10
+#define pwmPin_Define 10     // PWM Output
 
 //Status Pin:
 #define statusPin_Define 13
 
 //E-Stop Pin:
-#define estopPin_Define 11
+#define estopPin_Define 11   // Input Pin - float = normal, short to GND = EStop
 
 //Motor Driver Pins:
 #define resetPin_0_Define 55 //Analog 1
@@ -90,7 +90,7 @@
 #define statusPinShadow_Define 11 // Left servo header (Ramps 1.4 only) - connect to LED via suitable resistor. 
 
 //E-Stop Pin:
-#define estopPin_Define 18     // Z_MIN_PIN
+#define estopPin_Define 18     // Z_MIN_PIN - Input Pin - float = normal, short to GND = EStop
 
 //Motor Driver Pins:
 #define resetPin_0_Define 35   // Unused on RAMPS
@@ -133,20 +133,21 @@
 
 //GPIO Header:
                              //VCC (Header Pin 5)
-#define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - GPIO Pin
-#define gpioPin_1_Define 29  //IO1 (Header Pin 3) [ATMega PE1] - GPIO Pin
-#define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - GPIO Pin - connected via 1k resistor to IO0
+#define gpioPin_0_Define 2   //IO0 (Header Pin 4) [ATMega PD2] - GPIO Pin - HC Detect/Speed
+#define gpioPin_1_Define 29  //IO1 (Header Pin 3) [ATMega PE1] - Output Pin - General purpose output (EQMOD "SNAP" 1)
+#define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - Control Pin - connected via 1k resistor to IO0
                              //GND (Header Pin 1)
-#define gpioPin_3_Define 12  //IO3 (Prog Header Pin 1) [ATMega PB6] - Input Pin
+#define gpioPin_3_Define 12  //IO3 (PrgHdr Pin 1) [ATMega PB6] - Input Pin - HC celestial target selection (Star/Sun/Moon)
+#define gpioPin_4_Define 1   //IO4 (MCU   Pin 11) [ATMega PD1] - Control Pin - connected via 1k resistor to IO3 (NOTE: shared with UART TX)
 
 //PWM Pin:
-#define pwmPin_Define 9      // (PWM Jack) [ATMega PB1] - Open Drain Output
+#define pwmPin_Define    9   // (PWM Jack) [ATMega PB1] - Open Drain Output
 
 //Status Pin:
 #define statusPin_Define 13  // (Prog Header Pin 3) [ATMega PB7] - Output Pin
 
 //E-Stop Pin:
-#define estopPin_Define 11   // (Prog Header Pin 4) [ATMega PB5] - Input Pin
+#define estopPin_Define  11  // (Prog Header Pin 4) [ATMega PB5] - Input Pin - float = normal, short to GND = EStop
 
 //Motor Driver Pins:
 #define resetPin_0_Define 15
@@ -186,24 +187,25 @@
 
 //GPIO Pins:
                              //VCC (Header Pin 5)
-#define gpioPin_0_Define 21  //IO0 (Header Pin 4) [ATMega PD0] - GPIO Pin
-#define gpioPin_1_Define 22  //IO1 (Header Pin 3) [ATMega PA0] - GPIO Pin
-#define gpioPin_2_Define 23  //IO2 (Header Pin 2) [ATMega PA1] - GPIO Pin - connected via 1k resistor to IO0
+#define gpioPin_0_Define 21  //IO0                [ATMega PD0] - GPIO Pin - HC Detect/Speed
+#define gpioPin_1_Define 22  //IO1 (Header Pin 4) [ATMega PA0] - Output Pin - General purpose output (EQMOD "SNAP" 1)
+#define gpioPin_2_Define 23  //IO2                [ATMega PA1] - Control Pin - connected via 1k resistor to IO0
+#define gpioPin_3_Define 25  //IO3 (Header Pin 3) [ATMega PA3] - Input Pin - HC celestial target selection (Star/Sun/Moon)
+#define gpioPin_4_Define 26  //IO4                [ATMega PA4] - Control Pin - connected via 1k resistor to IO3
                              //GND (Header Pin 1)
-#define gpioPin_3_Define 25  //IO3 [ATMega PA3] - Input Pin
-
-//PWM Pins:
-#define pwmPin_Define 10
-
-//Status Pins:
-#define statusPin_Define 13 // [ATMega PB7] - Output Pin
 
 //E-Stop Pin:
-#define estopPin_Define 24  // [ATMega PA2] - Input Pin
+#define estopPin_Define 24   //!ES (Header Pin 2) [ATMega PA2] - Input Pin - float = normal, short to GND = EStop
+
+//PWM Pins:
+#define pwmPin_Define 10     // (PWM Jack) [ATMega PB4] - Open Drain Output
+
+//Status Pins:
+#define statusPin_Define 13  // [ATMega PB7] - Output Pin
 
 //Motor Driver Pins:
-#define resetPin_0_Define 55 //Analog 1
-#define resetPin_1_Define 54 //Analog 0
+#define resetPin_0_Define 55
+#define resetPin_1_Define 54
 
 #define dirPin_0_Define 3
 #define dirPin_1_Define 7
@@ -308,15 +310,8 @@
 #define USART0_RX_vect USART0_RXC_vect
 #endif
 
-#ifndef USART1_TX_vect
-#define USART1_TX_vect USART1_TXC_vect
-#endif
-#ifndef USART1_RX_vect
-#define USART1_RX_vect USART1_RXC_vect
-#endif
-
-//Pick some otherwise unused registers for GPIOR. Must be < 0x3F
-#define GPIOR0 PORTC
+//Pick some otherwise unused registers for GPIOR. Must be < 0x3F and have no side effects to accessing them.
+#define GPIOR0 UBRR1L
 #define GPIOR1 OCR0
 #define GPIOR2 TCNT0
 

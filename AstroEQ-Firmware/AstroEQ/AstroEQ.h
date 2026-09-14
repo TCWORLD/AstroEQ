@@ -188,8 +188,9 @@ typedef enum __attribute__((packed)){
  */
 
 #define STANDALONE_IRQ   0
-#define STANDALONE_PULL  1
+#define STANDALONE_RIRQ  1
 #define STANDALONE_TGT   2
+#define STANDALONE_RTGT  2
 
 typedef struct {
     unsigned int speed;
@@ -199,21 +200,31 @@ typedef struct {
 /*
  * Declare constant arrays of pin numbers
  */
-#ifndef gpioPin_3_Define
+#if !defined(gpioPin_3_Define) && !defined(gpioPin_4_Define)
 #define gpioPin_3_Define 255
+#define gpioPin_4_Define 255
+#elif defined(gpioPin_3_Define) && defined(gpioPin_4_Define)
+#define TARGET_SELECT_GPIO_PIN
 #else
-#define TARGET_SPEED_GPIO_PIN
+#error Must define both gpioPin_3_Define and gpioPin_4_Define, or neither.
 #endif
-static const byte standalonePin[3] = {gpioPin_0_Define,gpioPin_2_Define,gpioPin_3_Define};
+#ifndef statusPinShadow_Define
+#define statusPinShadow_Define 255
+#else
+#define STATUS_SHADOW_GPIO_PIN
+#endif
+#ifndef estopPin_Define
+#define estopPin_Define 255
+#else
+#define ESTOP_GPIO_PIN
+#endif
+
+static const byte standalonePin[4] = {gpioPin_0_Define,gpioPin_2_Define,gpioPin_3_Define,gpioPin_4_Define};
 static const byte snapPin = gpioPin_1_Define;
 static const byte pwmPin = pwmPin_Define;
-#ifdef statusPinShadow_Define
 static const byte statusPinShdw = statusPinShadow_Define;
-#endif
 static const byte statusPin = statusPin_Define;
-#ifdef estopPin_Define
 static const byte estopPin = estopPin_Define;
-#endif
 static const byte resetPin[2] = {resetPin_0_Define,resetPin_1_Define};
 static const byte dirPin[2] = {dirPin_0_Define,dirPin_1_Define};
 static const byte enablePin[2] = {enablePin_0_Define,enablePin_1_Define};
