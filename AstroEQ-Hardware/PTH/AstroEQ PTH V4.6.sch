@@ -14063,7 +14063,7 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <connects>
 <connect gate="G$1" pin="D+" pad="D+"/>
 <connect gate="G$1" pin="D-" pad="D-"/>
-<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="GND" pad="GND GND1 GND4"/>
 <connect gate="G$1" pin="ID" pad="ID"/>
 <connect gate="G$1" pin="VBUS" pad="VBUS"/>
 </connects>
@@ -19131,10 +19131,10 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="MF" x="91.44" y="119.38" size="1.778" layer="96" display="off"/>
 <attribute name="MPN" x="91.44" y="119.38" size="1.778" layer="96" display="off"/>
 </instance>
-<instance part="JP4" gate="G$1" x="81.28" y="134.62" rot="MR0">
-<attribute name="OC_FARNELL" x="81.28" y="134.62" size="1.778" layer="96" display="off"/>
-<attribute name="MF" x="81.28" y="134.62" size="1.778" layer="96" display="off"/>
-<attribute name="MPN" x="81.28" y="134.62" size="1.778" layer="96" display="off"/>
+<instance part="JP4" gate="G$1" x="86.36" y="134.62" rot="MR0">
+<attribute name="OC_FARNELL" x="86.36" y="134.62" size="1.778" layer="96" display="off"/>
+<attribute name="MF" x="86.36" y="134.62" size="1.778" layer="96" display="off"/>
+<attribute name="MPN" x="86.36" y="134.62" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="P+4" gate="1" x="55.88" y="149.86"/>
 <instance part="Q1" gate="G$1" x="60.96" y="134.62" rot="MR0">
@@ -19197,10 +19197,10 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="MPN" value="MF12 10K" x="71.12" y="218.44" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="P+10" gate="1" x="337.82" y="233.68"/>
-<instance part="USB-&gt;" gate="G$1" x="38.1" y="220.98">
-<attribute name="OC_FARNELL" value="1125347" x="38.1" y="220.98" size="1.778" layer="96" display="off"/>
-<attribute name="MF" value="MOLEX" x="38.1" y="220.98" size="1.778" layer="96" display="off"/>
-<attribute name="MPN" value="565790519" x="38.1" y="220.98" size="1.778" layer="96" display="off"/>
+<instance part="USB-&gt;" gate="G$1" x="35.56" y="220.98">
+<attribute name="OC_FARNELL" value="1125347" x="35.56" y="220.98" size="1.778" layer="96" display="off"/>
+<attribute name="MF" value="MOLEX" x="35.56" y="220.98" size="1.778" layer="96" display="off"/>
+<attribute name="MPN" value="565790519" x="35.56" y="220.98" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="C6" gate="G$1" x="63.5" y="200.66" smashed="yes" rot="R180">
 <attribute name="NAME" x="62.103" y="204.978" size="1.778" layer="95" rot="R180"/>
@@ -19427,6 +19427,7 @@ DIN A3, landscape with location and doc. field</description>
 <pinref part="GND18" gate="1" pin="GND"/>
 <pinref part="IC2" gate="A" pin="VSS"/>
 <pinref part="USB-&gt;" gate="G$1" pin="GND"/>
+<wire x1="45.72" y1="215.9" x2="48.26" y2="215.9" width="0.1524" layer="91"/>
 <wire x1="48.26" y1="215.9" x2="48.26" y2="195.58" width="0.1524" layer="91"/>
 <wire x1="48.26" y1="195.58" x2="55.88" y2="195.58" width="0.1524" layer="91"/>
 <junction x="48.26" y="195.58"/>
@@ -20093,7 +20094,7 @@ DIN A3, landscape with location and doc. field</description>
 <pinref part="JP4" gate="G$1" pin="1"/>
 <label x="68.58" y="134.62" size="1.778" layer="95"/>
 <pinref part="Q1" gate="G$1" pin="G"/>
-<wire x1="68.58" y1="134.62" x2="73.66" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="134.62" x2="78.74" y2="134.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="PWM-OUT" class="0">
@@ -20129,14 +20130,14 @@ DIN A3, landscape with location and doc. field</description>
 <segment>
 <pinref part="USB-&gt;" gate="G$1" pin="D-"/>
 <pinref part="IC2" gate="A" pin="RA1/D-/PGC"/>
-<wire x1="48.26" y1="220.98" x2="83.82" y2="220.98" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="220.98" x2="83.82" y2="220.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="D+" class="0">
 <segment>
 <pinref part="USB-&gt;" gate="G$1" pin="D+"/>
 <pinref part="IC2" gate="A" pin="RA0/D+/PGD"/>
-<wire x1="83.82" y1="223.52" x2="48.26" y2="223.52" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="223.52" x2="45.72" y2="223.52" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="TX(USB)" class="0">
@@ -20203,6 +20204,7 @@ DIN A3, landscape with location and doc. field</description>
 <segment>
 <pinref part="USB-&gt;" gate="G$1" pin="VBUS"/>
 <pinref part="D2" gate="G$1" pin="A"/>
+<wire x1="45.72" y1="226.06" x2="48.26" y2="226.06" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="USBSTAT" class="0">
