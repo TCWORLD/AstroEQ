@@ -19200,7 +19200,7 @@ DIN A3, landscape with location and doc. field</description>
 </library>
 </libraries>
 <attributes>
-<attribute name="REVISION" value="V4.6"/>
+<attribute name="REVISION" value="V4.8"/>
 </attributes>
 <variantdefs>
 </variantdefs>
