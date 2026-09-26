@@ -15070,17 +15070,6 @@ type RDH, grid 15 mm</description>
 <text x="-1.27" y="-2.2225" size="1.27" layer="27">&gt;VALUE</text>
 <hole x="0" y="0" drill="1.3"/>
 </package>
-<package name="R0201">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt; chip&lt;p&gt;
-Source: http://www.vishay.com/docs/20008/dcrcw.pdf</description>
-<smd name="1" x="-0.255" y="0" dx="0.28" dy="0.43" layer="1"/>
-<smd name="2" x="0.255" y="0" dx="0.28" dy="0.43" layer="1"/>
-<text x="-0.635" y="0.635" size="1.27" layer="25">&gt;NAME</text>
-<text x="-0.635" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
-<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
-<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="0.15" layer="21"/>
-</package>
 <package name="R0805W">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt; wave soldering&lt;p&gt;</description>
 <wire x1="-0.41" y1="0.635" x2="0.41" y2="0.635" width="0.1524" layer="51"/>
@@ -15130,22 +15119,6 @@ wave soldering</description>
 <rectangle x1="0.889" y1="-0.8763" x2="1.6391" y2="0.8738" layer="51"/>
 <rectangle x1="-0.3" y1="-0.7" x2="0.3" y2="0.7" layer="35"/>
 </package>
-<package name="R1210">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-0.913" y1="1.219" x2="0.939" y2="1.219" width="0.1524" layer="51"/>
-<wire x1="-0.913" y1="-1.219" x2="0.939" y2="-1.219" width="0.1524" layer="51"/>
-<wire x1="-2.473" y1="1.483" x2="2.473" y2="1.483" width="0.0508" layer="39"/>
-<wire x1="2.473" y1="1.483" x2="2.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="2.473" y1="-1.483" x2="-2.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="-2.473" y1="-1.483" x2="-2.473" y2="1.483" width="0.0508" layer="39"/>
-<smd name="1" x="-1.4" y="0" dx="1.6" dy="2.7" layer="1"/>
-<smd name="2" x="1.4" y="0" dx="1.6" dy="2.7" layer="1"/>
-<text x="-2.54" y="1.905" size="1.27" layer="25">&gt;NAME</text>
-<text x="-2.54" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-1.651" y1="-1.3081" x2="-0.9009" y2="1.2918" layer="51"/>
-<rectangle x1="0.9144" y1="-1.3081" x2="1.6645" y2="1.2918" layer="51"/>
-<rectangle x1="-0.3" y1="-0.8999" x2="0.3" y2="0.8999" layer="35"/>
-</package>
 <package name="R1210W">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
 wave soldering</description>
@@ -15162,21 +15135,6 @@ wave soldering</description>
 <rectangle x1="-1.651" y1="-1.3081" x2="-0.9009" y2="1.2918" layer="51"/>
 <rectangle x1="0.9144" y1="-1.3081" x2="1.6645" y2="1.2918" layer="51"/>
 <rectangle x1="-0.3" y1="-0.8001" x2="0.3" y2="0.8001" layer="35"/>
-</package>
-<package name="R2010">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-1.662" y1="1.245" x2="1.662" y2="1.245" width="0.1524" layer="51"/>
-<wire x1="-1.637" y1="-1.245" x2="1.687" y2="-1.245" width="0.1524" layer="51"/>
-<wire x1="-3.473" y1="1.483" x2="3.473" y2="1.483" width="0.0508" layer="39"/>
-<wire x1="3.473" y1="1.483" x2="3.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="3.473" y1="-1.483" x2="-3.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="-3.473" y1="-1.483" x2="-3.473" y2="1.483" width="0.0508" layer="39"/>
-<smd name="1" x="-2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
-<smd name="2" x="2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
-<text x="-3.175" y="1.905" size="1.27" layer="25">&gt;NAME</text>
-<text x="-3.175" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-2.4892" y1="-1.3208" x2="-1.6393" y2="1.3292" layer="51"/>
-<rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
 </package>
 <package name="R2010W">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
@@ -15244,22 +15202,6 @@ wave soldering</description>
 <rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
 <rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
 </package>
-<package name="R3216">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-0.913" y1="0.8" x2="0.888" y2="0.8" width="0.1524" layer="51"/>
-<wire x1="-0.913" y1="-0.8" x2="0.888" y2="-0.8" width="0.1524" layer="51"/>
-<wire x1="-2.473" y1="0.983" x2="2.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="2.473" y1="0.983" x2="2.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="2.473" y1="-0.983" x2="-2.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-2.473" y1="-0.983" x2="-2.473" y2="0.983" width="0.0508" layer="39"/>
-<smd name="1" x="-1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
-<smd name="2" x="1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
-<text x="-1.905" y="1.27" size="1.27" layer="25">&gt;NAME</text>
-<text x="-1.905" y="-2.54" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-1.651" y1="-0.8763" x2="-0.9009" y2="0.8738" layer="51"/>
-<rectangle x1="0.889" y1="-0.8763" x2="1.6391" y2="0.8738" layer="51"/>
-<rectangle x1="-0.3" y1="-0.7" x2="0.3" y2="0.7" layer="35"/>
-</package>
 <package name="R3216W">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
 wave soldering</description>
@@ -15294,22 +15236,6 @@ wave soldering</description>
 <rectangle x1="0.9144" y1="-1.3081" x2="1.6645" y2="1.2918" layer="51"/>
 <rectangle x1="-0.3" y1="-1" x2="0.3" y2="1" layer="35"/>
 </package>
-<package name="R5025">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-1.662" y1="1.245" x2="1.662" y2="1.245" width="0.1524" layer="51"/>
-<wire x1="-1.637" y1="-1.245" x2="1.687" y2="-1.245" width="0.1524" layer="51"/>
-<wire x1="-3.473" y1="1.483" x2="3.473" y2="1.483" width="0.0508" layer="39"/>
-<wire x1="3.473" y1="1.483" x2="3.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="3.473" y1="-1.483" x2="-3.473" y2="-1.483" width="0.0508" layer="39"/>
-<wire x1="-3.473" y1="-1.483" x2="-3.473" y2="1.483" width="0.0508" layer="39"/>
-<smd name="1" x="-2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
-<smd name="2" x="2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
-<text x="-3.175" y="1.905" size="1.27" layer="25">&gt;NAME</text>
-<text x="-3.175" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-2.4892" y1="-1.3208" x2="-1.6393" y2="1.3292" layer="51"/>
-<rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
-<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
-</package>
 <package name="R5025W">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
 wave soldering</description>
@@ -15325,23 +15251,6 @@ wave soldering</description>
 <text x="-3.175" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
 <rectangle x1="-2.4892" y1="-1.3208" x2="-1.6393" y2="1.3292" layer="51"/>
 <rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
-<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
-</package>
-<package name="R6332">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
-Source: http://download.siliconexpert.com/pdfs/2005/02/24/Semi_Ap/2/VSH/Resistor/dcrcwfre.pdf</description>
-<wire x1="-2.362" y1="1.473" x2="2.387" y2="1.473" width="0.1524" layer="51"/>
-<wire x1="-2.362" y1="-1.473" x2="2.387" y2="-1.473" width="0.1524" layer="51"/>
-<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
-<smd name="1" x="-3.1" y="0" dx="1" dy="3.2" layer="1"/>
-<smd name="2" x="3.1" y="0" dx="1" dy="3.2" layer="1"/>
-<text x="-2.54" y="1.905" size="1.27" layer="25">&gt;NAME</text>
-<text x="-2.54" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-3.2004" y1="-1.5494" x2="-2.3505" y2="1.5507" layer="51"/>
-<rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
 <rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
 </package>
 <package name="R6332W">
@@ -15812,18 +15721,6 @@ Source: VISHAY wscwsn.pdf</description>
 <text x="-8.75" y="3.9" size="1.27" layer="25">&gt;NAME</text>
 <text x="-8.75" y="-5.15" size="1.27" layer="27">&gt;VALUE</text>
 </package>
-<package name="R1218">
-<description>&lt;b&gt;CRCW1218 Thick Film, Rectangular Chip Resistors&lt;/b&gt;&lt;p&gt;
-Source: http://www.vishay.com .. dcrcw.pdf</description>
-<wire x1="-0.913" y1="-2.219" x2="0.939" y2="-2.219" width="0.1524" layer="51"/>
-<wire x1="0.913" y1="2.219" x2="-0.939" y2="2.219" width="0.1524" layer="51"/>
-<smd name="1" x="-1.475" y="0" dx="1.05" dy="4.9" layer="1"/>
-<smd name="2" x="1.475" y="0" dx="1.05" dy="4.9" layer="1"/>
-<text x="-2.54" y="2.54" size="1.27" layer="25">&gt;NAME</text>
-<text x="-2.54" y="-3.81" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-1.651" y1="-2.3" x2="-0.9009" y2="2.3" layer="51"/>
-<rectangle x1="0.9144" y1="-2.3" x2="1.6645" y2="2.3" layer="51"/>
-</package>
 <package name="1812X7R">
 <description>&lt;b&gt;Chip Monolithic Ceramic Capacitors&lt;/b&gt; Medium Voltage High Capacitance for General Use&lt;p&gt;
 Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
@@ -15866,58 +15763,6 @@ type 0204, grid 5 mm</description>
 <rectangle x1="-2.032" y1="-0.254" x2="-1.778" y2="0.254" layer="51"/>
 <rectangle x1="1.778" y1="-0.254" x2="2.032" y2="0.254" layer="51"/>
 </package>
-<package name="R0402">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="1.473" y1="0.3814" x2="1.473" y2="-0.3814" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.3814" x2="1.3714" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.3714" y1="-0.483" x2="-1.3714" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.3714" y1="-0.483" x2="-1.473" y2="-0.3814" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.3814" x2="-1.473" y2="0.3814" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="0.3814" x2="-1.3714" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="-1.3714" y1="0.483" x2="1.3714" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.3714" y1="0.483" x2="1.473" y2="0.3814" width="0.0508" layer="39"/>
-<smd name="1" x="-0.7" y="0" dx="0.6" dy="0.9" layer="1"/>
-<smd name="2" x="0.7" y="0" dx="0.6" dy="0.9" layer="1"/>
-<text x="0" y="1.27" size="1.016" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
-<text x="0" y="-1.27" size="1.016" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
-<rectangle x1="-0.254" y1="-0.381" x2="0.254" y2="0.381" layer="21"/>
-</package>
-<package name="R0603">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-0.432" y1="-0.356" x2="0.432" y2="-0.356" width="0.1524" layer="51"/>
-<wire x1="0.432" y1="0.356" x2="-0.432" y2="0.356" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
-<smd name="1" x="-0.85" y="0" dx="1" dy="1.1" layer="1"/>
-<smd name="2" x="0.85" y="0" dx="1" dy="1.1" layer="1"/>
-<text x="0" y="1.905" size="1.016" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
-<text x="0" y="-1.905" size="1.016" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
-<rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
-<rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
-</package>
-<package name="R0805">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;</description>
-<wire x1="-0.41" y1="0.635" x2="0.41" y2="0.635" width="0.1524" layer="51"/>
-<wire x1="-0.41" y1="-0.635" x2="0.41" y2="-0.635" width="0.1524" layer="51"/>
-<wire x1="-1.973" y1="0.983" x2="1.973" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.973" y1="0.983" x2="1.973" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="1.973" y1="-0.983" x2="-1.973" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.973" y1="-0.983" x2="-1.973" y2="0.983" width="0.0508" layer="39"/>
-<smd name="1" x="-0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
-<smd name="2" x="0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
-<text x="0" y="1.905" size="1.016" layer="25" ratio="15" align="center">&gt;NAME</text>
-<rectangle x1="0.4064" y1="-0.6985" x2="1.0564" y2="0.7015" layer="51"/>
-<rectangle x1="-1.0668" y1="-0.6985" x2="-0.4168" y2="0.7015" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.5001" x2="0.1999" y2="0.5001" layer="35"/>
-</package>
 <package name="R1206">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
 <wire x1="0.9525" y1="-0.8128" x2="-0.9652" y2="-0.8128" width="0.1524" layer="51"/>
@@ -15936,22 +15781,6 @@ type 0204, grid 5 mm</description>
 <wire x1="-0.381" y1="0.8255" x2="0.381" y2="0.8255" width="0.127" layer="21"/>
 <wire x1="-0.381" y1="-0.8255" x2="0.381" y2="-0.8255" width="0.127" layer="21"/>
 </package>
-<package name="R2512">
-<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
-<wire x1="-2.362" y1="1.473" x2="2.387" y2="1.473" width="0.1524" layer="51"/>
-<wire x1="-2.362" y1="-1.473" x2="2.387" y2="-1.473" width="0.1524" layer="51"/>
-<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
-<smd name="1" x="-2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
-<smd name="2" x="2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
-<text x="0" y="3.175" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
-<text x="0" y="-3.175" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
-<rectangle x1="-3.2004" y1="-1.5494" x2="-2.3505" y2="1.5507" layer="51"/>
-<rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
-<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
-</package>
 <package name="R3225">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
 <wire x1="-0.913" y1="1.219" x2="0.939" y2="1.219" width="0.1524" layer="51"/>
@@ -15967,6 +15796,606 @@ type 0204, grid 5 mm</description>
 <rectangle x1="-1.651" y1="-1.3081" x2="-0.9009" y2="1.2918" layer="51"/>
 <rectangle x1="0.9144" y1="-1.3081" x2="1.6645" y2="1.2918" layer="51"/>
 <rectangle x1="-0.3" y1="-1" x2="0.3" y2="1" layer="35"/>
+</package>
+<package name="R0402">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<smd name="1" x="-0.5" y="0" dx="0.6" dy="0.65" layer="1" stop="no"/>
+<smd name="2" x="0.5" y="0" dx="0.6" dy="0.65" layer="1" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.3" x2="0.05" y2="0.3" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.3" x2="0.05" y2="-0.3" width="0.127" layer="21"/>
+<wire x1="1.02" y1="0.46" x2="1.02" y2="-0.46" width="0.05" layer="39"/>
+<wire x1="1.02" y1="-0.46" x2="0.94" y2="-0.54" width="0.05" layer="39"/>
+<wire x1="0.94" y1="-0.54" x2="-0.94" y2="-0.54" width="0.05" layer="39"/>
+<wire x1="-0.94" y1="-0.54" x2="-1.02" y2="-0.46" width="0.05" layer="39"/>
+<wire x1="-1.02" y1="-0.46" x2="-1.02" y2="0.46" width="0.05" layer="39"/>
+<wire x1="-1.02" y1="0.46" x2="-0.94" y2="0.54" width="0.05" layer="39"/>
+<wire x1="-0.94" y1="0.54" x2="0.94" y2="0.54" width="0.05" layer="39"/>
+<wire x1="0.94" y1="0.54" x2="1.02" y2="0.46" width="0.05" layer="39"/>
+<rectangle x1="-0.87" y1="-0.4" x2="-0.13" y2="0.4" layer="29"/>
+<rectangle x1="0.13" y1="-0.4" x2="0.87" y2="0.4" layer="29"/>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+</package>
+<package name="R0603">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.432" y1="-0.356" x2="0.432" y2="-0.356" width="0.1524" layer="51"/>
+<wire x1="0.432" y1="0.356" x2="-0.432" y2="0.356" width="0.1524" layer="51"/>
+<wire x1="-1.47" y1="0.67" x2="1.47" y2="0.67" width="0.0508" layer="39"/>
+<wire x1="1.47" y1="0.67" x2="1.47" y2="-0.67" width="0.0508" layer="39"/>
+<wire x1="1.47" y1="-0.67" x2="-1.47" y2="-0.67" width="0.0508" layer="39"/>
+<wire x1="-1.47" y1="-0.67" x2="-1.47" y2="0.67" width="0.0508" layer="39"/>
+<smd name="1" x="-0.85" y="0" dx="0.95" dy="1" layer="1"/>
+<smd name="2" x="0.85" y="0" dx="0.95" dy="1" layer="1"/>
+<text x="0" y="1.5" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1.5" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
+<rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+<wire x1="-0.15" y1="-0.4" x2="0.15" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="-0.15" y1="0.4" x2="0.15" y2="0.4" width="0.127" layer="21"/>
+</package>
+<package name="R0805">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;</description>
+<smd name="1" x="-0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
+<smd name="2" x="0.95" y="0" dx="1.3" dy="1.5" layer="1"/>
+<text x="0" y="1.905" size="1.016" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1.905" size="1.016" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<wire x1="-1.8" y1="0.9" x2="1.8" y2="0.9" width="0.04" layer="39"/>
+<wire x1="1.8" y1="-0.9" x2="-1.8" y2="-0.9" width="0.04" layer="39"/>
+<wire x1="-1.8" y1="-0.9" x2="-1.8" y2="0.9" width="0.04" layer="39"/>
+<wire x1="-0.381" y1="0.66" x2="0.381" y2="0.66" width="0.1016" layer="51"/>
+<wire x1="-0.356" y1="-0.66" x2="0.381" y2="-0.66" width="0.1016" layer="51"/>
+<wire x1="1.8" y1="0.9" x2="1.8" y2="-0.9" width="0.04" layer="39"/>
+<rectangle x1="-1.0922" y1="-0.7239" x2="-0.3421" y2="0.7262" layer="51"/>
+<rectangle x1="0.3556" y1="-0.7239" x2="1.1057" y2="0.7262" layer="51"/>
+<rectangle x1="-0.1001" y1="-0.4001" x2="0.1001" y2="0.4001" layer="35"/>
+<wire x1="0.1" y1="0.65" x2="-0.1" y2="0.65" width="0.1" layer="21"/>
+<wire x1="-0.1" y1="-0.65" x2="0.1" y2="-0.65" width="0.1" layer="21"/>
+</package>
+<package name="R1210">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.913" y1="1.219" x2="0.939" y2="1.219" width="0.1524" layer="51"/>
+<wire x1="-0.913" y1="-1.219" x2="0.939" y2="-1.219" width="0.1524" layer="51"/>
+<wire x1="-2.473" y1="1.5338" x2="2.473" y2="1.5338" width="0.0508" layer="39"/>
+<wire x1="2.473" y1="1.5338" x2="2.473" y2="-1.5338" width="0.0508" layer="39"/>
+<wire x1="2.473" y1="-1.5338" x2="-2.473" y2="-1.5338" width="0.0508" layer="39"/>
+<wire x1="-2.473" y1="-1.5338" x2="-2.473" y2="1.5338" width="0.0508" layer="39"/>
+<smd name="1" x="-1.4" y="0" dx="1.6" dy="2.7" layer="1"/>
+<smd name="2" x="1.4" y="0" dx="1.6" dy="2.7" layer="1"/>
+<text x="0" y="2.54" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-2.54" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-1.651" y1="-1.3081" x2="-0.9009" y2="1.2918" layer="51"/>
+<rectangle x1="0.9144" y1="-1.3081" x2="1.6645" y2="1.2918" layer="51"/>
+<rectangle x1="-0.3" y1="-0.8999" x2="0.3" y2="0.8999" layer="35"/>
+<wire x1="-0.4" y1="1.25" x2="0.4" y2="1.25" width="0.127" layer="21"/>
+<wire x1="-0.4" y1="-1.25" x2="0.4" y2="-1.25" width="0.127" layer="21"/>
+</package>
+<package name="R2010">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-1.662" y1="1.245" x2="1.662" y2="1.245" width="0.1524" layer="51"/>
+<wire x1="-1.637" y1="-1.245" x2="1.687" y2="-1.245" width="0.1524" layer="51"/>
+<wire x1="-3.3" y1="1.5" x2="3.3" y2="1.5" width="0.0508" layer="39"/>
+<wire x1="3.3" y1="1.5" x2="3.3" y2="-1.5" width="0.0508" layer="39"/>
+<wire x1="3.3" y1="-1.5" x2="-3.3" y2="-1.5" width="0.0508" layer="39"/>
+<wire x1="-3.3" y1="-1.5" x2="-3.3" y2="1.5" width="0.0508" layer="39"/>
+<smd name="1" x="-2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
+<smd name="2" x="2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
+<text x="0" y="2.5" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-2.5" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-2.4892" y1="-1.3208" x2="-1.6393" y2="1.3292" layer="51"/>
+<rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
+<rectangle x1="-0.3" y1="-0.8999" x2="0.3" y2="0.8999" layer="35"/>
+<wire x1="-1" y1="1.25" x2="1" y2="1.25" width="0.127" layer="21"/>
+<wire x1="-1" y1="-1.25" x2="1" y2="-1.25" width="0.127" layer="21"/>
+</package>
+<package name="R2512">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-2.4" y1="1.5" x2="2.4" y2="1.5" width="0.1" layer="51"/>
+<wire x1="-2.4" y1="-1.5" x2="2.4" y2="-1.5" width="0.1" layer="51"/>
+<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
+<smd name="1" x="-2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
+<smd name="2" x="2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
+<text x="0" y="3.175" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.175" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-3.2" y1="-1.55" x2="-2.35" y2="1.55" layer="51"/>
+<rectangle x1="2.35" y1="-1.55" x2="3.2" y2="1.55" layer="51"/>
+<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
+<wire x1="1.65" y1="1.45" x2="-1.65" y2="1.45" width="0.127" layer="21"/>
+<wire x1="-1.65" y1="-1.45" x2="1.65" y2="-1.45" width="0.127" layer="21"/>
+</package>
+<package name="R3216M">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.913" y1="0.8" x2="0.888" y2="0.8" width="0.1524" layer="51"/>
+<wire x1="-0.913" y1="-0.8" x2="0.888" y2="-0.8" width="0.1524" layer="51"/>
+<wire x1="-2.473" y1="0.983" x2="2.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="2.473" y1="0.983" x2="2.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="2.473" y1="-0.983" x2="-2.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-2.473" y1="-0.983" x2="-2.473" y2="0.983" width="0.0508" layer="39"/>
+<smd name="1" x="-1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
+<smd name="2" x="1.4" y="0" dx="1.6" dy="1.8" layer="1"/>
+<text x="-1.905" y="1.27" size="1.27" layer="25">&gt;NAME</text>
+<text x="-1.905" y="-2.54" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-1.651" y1="-0.8763" x2="-0.9009" y2="0.8738" layer="51"/>
+<rectangle x1="0.889" y1="-0.8763" x2="1.6391" y2="0.8738" layer="51"/>
+<rectangle x1="-0.3" y1="-0.7" x2="0.3" y2="0.7" layer="35"/>
+</package>
+<package name="R5025M">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-1.662" y1="1.245" x2="1.662" y2="1.245" width="0.1524" layer="51"/>
+<wire x1="-1.637" y1="-1.245" x2="1.687" y2="-1.245" width="0.1524" layer="51"/>
+<wire x1="-3.473" y1="1.483" x2="3.473" y2="1.483" width="0.0508" layer="39"/>
+<wire x1="3.473" y1="1.483" x2="3.473" y2="-1.483" width="0.0508" layer="39"/>
+<wire x1="3.473" y1="-1.483" x2="-3.473" y2="-1.483" width="0.0508" layer="39"/>
+<wire x1="-3.473" y1="-1.483" x2="-3.473" y2="1.483" width="0.0508" layer="39"/>
+<smd name="1" x="-2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
+<smd name="2" x="2.2" y="0" dx="1.8" dy="2.7" layer="1"/>
+<text x="-3.175" y="1.905" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.175" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-2.4892" y1="-1.3208" x2="-1.6393" y2="1.3292" layer="51"/>
+<rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
+<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
+</package>
+<package name="R6332M">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
+Source: http://download.siliconexpert.com/pdfs/2005/02/24/Semi_Ap/2/VSH/Resistor/dcrcwfre.pdf</description>
+<wire x1="-2.362" y1="1.473" x2="2.387" y2="1.473" width="0.1524" layer="51"/>
+<wire x1="-2.362" y1="-1.473" x2="2.387" y2="-1.473" width="0.1524" layer="51"/>
+<smd name="1" x="-3" y="0" dx="1.16" dy="3.2" layer="1"/>
+<smd name="2" x="3" y="0" dx="1.16" dy="3.2" layer="1"/>
+<rectangle x1="-3.2004" y1="-1.5494" x2="-2.3505" y2="1.5507" layer="51"/>
+<rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
+<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
+<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
+<text x="0" y="3.175" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.175" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<wire x1="2.2" y1="1.45" x2="-2.2" y2="1.45" width="0.127" layer="21"/>
+<wire x1="-2.2" y1="-1.45" x2="2.2" y2="-1.45" width="0.127" layer="21"/>
+</package>
+<package name="R0201">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt; chip&lt;p&gt;
+Source: http://www.vishay.com/docs/20008/dcrcw.pdf</description>
+<smd name="1" x="-0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<smd name="2" x="0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.52" y1="-0.225" x2="-0.08" y2="0.225" layer="29"/>
+<rectangle x1="0.08" y1="-0.225" x2="0.52" y2="0.225" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
+<wire x1="-0.61" y1="0.25" x2="-0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.61" y1="-0.25" x2="-0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="-0.3" x2="0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="-0.3" x2="0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="-0.25" x2="0.61" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="0.25" x2="0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="0.3" x2="-0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="0.3" x2="-0.61" y2="0.25" width="0.0254" layer="39"/>
+</package>
+<package name="R1218">
+<description>&lt;b&gt;CRCW1218 Thick Film, Rectangular Chip Resistors&lt;/b&gt;&lt;p&gt;
+Source: http://www.vishay.com .. dcrcw.pdf</description>
+<wire x1="-0.913" y1="-2.219" x2="0.939" y2="-2.219" width="0.1524" layer="51"/>
+<wire x1="0.913" y1="2.219" x2="-0.939" y2="2.219" width="0.1524" layer="51"/>
+<smd name="1" x="-1.475" y="0" dx="1.05" dy="4.9" layer="1"/>
+<smd name="2" x="1.475" y="0" dx="1.05" dy="4.9" layer="1"/>
+<text x="0" y="3.81" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.81" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-1.651" y1="-2.3" x2="-0.9009" y2="2.3" layer="51"/>
+<rectangle x1="0.9144" y1="-2.3" x2="1.6645" y2="2.3" layer="51"/>
+<wire x1="-2.173" y1="2.6338" x2="2.173" y2="2.6338" width="0.0508" layer="39"/>
+<wire x1="2.173" y1="2.6338" x2="2.173" y2="-2.6338" width="0.0508" layer="39"/>
+<wire x1="2.173" y1="-2.6338" x2="-2.173" y2="-2.6338" width="0.0508" layer="39"/>
+<wire x1="-2.173" y1="-2.6338" x2="-2.173" y2="2.6338" width="0.0508" layer="39"/>
+<rectangle x1="-0.3" y1="-0.8999" x2="0.3" y2="0.8999" layer="35"/>
+<wire x1="-0.4" y1="2.25" x2="0.4" y2="2.25" width="0.127" layer="21"/>
+<wire x1="-0.4" y1="-2.25" x2="0.4" y2="-2.25" width="0.127" layer="21"/>
+</package>
+<package name="R2512HP">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-2.362" y1="1.473" x2="2.387" y2="1.473" width="0.1524" layer="51"/>
+<wire x1="-2.362" y1="-1.473" x2="2.387" y2="-1.473" width="0.1524" layer="51"/>
+<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
+<smd name="1" x="-2.1" y="0" dx="3.3" dy="3.3" layer="1"/>
+<smd name="2" x="2.1" y="0" dx="3.3" dy="3.3" layer="1"/>
+<text x="0" y="3.175" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.175" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-3.2004" y1="-1.5494" x2="-2.3505" y2="1.5507" layer="51"/>
+<rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
+<wire x1="0.25" y1="1.45" x2="-0.25" y2="1.45" width="0.127" layer="21"/>
+<wire x1="-0.25" y1="-1.45" x2="0.25" y2="-1.45" width="0.127" layer="21"/>
+</package>
+<package name="R0603L">
+<description>&lt;b&gt;Resistor&lt;/b&gt;</description>
+<smd name="1" x="-0.7" y="0" dx="0.75" dy="0.9" layer="1" stop="no"/>
+<smd name="2" x="0.7" y="0" dx="0.75" dy="0.9" layer="1" stop="no"/>
+<wire x1="-0.432" y1="-0.356" x2="0.432" y2="-0.356" width="0.1524" layer="51"/>
+<wire x1="0.432" y1="0.356" x2="-0.432" y2="0.356" width="0.1524" layer="51"/>
+<text x="0" y="1.5" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1.5" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
+<rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
+<wire x1="-0.13" y1="-0.4" x2="0.13" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="-0.13" y1="0.4" x2="0.13" y2="0.4" width="0.127" layer="21"/>
+<wire x1="-1.2" y1="0.6" x2="1.2" y2="0.6" width="0.05" layer="39"/>
+<wire x1="1.2" y1="0.6" x2="1.2" y2="-0.6" width="0.05" layer="39"/>
+<wire x1="1.2" y1="-0.6" x2="-1.2" y2="-0.6" width="0.05" layer="39"/>
+<wire x1="-1.2" y1="-0.6" x2="-1.2" y2="0.6" width="0.05" layer="39"/>
+<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+<rectangle x1="-1.125" y1="-0.5" x2="-0.275" y2="0.5" layer="29"/>
+<rectangle x1="0.275" y1="-0.5" x2="1.125" y2="0.5" layer="29" rot="R180"/>
+</package>
+<package name="R0402L">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<smd name="1" x="-0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<smd name="2" x="0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.25" x2="0.05" y2="0.25" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.25" x2="0.05" y2="-0.25" width="0.127" layer="21"/>
+<wire x1="-0.82" y1="0.39" x2="0.82" y2="0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="0.39" x2="0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="-0.39" x2="-0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="-0.82" y1="-0.39" x2="-0.82" y2="0.39" width="0.05" layer="39"/>
+<rectangle x1="-0.75" y1="-0.32" x2="-0.15" y2="0.32" layer="29"/>
+<rectangle x1="0.15" y1="-0.32" x2="0.75" y2="0.32" layer="29" rot="R180"/>
+</package>
+<package name="R0805L">
+<description>&lt;b&gt;CAPACITOR&lt;/b&gt;&lt;p&gt;</description>
+<wire x1="-1.35" y1="0.8" x2="1.35" y2="0.8" width="0.04" layer="39"/>
+<wire x1="1.35" y1="-0.8" x2="-1.35" y2="-0.8" width="0.04" layer="39"/>
+<wire x1="-1.35" y1="-0.8" x2="-1.35" y2="0.8" width="0.04" layer="39"/>
+<wire x1="-0.35" y1="0.55" x2="0.35" y2="0.55" width="0.1016" layer="51"/>
+<wire x1="-0.35" y1="-0.55" x2="0.35" y2="-0.55" width="0.1016" layer="51"/>
+<wire x1="1.35" y1="0.8" x2="1.35" y2="-0.8" width="0.04" layer="39"/>
+<smd name="1" x="-0.85" y="0" dx="0.8" dy="1.35" layer="1" stop="no"/>
+<smd name="2" x="0.85" y="0" dx="0.8" dy="1.35" layer="1" stop="no"/>
+<text x="0" y="1.65" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1.65" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-1.05" y1="-0.6" x2="-0.35" y2="0.6" layer="51"/>
+<rectangle x1="0.35" y1="-0.6" x2="1.05" y2="0.6" layer="51"/>
+<rectangle x1="-0.1001" y1="-0.4001" x2="0.1001" y2="0.4001" layer="35"/>
+<wire x1="0.25" y1="0.65" x2="-0.25" y2="0.65" width="0.1" layer="21"/>
+<wire x1="-0.25" y1="-0.65" x2="0.25" y2="-0.65" width="0.1" layer="21"/>
+<rectangle x1="-1.325" y1="-0.75" x2="-0.375" y2="0.75" layer="29"/>
+<rectangle x1="0.375" y1="-0.75" x2="1.325" y2="0.75" layer="29" rot="R180"/>
+</package>
+<package name="R1206L">
+<description>&lt;b&gt;CAPACITOR&lt;/b&gt;</description>
+<wire x1="-1.9" y1="0.95" x2="1.9" y2="0.95" width="0.1" layer="39"/>
+<wire x1="1.9" y1="-0.95" x2="-1.9" y2="-0.95" width="0.1" layer="39"/>
+<wire x1="-1.9" y1="-0.95" x2="-1.9" y2="0.95" width="0.1" layer="39"/>
+<wire x1="1.9" y1="0.95" x2="1.9" y2="-0.95" width="0.1" layer="39"/>
+<wire x1="-1" y1="0.75" x2="1" y2="0.75" width="0.1" layer="51"/>
+<wire x1="-1" y1="-0.75" x2="1" y2="-0.75" width="0.1" layer="51"/>
+<smd name="1" x="-1.35" y="0" dx="0.95" dy="1.7" layer="1" stop="no"/>
+<smd name="2" x="1.35" y="0" dx="0.95" dy="1.7" layer="1" stop="no"/>
+<text x="0" y="2" size="1" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-2" size="1" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-1.6" y1="-0.8" x2="-0.95" y2="0.8" layer="51"/>
+<rectangle x1="0.95" y1="-0.8" x2="1.6" y2="0.8" layer="51"/>
+<rectangle x1="-0.25" y1="-0.4" x2="0.25" y2="0.4" layer="35"/>
+<wire x1="-0.7" y1="0.8" x2="0.7" y2="0.8" width="0.125" layer="21"/>
+<wire x1="-0.7" y1="-0.8" x2="0.7" y2="-0.8" width="0.125" layer="21"/>
+<rectangle x1="0.825" y1="-0.9" x2="1.875" y2="0.9" layer="29"/>
+<rectangle x1="-1.875" y1="-0.9" x2="-0.825" y2="0.9" layer="29" rot="R180"/>
+</package>
+<package name="R1210L">
+<description>&lt;b&gt;CAPACITOR&lt;/b&gt;</description>
+<wire x1="-1.9" y1="1.4" x2="1.9" y2="1.4" width="0.1" layer="39"/>
+<wire x1="1.9" y1="-1.4" x2="-1.9" y2="-1.4" width="0.1" layer="39"/>
+<wire x1="-1.9" y1="-1.4" x2="-1.9" y2="1.4" width="0.1" layer="39"/>
+<wire x1="1.9" y1="1.4" x2="1.9" y2="-1.4" width="0.1" layer="39"/>
+<wire x1="-1" y1="1.2" x2="1" y2="1.2" width="0.1" layer="51"/>
+<wire x1="-1" y1="-1.2" x2="1" y2="-1.2" width="0.1" layer="51"/>
+<smd name="1" x="-1.35" y="0" dx="0.95" dy="2.6" layer="1" stop="no"/>
+<smd name="2" x="1.35" y="0" dx="0.95" dy="2.6" layer="1" stop="no"/>
+<text x="0" y="2" size="1" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-2" size="1" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-1.6" y1="-1.25" x2="-0.95" y2="1.25" layer="51"/>
+<rectangle x1="0.95" y1="-1.25" x2="1.6" y2="1.25" layer="51"/>
+<rectangle x1="-0.25" y1="-0.6" x2="0.25" y2="0.6" layer="35"/>
+<wire x1="-0.7" y1="1.25" x2="0.7" y2="1.25" width="0.125" layer="21"/>
+<wire x1="-0.7" y1="-1.25" x2="0.7" y2="-1.25" width="0.125" layer="21"/>
+<rectangle x1="0.825" y1="-1.35" x2="1.875" y2="1.35" layer="29"/>
+<rectangle x1="-1.875" y1="-1.35" x2="-0.825" y2="1.35" layer="29" rot="R180"/>
+</package>
+<package name="R2816">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-2.1" y1="2" x2="2.1" y2="2" width="0.2" layer="51"/>
+<wire x1="-2.1" y1="-2" x2="2.1" y2="-2" width="0.2" layer="51"/>
+<wire x1="-4.25" y1="2.55" x2="4.25" y2="2.55" width="0.0508" layer="39"/>
+<wire x1="4.25" y1="2.55" x2="4.25" y2="-2.55" width="0.0508" layer="39"/>
+<wire x1="4.25" y1="-2.55" x2="-4.25" y2="-2.55" width="0.0508" layer="39"/>
+<wire x1="-4.25" y1="-2.55" x2="-4.25" y2="2.55" width="0.0508" layer="39"/>
+<smd name="1" x="-2.8" y="0" dx="2.45" dy="4.6" layer="1"/>
+<smd name="2" x="2.8" y="0" dx="2.45" dy="4.6" layer="1"/>
+<text x="0" y="3.5" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-3.5" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-3.55" y1="-2.1" x2="-1.95" y2="2.1" layer="51"/>
+<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
+<wire x1="-1.3" y1="-2.1" x2="1.35" y2="-2.1" width="0.127" layer="21"/>
+<rectangle x1="1.95" y1="-2.1" x2="3.55" y2="2.1" layer="51" rot="R180"/>
+<wire x1="1.3" y1="2.1" x2="-1.35" y2="2.1" width="0.127" layer="21"/>
+</package>
+<package name="R0402L-AP">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<smd name="1" x="-0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<smd name="2" x="0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.25" x2="0.05" y2="0.25" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.25" x2="0.05" y2="-0.25" width="0.127" layer="21"/>
+<wire x1="-0.82" y1="0.39" x2="0.82" y2="0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="0.39" x2="0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="-0.39" x2="-0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="-0.82" y1="-0.39" x2="-0.82" y2="0.39" width="0.05" layer="39"/>
+<rectangle x1="-0.75" y1="-0.32" x2="-0.15" y2="0.32" layer="29"/>
+<rectangle x1="0.15" y1="-0.32" x2="0.75" y2="0.32" layer="29" rot="R180"/>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="-0.7" y="0.275"/>
+<vertex x="0.7" y="0.275"/>
+<vertex x="0.7" y="-0.275"/>
+<vertex x="-0.7" y="-0.275"/>
+</polygon>
+</package>
+<package name="R0201-AP">
+<description>Source: http://www.avxcorp.com/docs/catalogs/cx5r.pdf</description>
+<smd name="1" x="-0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<smd name="2" x="0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<wire x1="-0.61" y1="0.25" x2="-0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.61" y1="-0.25" x2="-0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="-0.3" x2="0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="-0.3" x2="0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="-0.25" x2="0.61" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="0.25" x2="0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="0.3" x2="-0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="0.3" x2="-0.61" y2="0.25" width="0.0254" layer="39"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.52" y1="-0.225" x2="-0.08" y2="0.225" layer="29"/>
+<rectangle x1="0.08" y1="-0.225" x2="0.52" y2="0.225" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="-0.5" y="0.2"/>
+<vertex x="0.5" y="0.2"/>
+<vertex x="0.5" y="-0.2"/>
+<vertex x="-0.5" y="-0.2"/>
+</polygon>
+</package>
+<package name="R0201-APB">
+<description>Source: http://www.avxcorp.com/docs/catalogs/cx5r.pdf</description>
+<smd name="1" x="-0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<smd name="2" x="0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<wire x1="-0.61" y1="0.25" x2="-0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.61" y1="-0.25" x2="-0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="-0.3" x2="0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="-0.3" x2="0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="-0.25" x2="0.61" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="0.25" x2="0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="0.3" x2="-0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="0.3" x2="-0.61" y2="0.25" width="0.0254" layer="39"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.52" y1="-0.225" x2="-0.08" y2="0.225" layer="29"/>
+<rectangle x1="0.08" y1="-0.225" x2="0.52" y2="0.225" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="-0.5" y="0.2"/>
+<vertex x="0.5" y="0.2"/>
+<vertex x="0.5" y="-0.2"/>
+<vertex x="-0.5" y="-0.2"/>
+</polygon>
+</package>
+<package name="R0402L-APB">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<smd name="1" x="-0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<smd name="2" x="0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.25" x2="0.05" y2="0.25" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.25" x2="0.05" y2="-0.25" width="0.127" layer="21"/>
+<wire x1="-0.82" y1="0.39" x2="0.82" y2="0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="0.39" x2="0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="-0.39" x2="-0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="-0.82" y1="-0.39" x2="-0.82" y2="0.39" width="0.05" layer="39"/>
+<rectangle x1="-0.75" y1="-0.32" x2="-0.15" y2="0.32" layer="29"/>
+<rectangle x1="0.15" y1="-0.32" x2="0.75" y2="0.32" layer="29" rot="R180"/>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="-0.7" y="0.275"/>
+<vertex x="0.7" y="0.275"/>
+<vertex x="0.7" y="-0.275"/>
+<vertex x="-0.7" y="-0.275"/>
+</polygon>
+</package>
+<package name="R0201-APS">
+<description>Source: http://www.avxcorp.com/docs/catalogs/cx5r.pdf</description>
+<smd name="1" x="-0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<smd name="2" x="0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<wire x1="-0.61" y1="0.25" x2="-0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.61" y1="-0.25" x2="-0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="-0.3" x2="0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="-0.3" x2="0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="-0.25" x2="0.61" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="0.25" x2="0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="0.3" x2="-0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="0.3" x2="-0.61" y2="0.25" width="0.0254" layer="39"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.52" y1="-0.225" x2="-0.08" y2="0.225" layer="29"/>
+<rectangle x1="0.08" y1="-0.225" x2="0.52" y2="0.225" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="0.12" y="0.2"/>
+<vertex x="0.5" y="0.2"/>
+<vertex x="0.5" y="-0.2"/>
+<vertex x="0.12" y="-0.2"/>
+</polygon>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="-0.5" y="0.2"/>
+<vertex x="-0.12" y="0.2"/>
+<vertex x="-0.12" y="-0.2"/>
+<vertex x="-0.5" y="-0.2"/>
+</polygon>
+</package>
+<package name="R0201-APSB">
+<description>Source: http://www.avxcorp.com/docs/catalogs/cx5r.pdf</description>
+<smd name="1" x="-0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<smd name="2" x="0.3" y="0" dx="0.4" dy="0.42" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<wire x1="-0.61" y1="0.25" x2="-0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.61" y1="-0.25" x2="-0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="-0.3" x2="0.56" y2="-0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="-0.3" x2="0.61" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="-0.25" x2="0.61" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.61" y1="0.25" x2="0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="0.56" y1="0.3" x2="-0.56" y2="0.3" width="0.0254" layer="39"/>
+<wire x1="-0.56" y1="0.3" x2="-0.61" y2="0.25" width="0.0254" layer="39"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.52" y1="-0.225" x2="-0.08" y2="0.225" layer="29"/>
+<rectangle x1="0.08" y1="-0.225" x2="0.52" y2="0.225" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="0.12" y="0.2"/>
+<vertex x="0.5" y="0.2"/>
+<vertex x="0.5" y="-0.2"/>
+<vertex x="0.12" y="-0.2"/>
+</polygon>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="-0.5" y="0.2"/>
+<vertex x="-0.12" y="0.2"/>
+<vertex x="-0.12" y="-0.2"/>
+<vertex x="-0.5" y="-0.2"/>
+</polygon>
+</package>
+<package name="R0402L-APS">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<smd name="1" x="-0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<smd name="2" x="0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.25" x2="0.05" y2="0.25" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.25" x2="0.05" y2="-0.25" width="0.127" layer="21"/>
+<wire x1="-0.82" y1="0.39" x2="0.82" y2="0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="0.39" x2="0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="-0.39" x2="-0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="-0.82" y1="-0.39" x2="-0.82" y2="0.39" width="0.05" layer="39"/>
+<rectangle x1="-0.75" y1="-0.32" x2="-0.15" y2="0.32" layer="29"/>
+<rectangle x1="0.15" y1="-0.32" x2="0.75" y2="0.32" layer="29" rot="R180"/>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="-0.7" y="0.275"/>
+<vertex x="-0.2" y="0.275"/>
+<vertex x="-0.2" y="-0.275"/>
+<vertex x="-0.7" y="-0.275"/>
+</polygon>
+<polygon width="0.075" layer="2" spacing="0.2" pour="cutout">
+<vertex x="0.2" y="0.275"/>
+<vertex x="0.7" y="0.275"/>
+<vertex x="0.7" y="-0.275"/>
+<vertex x="0.2" y="-0.275"/>
+</polygon>
+</package>
+<package name="R0402L-APSB">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.3" y1="0.2" x2="0.3" y2="0.2" width="0.1" layer="51"/>
+<wire x1="0.25" y1="-0.2" x2="-0.25" y2="-0.2" width="0.1" layer="51"/>
+<smd name="1" x="-0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<smd name="2" x="0.45" y="0" dx="0.47" dy="0.52" layer="1" roundness="15" stop="no"/>
+<text x="0" y="1" size="0.8" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-1" size="0.8" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.5" y1="-0.25" x2="-0.25" y2="0.25" layer="51"/>
+<rectangle x1="0.25" y1="-0.25" x2="0.5" y2="0.25" layer="51"/>
+<rectangle x1="-0.1" y1="-0.3" x2="0.1" y2="0.3" layer="35"/>
+<wire x1="-0.05" y1="0.25" x2="0.05" y2="0.25" width="0.127" layer="21"/>
+<wire x1="-0.05" y1="-0.25" x2="0.05" y2="-0.25" width="0.127" layer="21"/>
+<wire x1="-0.82" y1="0.39" x2="0.82" y2="0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="0.39" x2="0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="0.82" y1="-0.39" x2="-0.82" y2="-0.39" width="0.05" layer="39"/>
+<wire x1="-0.82" y1="-0.39" x2="-0.82" y2="0.39" width="0.05" layer="39"/>
+<rectangle x1="-0.75" y1="-0.32" x2="-0.15" y2="0.32" layer="29"/>
+<rectangle x1="0.15" y1="-0.32" x2="0.75" y2="0.32" layer="29" rot="R180"/>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="-0.7" y="0.275"/>
+<vertex x="-0.2" y="0.275"/>
+<vertex x="-0.2" y="-0.275"/>
+<vertex x="-0.7" y="-0.275"/>
+</polygon>
+<polygon width="0.075" layer="15" spacing="0.2" pour="cutout">
+<vertex x="0.2" y="0.275"/>
+<vertex x="0.7" y="0.275"/>
+<vertex x="0.7" y="-0.275"/>
+<vertex x="0.2" y="-0.275"/>
+</polygon>
+</package>
+<package name="R0201L">
+<description>Source: http://www.avxcorp.com/docs/catalogs/cx5r.pdf</description>
+<smd name="1" x="-0.25" y="0" dx="0.32" dy="0.32" layer="1" stop="no"/>
+<smd name="2" x="0.25" y="0" dx="0.32" dy="0.32" layer="1" stop="no"/>
+<rectangle x1="-0.3" y1="-0.15" x2="-0.15" y2="0.15" layer="51"/>
+<rectangle x1="0.15" y1="-0.15" x2="0.3" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="0.1" x2="0.15" y2="0.15" layer="51"/>
+<rectangle x1="-0.15" y1="-0.15" x2="0.15" y2="-0.1" layer="51"/>
+<wire x1="-0.51" y1="0.25" x2="-0.51" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="-0.51" y1="-0.25" x2="0.51" y2="-0.25" width="0.0254" layer="39"/>
+<wire x1="0.51" y1="-0.25" x2="0.51" y2="0.25" width="0.0254" layer="39"/>
+<wire x1="0.51" y1="0.25" x2="-0.51" y2="0.25" width="0.0254" layer="39"/>
+<text x="0" y="0.7" size="0.6" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
+<text x="0" y="-0.7" size="0.6" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
+<rectangle x1="-0.425" y1="-0.175" x2="-0.075" y2="0.175" layer="29"/>
+<rectangle x1="0.075" y1="-0.175" x2="0.425" y2="0.175" layer="29"/>
+<rectangle x1="-0.05" y1="-0.18" x2="0.05" y2="0.18" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -16123,7 +16552,7 @@ type 0204, grid 5 mm</description>
 <technology name=""/>
 </technologies>
 </device>
-<device name="R3216" package="R3216">
+<device name="R3216" package="R3216M">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -16159,7 +16588,7 @@ type 0204, grid 5 mm</description>
 <technology name=""/>
 </technologies>
 </device>
-<device name="R5025" package="R5025">
+<device name="R5025" package="R5025M">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -16177,7 +16606,7 @@ type 0204, grid 5 mm</description>
 <technology name=""/>
 </technologies>
 </device>
-<device name="R6332" package="R6332">
+<device name="R6332" package="R6332M">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -16745,6 +17174,150 @@ type 0204, grid 5 mm</description>
 </technologies>
 </device>
 <device name="1812X7R" package="1812X7R">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R2512HP" package="R2512HP">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0603L" package="R0603L">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0402L" package="R0402L">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0805L" package="R0805L">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R1206L" package="R1206L">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R1210L" package="R1210L">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R2816" package="R2816">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0402L-AP" package="R0402L-AP">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0201-AP" package="R0201-AP">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0201-APB" package="R0201-APB">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0402L-APB" package="R0402L-APB">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0201-APS" package="R0201-APS">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0201-APSB" package="R0201-APSB">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0402L-APS" package="R0402L-APS">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0402L-APSB" package="R0402L-APSB">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="R0201L" package="R0201L">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -18897,7 +19470,7 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="MPN" value="MF12 1K"/>
 <attribute name="OC_FARNELL" value="9342400"/>
 </part>
-<part name="SJ1" library="jumper" deviceset="JP2E" device="">
+<part name="SJ1" library="jumper" deviceset="JP2E" device="L">
 <attribute name="MF" value=""/>
 <attribute name="MPN" value=""/>
 <attribute name="OC_FARNELL" value="unknown"/>
@@ -18951,11 +19524,22 @@ DIN A3, landscape with location and doc. field</description>
 <attribute name="DRAWN_BY" value="Thomas Carpenter"/>
 </part>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
+<part name="R23" library="rcl" deviceset="R-EU_" device="0204/7" value="1k">
+<attribute name="MF" value="MULTICOMP"/>
+<attribute name="MPN" value="MF12 1K"/>
+<attribute name="OC_FARNELL" value="9342400"/>
+</part>
 </parts>
 <sheets>
 <sheet>
 <description>AstroEQ</description>
 <plain>
+<text x="20.32" y="91.44" size="1.4224" layer="97">IO3 selects between tracking
+speed on basic hand controller.
+
+Short = Solar
+Open = Sidereal
+3.9kR = Lunar</text>
 </plain>
 <instances>
 <instance part="C4" gate="G$1" x="314.96" y="99.06">
@@ -19300,6 +19884,11 @@ DIN A3, landscape with location and doc. field</description>
 </instance>
 <instance part="GND7" gate="1" x="165.1" y="162.56"/>
 <instance part="GND11" gate="1" x="66.04" y="25.4"/>
+<instance part="R23" gate="G$1" x="78.74" y="99.06">
+<attribute name="OC_FARNELL" value="9342400" x="78.74" y="99.06" size="1.778" layer="96" rot="R90" display="off"/>
+<attribute name="MF" value="MULTICOMP" x="78.74" y="99.06" size="1.778" layer="96" rot="R90" display="off"/>
+<attribute name="MPN" value="MF12 1K" x="78.74" y="99.06" size="1.778" layer="96" rot="R90" display="off"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -19763,9 +20352,14 @@ DIN A3, landscape with location and doc. field</description>
 <net name="RX" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="PD1/TXD0"/>
-<wire x1="134.62" y1="91.44" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="134.62" y1="91.44" x2="86.36" y2="91.44" width="0.1524" layer="91"/>
 <label x="132.08" y="91.44" size="1.778" layer="95" rot="MR0"/>
 <label x="50.8" y="91.44" size="1.4224" layer="95" font="vector" ratio="10" rot="R180" xref="yes"/>
+<wire x1="86.36" y1="91.44" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="99.06" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="86.36" y1="99.06" x2="86.36" y2="91.44" width="0.1524" layer="91"/>
+<junction x="86.36" y="91.44"/>
+<pinref part="R23" gate="G$1" pin="2"/>
 </segment>
 <segment>
 <pinref part="R16" gate="G$1" pin="1"/>
@@ -20023,9 +20617,16 @@ DIN A3, landscape with location and doc. field</description>
 <pinref part="IC1" gate="G$1" pin="PB6/MISO"/>
 <pinref part="PROG" gate="G$1" pin="1"/>
 <wire x1="71.12" y1="73.66" x2="68.58" y2="73.66" width="0.1524" layer="91"/>
-<wire x1="68.58" y1="73.66" x2="68.58" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="73.66" x2="68.58" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="99.06" x2="68.58" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="68.58" y1="106.68" x2="134.62" y2="106.68" width="0.1524" layer="91"/>
 <label x="132.08" y="106.68" size="1.778" layer="95" rot="MR0"/>
+<wire x1="73.66" y1="99.06" x2="68.58" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="106.68" x2="50.8" y2="106.68" width="0.1524" layer="91"/>
+<label x="50.8" y="106.68" size="1.4224" layer="95" font="vector" ratio="10" rot="R180" xref="yes"/>
+<junction x="68.58" y="106.68"/>
+<junction x="68.58" y="99.06"/>
+<pinref part="R23" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="ESTOP-MOSI" class="0">
@@ -20270,4 +20871,10 @@ DIN A3, landscape with location and doc. field</description>
 </errors>
 </schematic>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>
