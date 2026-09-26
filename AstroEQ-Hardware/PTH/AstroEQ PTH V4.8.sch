@@ -22866,6 +22866,12 @@ DIN A3, landscape with location and doc. field</description>
 <sheet>
 <description>AstroEQ</description>
 <plain>
+<text x="20.32" y="91.44" size="1.4224" layer="97">IO3 selects between tracking
+speed on basic hand controller.
+
+Short = Solar
+Open = Sidereal
+3.9kR = Lunar</text>
 </plain>
 <instances>
 <instance part="C4" gate="G$1" x="322.58" y="99.06">
@@ -23929,6 +23935,9 @@ DIN A3, landscape with location and doc. field</description>
 <pinref part="R23" gate="G$1" pin="1"/>
 <wire x1="73.66" y1="99.06" x2="68.58" y2="99.06" width="0.1524" layer="91"/>
 <junction x="68.58" y="99.06"/>
+<wire x1="68.58" y1="106.68" x2="50.8" y2="106.68" width="0.1524" layer="91"/>
+<label x="50.8" y="106.68" size="1.4224" layer="95" font="vector" ratio="10" rot="R180" xref="yes"/>
+<junction x="68.58" y="106.68"/>
 </segment>
 </net>
 <net name="!ESTOP!-MOSI" class="0">
