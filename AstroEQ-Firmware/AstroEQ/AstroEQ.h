@@ -190,7 +190,7 @@ typedef enum __attribute__((packed)){
 #define STANDALONE_IRQ   0
 #define STANDALONE_RIRQ  1
 #define STANDALONE_TGT   2
-#define STANDALONE_RTGT  2
+#define STANDALONE_RTGT  3
 
 typedef struct {
     unsigned int speed;
