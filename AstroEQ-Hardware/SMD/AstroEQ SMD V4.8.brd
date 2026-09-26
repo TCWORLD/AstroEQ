@@ -1739,7 +1739,6 @@ These strictly adhere to the PCB Train board house specs. The rules are &lt;i&gt
 <attribute name="MF" value="" x="25.4" y="27.94" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MPN" value="" x="25.4" y="27.94" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="25.55875" y="18.7325" size="1.27" layer="25" font="vector" ratio="15" rot="R180" align="center"/>
-<attribute name="VALUE" x="27.94" y="27.94" size="1.27" layer="27" font="vector" ratio="15" rot="R90" align="center"/>
 </element>
 <element name="R1" library="rcl" package="R0603" value="10k" x="22.86" y="34.925" smashed="yes" rot="R270">
 <attribute name="MPN" value="MCWR06X1002FTL" x="22.86" y="34.925" size="1.27" layer="27" font="vector" ratio="15" rot="R270" display="off"/>
@@ -1838,7 +1837,6 @@ These strictly adhere to the PCB Train board house specs. The rules are &lt;i&gt
 <attribute name="MF" value="MULTICOMP" x="47.9425" y="31.90875" size="1" layer="27" font="vector" ratio="15" rot="R180" display="off"/>
 <attribute name="OC_FARNELL" value="2447272" x="47.9425" y="31.90875" size="1" layer="27" font="vector" ratio="15" rot="R180" display="off"/>
 <attribute name="NAME" x="47.625" y="33.02" size="0.8" layer="25" font="vector" ratio="15" align="center"/>
-<attribute name="VALUE" x="47.9425" y="33.40875" size="0.8" layer="27" font="vector" ratio="15" rot="R180" align="center"/>
 </element>
 </elements>
 <signals>
