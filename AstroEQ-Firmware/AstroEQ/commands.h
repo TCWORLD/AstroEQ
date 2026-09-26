@@ -86,7 +86,7 @@ typedef struct{
 #define numberOfCommands 39
 
 void Commands_init(unsigned long _eVal, byte _gVal);
-void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis axis, ST4EqmodSpeed speed);
+void Commands_configureST4Speed(ST4SpeedMode mode, ST4TargetMode target, MotorAxis axis, ST4EqmodSpeed speed);
 char Commands_getLength(char cmd, CmdDirection sendRecieve, CmdProgMode isProg);
   
 //Command definitions

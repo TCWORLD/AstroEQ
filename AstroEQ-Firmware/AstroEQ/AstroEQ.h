@@ -147,13 +147,17 @@ typedef enum __attribute__((packed)) {
 } MotionStart;
 
 typedef enum __attribute__((packed)){
-    CMD_ST4_DEFAULT = 0,
-    CMD_ST4_STANDALONE,
+    CMD_ST4_TRACK = 0,
+    CMD_ST4_TRACK2X,
     CMD_ST4_HIGHSPEED,
-    CMD_ST4_EQMOD,
+    CMD_ST4_EQMOD
+} ST4SpeedMode;
+
+typedef enum __attribute__((packed)){
+    CMD_ST4_SIDEREAL = 0,
     CMD_ST4_LUNAR,
     CMD_ST4_SOLAR
-} ST4SpeedMode;
+} ST4TargetMode;
 
 typedef enum __attribute__((packed)){
     CMD_ST4_EQMOD_1X = 0,

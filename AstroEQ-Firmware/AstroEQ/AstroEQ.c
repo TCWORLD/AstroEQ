@@ -600,12 +600,6 @@ void storeEEPROM(){
 
 
 
-
-
-
-
-
-
 /*
  * Standalone Helpers
  */
@@ -643,31 +637,38 @@ CommsMode standaloneModeTest() {
         //Must be a basic controller as pin stayed low.
         return BASIC_HC_MODE;
     }
-
-
     //If we get this far then it is floating, so we assume EQMOD mode
     return EQMOD_MODE;
 }
 
-typedef enum __attribute__((packed)) {
-    RATE_GOTO   = -1,
-    RATE_TRACK  = 0,
-    RATE_2X_TRK = 1
-} hc_speed_t;
-
-typedef enum __attribute__((packed)) {
-    TARGET_SOLAR    = -1,
-    TARGET_SIDEREAL = 0,
-    TARGET_LUNAR    = 1
-} hc_target_t;
-
-
-static hc_speed_t checkTernarySpeedPinState() {
-    hc_speed_t hcPinState;
+ST4SpeedMode checkBasicHCSpeed() {
+    // Here we check what the speed is for the basic hand controller.
+    //
+    // The HC speed select pin if we have it is externally connected to a switch which
+    // selects between:
+    //   - Floating (default)
+    //   - 3.9k resistor to GND
+    //   - short to GND
+    //
+    // By using both external 1k and internal pull-ups on the io pin, we can determine
+    // which state the pin is in as follows.
+    //
+    //   - Pin states
+    //      +------------+-----+-----+------+
+    //      |   Pull-Up: | Int | Ext | Res  |
+    //      +------------+-----+-----+------+
+    //      | Track Rate |  0  |  0  | GND  |
+    //      |    2x Rate |  0  |  1  | 3.9k |
+    //      |  GoTo Rate |  1  |  1  | Hi-Z |
+    //      +------------+-----+-----+------+
+    //
+    
+    // Read speed selection
+    ST4SpeedMode hcPinState;
     if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
         // Pin pulled low even though strong external pull-up resistor is trying to drive high
         // Ext 0, Int x
-        hcPinState = RATE_TRACK;
+        hcPinState = CMD_ST4_TRACK;
     } else {
         // Otherwise check whether a weak or no external pull-down.
         setPinValue(standalonePin[STANDALONE_RIRQ],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
@@ -681,26 +682,53 @@ static hc_speed_t checkTernarySpeedPinState() {
         if(!getPinValue(standalonePin[STANDALONE_IRQ])) {
             // Low value with internal pull-up means external pull-down resistor.
             // Ext 1, Int 0
-            hcPinState = RATE_2X_TRK;
+            hcPinState = CMD_ST4_TRACK2X;
         } else {
             // High value with internal pull-up means pin floating.
             // Ext 1, Int 1
-            hcPinState = RATE_GOTO;
+            hcPinState = CMD_ST4_HIGHSPEED;
         }
     }
     // Ensure we leave an external strong pull-up of IRQ.
     setPinDir  (standalonePin[STANDALONE_RIRQ],OUTPUT);
     setPinValue(standalonePin[STANDALONE_RIRQ],HIGH);
+    
+    //And return the new speed
     return hcPinState;
 }
 
-static hc_target_t checkTernaryTargetPinState() {
-    hc_target_t hcPinState;
+ST4TargetMode checkBasicHCTarget() {
+    // Here we check what the speed is for the basic hand controller.
+    //
+    // The HC target select pin if we have it is externally connected to a switch which
+    // selects between:
+    //   - Floating (default)
+    //   - 3.9k resistor to GND
+    //   - short to GND
+    //
+    // By using both external 1k and internal pull-ups on the io pin, we can determine
+    // which state the pin is in as follows.
+    //
+    //   - Pin states
+    //      +-----------+-----+-----+------+
+    //      |  Pull-Up: | Int | Ext | Res  |
+    //      +-----------+-----+-----+------+
+    //      |  Sidereal |  0  |  0  | GND  |
+    //      |     Lunar |  0  |  1  | 3.9k |
+    //      |     Solar |  1  |  1  | Hi-Z |
+    //      +-----------+-----+-----+------+
+    //
+    // Notes:
+    // * If target pin is unavailable, always selects sidereal target
+    // * If we don't have an external 1k pull-up resistor, this function will return either Sidereal or Solar
+    //
+
+    ST4TargetMode hcPinState;
 #ifdef TARGET_SELECT_GPIO_PIN
     if(!getPinValue(standalonePin[STANDALONE_TGT])) {
         // Pin pulled low even though strong external pull-up resistor is trying to drive high
         // Ext 0, Int x
-        hcPinState = TARGET_SIDEREAL;
+        hcPinState = CMD_ST4_SIDEREAL;
     } else {
         // Otherwise check whether a weak or no external pull-down.
         setPinValue(standalonePin[STANDALONE_RTGT],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
@@ -714,103 +742,22 @@ static hc_target_t checkTernaryTargetPinState() {
         if(!getPinValue(standalonePin[STANDALONE_TGT])) {
             // Low value with internal pull-up means external pull-down resistor.
             // Ext 1, Int 0
-            hcPinState = TARGET_LUNAR;
+            hcPinState = CMD_ST4_LUNAR;
         } else {
             // High value with internal pull-up means pin floating.
             // Ext 1, Int 1
-            hcPinState = TARGET_SOLAR;
-        }            
+            hcPinState = CMD_ST4_SOLAR;
+        }
     }
     // Ensure we leave an external strong pull-up of IRQ.
     setPinDir  (standalonePin[STANDALONE_RTGT],OUTPUT);
     setPinValue(standalonePin[STANDALONE_RTGT],HIGH);
 #else
     // If we don't have target pin state, assume Ext 0, Int x (sidereal target)
-    hcPinState = TARGET_SIDEREAL;
+    hcPinState = CMD_ST4_SIDEREAL;
 #endif
     return hcPinState;
 }
-
-
-ST4SpeedMode checkBasicHCSpeed() {
-    // Here we check what the speed is for the basic hand controller.
-    //
-    // The HC speed pin and target select pin if we have it, are each externally connected to a
-    // switch which selects between:
-    //   - Floating (default)
-    //   - 3.9k resistor to GND
-    //   - short to GND
-    //
-    // By using both external 1k and internal pull-ups on the io pin, we can determine
-    // which state the pin is in as follows.
-    //
-    //   - Pin states
-    //      +-----------+-----+-----+------+----------------+
-    //      |  Pull-Up: | Int | Ext | Res  | hc/tgtPinState |
-    //      +-----------+-----+-----+------+----------------+
-    //      | ST-4 Rate |  0  |  0  | GND  |  0             |
-    //      |   2x Rate |  0  |  1  | 3.9k |  1             |
-    //      | GoTo Rate |  1  |  1  | Hi-Z | -1             |
-    //      +-----------+-----+-----+------+----------------+
-    //
-    // The speed selection maps as follows (track rate is selected based on target):
-    //
-    //      +------------+------------+
-    //      | hcPinState |      Speed |
-    //      +------------+------------+
-    //      |  0         | Track Rate |
-    //      |  1         |    2x Rate |
-    //      | -1         |  GoTo Rate |
-    //      +------------+------------+
-    //
-    // When the target IO pin is available, the following target is selected depending on the pin state:
-    //
-    //      +-------------+-----------+
-    //      | tgtPinState |    Target |
-    //      +-------------+-----------+
-    //      |  0          |  Sidereal |
-    //      |  1          |     Lunar |
-    //      | -1          |     Solar |
-    //      +-------------+-----------+
-    //
-    // Notes:
-    // * If target pin is unavailable, always selects sidereal target
-    // * If we don't have an external pull-up resistor, this function will return either Sidereal ST-4 Rate (0,0) or GoTo Rate (1,1)
-    //
-    
-    // Read speed selection
-    hc_speed_t hcPinState = checkTernarySpeedPinState();
-    hc_target_t tgtPinState = checkTernaryTargetPinState();
-    
-    // Select target base speed
-    ST4SpeedMode speed;
-    switch (hcPinState) {
-        case RATE_GOTO:
-            speed = CMD_ST4_HIGHSPEED;
-            break;
-        case RATE_2X_TRK:
-            speed = CMD_ST4_STANDALONE;
-            break;
-        default: {
-            switch (tgtPinState) {
-                case TARGET_LUNAR:
-                    speed = CMD_ST4_LUNAR;
-                    break;
-                case TARGET_SOLAR:
-                    speed = CMD_ST4_SOLAR;
-                    break;
-                default:
-                    speed = CMD_ST4_DEFAULT;
-                    break;
-            }
-            break;
-        }
-    }
-    
-    //And return the new speed
-    return speed;
-}
-
 
 
 /*
@@ -919,7 +866,7 @@ int main(void) {
                     setPinDir  (modePins[DC][MODE2],!(state & (byte)(1<<MODE2DIR)));
                     
                     
-                    Commands_configureST4Speed(CMD_ST4_DEFAULT, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds to default
+                    Commands_configureST4Speed(CMD_ST4_TRACK, CMD_ST4_SIDEREAL, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds to default
                     
                     cmd.highSpeedMode[RA] = false;
                     cmd.highSpeedMode[DC] = false;
@@ -1147,9 +1094,10 @@ int main(void) {
                 
                 //Check the speed
                 ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();
+                ST4TargetMode newBasicHCTarget = checkBasicHCTarget();
                 if (newBasicHCSpeed != cmd.st4Mode) {
                     //Only update speed if changed.
-                    Commands_configureST4Speed(newBasicHCSpeed, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds
+                    Commands_configureST4Speed(newBasicHCSpeed, newBasicHCTarget, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds
                     byte state;
                     if (canJumpToHighspeed && (newBasicHCSpeed == CMD_ST4_HIGHSPEED)) {
                         //If we can jump to high torque mode, and we are requesting Go-To s
@@ -1377,7 +1325,7 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             }
             break;
         case 'P': //Set auto-guide speed
-            Commands_configureST4Speed(CMD_ST4_EQMOD, axis, (ST4EqmodSpeed)(buffer[0] - '0'));
+            Commands_configureST4Speed(CMD_ST4_EQMOD, CMD_ST4_SIDEREAL, axis, (ST4EqmodSpeed)(buffer[0] - '0'));
             break;
         case 'V': //Set the polar scope LED brightness
             polarscopeDutyRegister(synta_hexToByte(buffer));
