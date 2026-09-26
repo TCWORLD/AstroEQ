@@ -713,9 +713,9 @@ ST4TargetMode checkBasicHCTarget() {
     //      +-----------+-----+-----+------+
     //      |  Pull-Up: | Int | Ext | Res  |
     //      +-----------+-----+-----+------+
-    //      |  Sidereal |  0  |  0  | GND  |
+    //      |     Solar |  0  |  0  | GND  |
     //      |     Lunar |  0  |  1  | 3.9k |
-    //      |     Solar |  1  |  1  | Hi-Z |
+    //      |  Sidereal |  1  |  1  | Hi-Z |
     //      +-----------+-----+-----+------+
     //
     // Notes:
@@ -728,7 +728,7 @@ ST4TargetMode checkBasicHCTarget() {
     if(!getPinValue(standalonePin[STANDALONE_TGT])) {
         // Pin pulled low even though strong external pull-up resistor is trying to drive high
         // Ext 0, Int x
-        hcPinState = CMD_ST4_SIDEREAL;
+        hcPinState = CMD_ST4_SOLAR;
     } else {
         // Otherwise check whether a weak or no external pull-down.
         setPinValue(standalonePin[STANDALONE_RTGT],LOW);   //Pull external resistor low to drain any line capacitance - mid speed sensing is sensitive!
@@ -746,7 +746,7 @@ ST4TargetMode checkBasicHCTarget() {
         } else {
             // High value with internal pull-up means pin floating.
             // Ext 1, Int 1
-            hcPinState = CMD_ST4_SOLAR;
+            hcPinState = CMD_ST4_SIDEREAL;
         }
     }
     // Ensure we leave an external strong pull-up of IRQ.
