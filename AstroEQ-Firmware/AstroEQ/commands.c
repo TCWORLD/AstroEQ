@@ -78,7 +78,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
 #define CMD_IVal_SiderealToSolar(IVal) (unsigned int)(((uint32_t)IVal * 65715UL) >> 16)
 #define CMD_IVal_SiderealToLunar(IVal) (unsigned int)(((uint32_t)IVal * 67997UL) >> 16)
 
-void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpeed speed) {
+void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis axis, ST4EqmodSpeed speed) {
     cmd.st4Mode = mode;
     if (mode == CMD_ST4_HIGHSPEED) {
         //Set the ST4 speeds to high-speed standalone mode (goto speeds)
@@ -98,12 +98,12 @@ void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpe
         byte speedFactors[CMD_ST4_EQMOD_COUNT] = {8,6,4,2,1};
         if (speed >= CMD_ST4_EQMOD_COUNT) return;
         //Set the ST4 speeds to eqmod mode (0.125x increments around sidereal speed)
-        if (target == RA) {
+        if (axis == RA) {
             cmd.st4RATrackIVal  = cmd.siderealIVal[RA];
             cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA] * 8)/(8 + speedFactors[speed]); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
             cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA] * 8)/(8 - speedFactors[speed]); //(1-SpeedFactor)x speed
             cmd.st4RAReverse    = CMD_FORWARD;
-        } else if (target == DC) {        
+        } else if (axis == DC) {        
             cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 8)/(0 + speedFactors[speed]); //(SpeedFactor)x speed
         }        
     } else {

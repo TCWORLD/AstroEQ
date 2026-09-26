@@ -86,7 +86,7 @@ typedef struct{
 #define numberOfCommands 39
 
 void Commands_init(unsigned long _eVal, byte _gVal);
-void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis target, ST4EqmodSpeed speed);
+void Commands_configureST4Speed(ST4SpeedMode mode, MotorAxis axis, ST4EqmodSpeed speed);
 char Commands_getLength(char cmd, CmdDirection sendRecieve, CmdProgMode isProg);
   
 //Command definitions
@@ -94,87 +94,87 @@ extern const char command[numberOfCommands][3];
 extern Commands cmd;
 
 //Methods for accessing command variables
-inline void cmd_setDir(MotorAxis target, MotorDir dir){ //Set Method
-    cmd.dir[target] = dir; //set direction
+inline void cmd_setDir(MotorAxis axis, MotorDir dir){ //Set Method
+    cmd.dir[axis] = dir; //set direction
 }
 
-inline void cmd_updateStepDir(MotorAxis target, byte stepSize){
-    if(cmd.dir[target] == CMD_REVERSE){
-        cmd.stepDir[target] = -stepSize; //set step direction
+inline void cmd_updateStepDir(MotorAxis axis, byte stepSize){
+    if(cmd.dir[axis] == CMD_REVERSE){
+        cmd.stepDir[axis] = -stepSize; //set step direction
     } else {
-        cmd.stepDir[target] = stepSize; //set step direction
+        cmd.stepDir[axis] = stepSize; //set step direction
     }
 }
 
-inline unsigned int cmd_fVal(MotorAxis target){ //_fVal: 0hds00er000f; h=high speed, d = dir, s = slew, e = estop, r = running, f = energised
+inline unsigned int cmd_fVal(MotorAxis axis){ //_fVal: 0hds00er000f; h=high speed, d = dir, s = slew, e = estop, r = running, f = energised
     unsigned int fVal = 0;
-    if (cmd.highSpeedMode[target] == CMD_HIGHSPEED) {
+    if (cmd.highSpeedMode[axis] == CMD_HIGHSPEED) {
         fVal |= (1 << 10);
     }
-    if (cmd.dir[target] == CMD_REVERSE) {
+    if (cmd.dir[axis] == CMD_REVERSE) {
         fVal |= (1 <<  9);
     }
-    if (cmd.gotoEn[target] == CMD_DISABLED) {
+    if (cmd.gotoEn[axis] == CMD_DISABLED) {
         fVal |= (1 <<  8);
     }
     if (cmd.estop == CMD_EMERGENCY) {
         fVal |= (1 <<  5);
     }
-    if (cmd.stopped[target] != CMD_STOPPED) {
+    if (cmd.stopped[axis] != CMD_STOPPED) {
         fVal |= (1 <<  4);
     }
-    if (cmd.FVal[target] == CMD_ENABLED){
+    if (cmd.FVal[axis] == CMD_ENABLED){
         fVal |= (1 <<  0);
     }
     return fVal;
 }
 
-inline void cmd_setsideIVal(MotorAxis target, unsigned int _sideIVal){ //set Method
-    cmd.siderealIVal[target] = _sideIVal;
+inline void cmd_setsideIVal(MotorAxis axis, unsigned int _sideIVal){ //set Method
+    cmd.siderealIVal[axis] = _sideIVal;
 }
 
-inline void cmd_setStopped(MotorAxis target, MotorRunning stopped){ //Set Method
-    cmd.stopped[target] = stopped;
+inline void cmd_setStopped(MotorAxis axis, MotorRunning stopped){ //Set Method
+    cmd.stopped[axis] = stopped;
 }
 
 inline void cmd_setEmergency(EmergencyStop estop){ //Set Method
     cmd.estop = estop;
 }
 
-inline void cmd_setGotoEn(MotorAxis target, CmdEnabled gotoEn){ //Set Method
-    cmd.gotoEn[target] = gotoEn;
+inline void cmd_setGotoEn(MotorAxis axis, CmdEnabled gotoEn){ //Set Method
+    cmd.gotoEn[axis] = gotoEn;
 }
 
-inline void cmd_setFVal(MotorAxis target, CmdEnabled motor){ //Set Method
-    cmd.FVal[target] = motor;
+inline void cmd_setFVal(MotorAxis axis, CmdEnabled motor){ //Set Method
+    cmd.FVal[axis] = motor;
 }
 
-inline void cmd_setjVal(MotorAxis target, unsigned long _jVal){ //Set Method
-    cmd.jVal[target] = _jVal;
+inline void cmd_setjVal(MotorAxis axis, unsigned long _jVal){ //Set Method
+    cmd.jVal[axis] = _jVal;
 }
 
-inline void cmd_setIVal(MotorAxis target, unsigned int _IVal){ //Set Method
-    cmd.IVal[target] = _IVal;
+inline void cmd_setIVal(MotorAxis axis, unsigned int _IVal){ //Set Method
+    cmd.IVal[axis] = _IVal;
 }
 
-inline void cmd_setaVal(MotorAxis target, unsigned long _aVal){ //Set Method
-    cmd.aVal[target] = _aVal;
+inline void cmd_setaVal(MotorAxis axis, unsigned long _aVal){ //Set Method
+    cmd.aVal[axis] = _aVal;
 }
 
-inline void cmd_setbVal(MotorAxis target, unsigned long _bVal){ //Set Method
-    cmd.bVal[target] = _bVal;
+inline void cmd_setbVal(MotorAxis axis, unsigned long _bVal){ //Set Method
+    cmd.bVal[axis] = _bVal;
 }
 
-inline void cmd_setsVal(MotorAxis target, unsigned long _sVal){ //Set Method
-    cmd.sVal[target] = _sVal;
+inline void cmd_setsVal(MotorAxis axis, unsigned long _sVal){ //Set Method
+    cmd.sVal[axis] = _sVal;
 }
 
-inline void cmd_setHVal(MotorAxis target, unsigned long _HVal){ //Set Method
-    cmd.HVal[target] = _HVal;
+inline void cmd_setHVal(MotorAxis axis, unsigned long _HVal){ //Set Method
+    cmd.HVal[axis] = _HVal;
 }
 
-inline void cmd_setGVal(MotorAxis target, CmdSlewMode _GVal){ //Set Method
-    cmd.GVal[target] = _GVal;
+inline void cmd_setGVal(MotorAxis axis, CmdSlewMode _GVal){ //Set Method
+    cmd.GVal[axis] = _GVal;
 }
 
 inline void cmd_setST4SpeedFactor(byte _factor){ //Set Method
