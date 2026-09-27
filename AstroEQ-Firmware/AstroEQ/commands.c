@@ -80,6 +80,7 @@ void Commands_init(unsigned long _eVal, byte _gVal){
 
 void Commands_configureST4Speed(ST4SpeedMode mode, ST4TargetMode target, MotorAxis axis, ST4EqmodSpeed speed) {
     cmd.st4Mode = mode;
+    cmd.st4Target = target;
     if (mode == CMD_ST4_EQMOD) {
         byte speedFactors[CMD_ST4_EQMOD_COUNT] = {8,6,4,2,1};
         if (speed >= CMD_ST4_EQMOD_COUNT) return;

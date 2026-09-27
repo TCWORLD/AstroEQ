@@ -69,6 +69,7 @@ typedef struct{
     unsigned long    sVal           [2]; //_sVal: Steps per worm gear revolution
     MotorDir         st4RAReverse;       //Reverse RA- axis direction if true.
     ST4SpeedMode     st4Mode;            //Current ST-4 mode
+    ST4TargetMode    st4Target;          //Current ST-4 target
     byte             st4SpeedFactor;     //Multiplication factor to get st4 speed. min = 1 = 0.05x, max = 19 = 0.95x.
     EmergencyStop    estop;
     unsigned int     st4RATrackIVal;     //_IVal: for RA ST4 tracking. Accounts for e.g. solar/lunar tracking modes

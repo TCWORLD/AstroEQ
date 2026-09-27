@@ -1095,7 +1095,7 @@ int main(void) {
                 //Check the speed
                 ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();
                 ST4TargetMode newBasicHCTarget = checkBasicHCTarget();
-                if (newBasicHCSpeed != cmd.st4Mode) {
+                if (newBasicHCSpeed != cmd.st4Mode || newBasicHCTarget != cmd.st4Target) {
                     //Only update speed if changed.
                     Commands_configureST4Speed(newBasicHCSpeed, newBasicHCTarget, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds
                     byte state;
