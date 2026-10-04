@@ -138,7 +138,7 @@
 #define gpioPin_2_Define 28  //IO2 (Header Pin 2) [ATMega PE0] - Control Pin - connected via 1k resistor to IO0
                              //GND (Header Pin 1)
 #define gpioPin_3_Define 12  //IO3 (PrgHdr Pin 1) [ATMega PB6] - Input Pin - HC celestial target selection (Star/Sun/Moon)
-#define gpioPin_4_Define 1   //IO4 (MCU   Pin 11) [ATMega PD1] - Control Pin - connected via 1k resistor to IO3 (NOTE: shared with UART TX)
+#define gpioPin_4_Define 20  //IO4 (MCU   Pin 21) [ATMega PC0] - Control Pin - connected via 1k resistor to IO3
 
 //PWM Pin:
 #define pwmPin_Define    9   // (PWM Jack) [ATMega PB1] - Open Drain Output
