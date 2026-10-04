@@ -86,16 +86,18 @@ void Commands_configureST4Speed(ST4SpeedMode mode, ST4TargetMode target, MotorAx
         if (speed >= CMD_ST4_EQMOD_COUNT) return;
         //Set the ST4 speeds to EQMOD mode (0.125x increments around sidereal speed)
         if (axis == RA) {
-            cmd.st4RATrackIVal  = cmd.siderealIVal[RA];
-            cmd.st4RAIVal[ST4P] = (cmd.siderealIVal[RA] * 8)/(8 + speedFactors[speed]); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
-            cmd.st4RAIVal[ST4N] = (cmd.siderealIVal[RA] * 8)/(8 - speedFactors[speed]); //(1-SpeedFactor)x speed
+            unsigned int raBaseIVal = cmd.siderealIVal[RA];
+            cmd.st4RATrackIVal  = raBaseIVal;
+            cmd.st4RAIVal[ST4P] = (raBaseIVal * 8)/(8 + speedFactors[speed]); //(1+SpeedFactor)x speed   -- Max. IVal = 1200, so this will never overflow.
+            cmd.st4RAIVal[ST4N] = (raBaseIVal * 8)/(8 - speedFactors[speed]); //(1-SpeedFactor)x speed
             cmd.st4RAReverse    = CMD_FORWARD;
-        } else if (axis == DC) {        
-            cmd.st4DecIVal      = (cmd.siderealIVal[DC] * 8)/(0 + speedFactors[speed]); //(SpeedFactor)x speed
+        } else if (axis == DC) {
+            unsigned int dcBaseIVal = cmd.siderealIVal[DC];
+            cmd.st4DecIVal      = (dcBaseIVal * 8)/(0 + speedFactors[speed]); //(SpeedFactor)x speed
         }
     } else {
-        int raBaseIVal = cmd.siderealIVal[RA];
-        int dcBaseIVal = cmd.siderealIVal[DC];
+        unsigned int raBaseIVal = cmd.siderealIVal[RA];
+        unsigned int dcBaseIVal = cmd.siderealIVal[DC];
         if (target == CMD_ST4_SOLAR) {
             // Convert sidereal base to solar speeds
             raBaseIVal = CMD_IVal_SiderealToSolar(raBaseIVal);

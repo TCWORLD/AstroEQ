@@ -236,7 +236,6 @@ static const byte stepPin[2] = {stepPin_0_Define,stepPin_1_Define};
 static const byte st4Pins[2][2] = {{ST4AddPin_0_Define,ST4SubPin_0_Define},{ST4AddPin_1_Define,ST4SubPin_1_Define}};
 static const byte modePins[2][3] = {{modePins0_0_Define,modePins1_0_Define,modePins2_0_Define},{modePins0_1_Define,modePins1_1_Define,modePins2_1_Define}};
 
-
 /*
  * Function Prototypes
  */
@@ -248,7 +247,6 @@ void buildEEPROM();
 void storeEEPROM();
 void systemInitialiser();
 CommsMode standaloneModeTest();
-ST4SpeedMode checkBasicHCSpeed();
 int main(void);
 bool decodeCommand(char command, char* packetIn);
 void calculateRate(byte axis);

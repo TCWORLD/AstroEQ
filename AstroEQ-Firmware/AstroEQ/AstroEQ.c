@@ -133,7 +133,7 @@ inline void clearGotoDecelerating(const byte axis) {
     gotoControlRegister &= ~gotoDeceleratingBitMask(axis);
 }
 inline bool motionIsSlew(const unsigned char GVal) {
-    return !!(GVal & 1); // CMD_GVAL_HIGHSPEED_SLEW or CMD_GVAL_LOWSPEED_SLEW (Odd Nummbers)
+    return !!(GVal & 1); // CMD_GVAL_HIGHSPEED_SLEW or CMD_GVAL_LOWSPEED_SLEW (Odd Numbers)
 }
 inline bool motionIsGoto(const unsigned char GVal) {
     return !(GVal & 1); // CMD_GVAL_HIGHSPEED_GOTO or CMD_GVAL_LOWSPEED_GOTO (Even Numbers)
@@ -641,7 +641,7 @@ CommsMode standaloneModeTest() {
     return EQMOD_MODE;
 }
 
-ST4SpeedMode checkBasicHCSpeed() {
+ST4SpeedMode checkBasicHCSpeed(ST4SpeedMode currentSpeed) {
     // Here we check what the speed is for the basic hand controller.
     //
     // The HC speed select pin if we have it is externally connected to a switch which
@@ -662,6 +662,9 @@ ST4SpeedMode checkBasicHCSpeed() {
     //      |  GoTo Rate |  1  |  1  | Hi-Z |
     //      +------------+-----+-----+------+
     //
+    
+    // Store previous states to form a filter to remove spurious changes.
+    static ST4SpeedMode prevPinState[3] = {0};
     
     // Read speed selection
     ST4SpeedMode hcPinState;
@@ -693,11 +696,21 @@ ST4SpeedMode checkBasicHCSpeed() {
     setPinDir  (standalonePin[STANDALONE_RIRQ],OUTPUT);
     setPinValue(standalonePin[STANDALONE_RIRQ],HIGH);
     
-    //And return the new speed
+    // Update rolling filter
+    prevPinState[2] = prevPinState[1];
+    prevPinState[1] = prevPinState[0];
+    prevPinState[0] = hcPinState;
+    
+    // Check if stable
+    if (prevPinState[0] != prevPinState[1] || prevPinState[1] != prevPinState[2]) {
+        // Unstable, don't update pin state
+        return currentSpeed;
+    }
+    // Constant state, so return new value.
     return hcPinState;
 }
 
-ST4TargetMode checkBasicHCTarget() {
+ST4TargetMode checkBasicHCTarget(ST4TargetMode currentTarget) {
     // Here we check what the speed is for the basic hand controller.
     //
     // The HC target select pin if we have it is externally connected to a switch which
@@ -722,9 +735,11 @@ ST4TargetMode checkBasicHCTarget() {
     // * If target pin is unavailable, always selects sidereal target
     // * If we don't have an external 1k pull-up resistor, this function will return either Sidereal or Solar
     //
-
-    ST4TargetMode hcPinState;
 #ifdef TARGET_SELECT_GPIO_PIN
+    // Store previous states to form a filter to remove spurious changes.
+    static ST4TargetMode prevPinState[3] = {0};
+    // Read target
+    ST4TargetMode hcPinState;
     if(!getPinValue(standalonePin[STANDALONE_TGT])) {
         // Pin pulled low even though strong external pull-up resistor is trying to drive high
         // Ext 0, Int x
@@ -752,11 +767,22 @@ ST4TargetMode checkBasicHCTarget() {
     // Ensure we leave an external strong pull-up of IRQ.
     setPinDir  (standalonePin[STANDALONE_RTGT],OUTPUT);
     setPinValue(standalonePin[STANDALONE_RTGT],HIGH);
+    
+    // Update rolling filter
+    prevPinState[2] = prevPinState[1];
+    prevPinState[1] = prevPinState[0];
+    prevPinState[0] = hcPinState;
+    // Check if stable
+    if (prevPinState[0] != prevPinState[1] || prevPinState[1] != prevPinState[2]) {
+        // Unstable, don't update pin state
+        return currentTarget;
+    }
+    // Constant state, so return new value.
+    return hcPinState;
 #else
     // If we don't have target pin state, assume Ext 0, Int x (sidereal target)
-    hcPinState = CMD_ST4_SIDEREAL;
+    return CMD_ST4_SIDEREAL;
 #endif
-    return hcPinState;
 }
 
 
@@ -1084,8 +1110,6 @@ int main(void) {
         // ST4 Basic Hand Controller Mode
         //
             if (loopCount == 0) {
-                //we run these checks every so often, not all the time.
-                
                 //Update status LED
                 togglePin(statusPin); //Toggle status pin at roughly constant rate in basic mode as indicator
 #ifdef STATUS_SHADOW_GPIO_PIN
@@ -1093,8 +1117,8 @@ int main(void) {
 #endif
                 
                 //Check the speed
-                ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed();
-                ST4TargetMode newBasicHCTarget = checkBasicHCTarget();
+                ST4SpeedMode newBasicHCSpeed = checkBasicHCSpeed(cmd.st4Mode);
+                ST4TargetMode newBasicHCTarget = checkBasicHCTarget(cmd.st4Target);
                 if (newBasicHCSpeed != cmd.st4Mode || newBasicHCTarget != cmd.st4Target) {
                     //Only update speed if changed.
                     Commands_configureST4Speed(newBasicHCSpeed, newBasicHCTarget, AXIS_COUNT, CMD_ST4_EQMOD_COUNT); //Change the ST4 speeds
@@ -1161,7 +1185,7 @@ int main(void) {
                         cmd_updateStepDir(RA,cmd.highSpeedMode[RA] ? cmd.gVal[RA] : 1);
                         if ((st4Pin == ST4O) && (cmd.st4Mode == CMD_ST4_HIGHSPEED)) {
                             motorStopRA(STOPNORMAL); //If no buttons pressed and in high speed mode, we stop entirely rather than going to tracking
-                                                //This ensures that the motors stop if the hand controller is subsequently unplugged.
+                                                     //This ensures that the motors stop if the hand controller is subsequently unplugged.
                         } else {
                             motorStartRA(); //If the motor is currently stopped at this point, this will automatically start them.
                         }
@@ -1699,7 +1723,7 @@ void motorStartRA(){
     }
     
     interruptControlRegister(RA, interruptControlRegister(RA) & ~interruptControlBitMask(RA)); //Disable timer interrupt
-    cmd.currentIVal[RA] = cmd.IVal[RA];
+    cmd.currentIVal[RA] = IVal;
     currentMotorSpeed(RA, startSpeed);
     cmd.stopSpeed[RA] = stoppingSpeed;
     setPinValue(dirPin[RA],(encodeDirection[RA] != cmd.dir[RA]));
@@ -1740,7 +1764,7 @@ void motorStartDC(){
     }
     
     interruptControlRegister(DC, interruptControlRegister(DC) & ~interruptControlBitMask(DC)); //Disable timer interrupt
-    cmd.currentIVal[DC] = cmd.IVal[DC];
+    cmd.currentIVal[DC] = IVal;
     currentMotorSpeed(DC, startSpeed);
     cmd.stopSpeed[DC] = stoppingSpeed;
     setPinValue(dirPin[DC],(encodeDirection[DC] != cmd.dir[DC]));
