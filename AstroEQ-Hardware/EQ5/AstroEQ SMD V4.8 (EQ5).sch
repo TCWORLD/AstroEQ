@@ -4143,8 +4143,8 @@ Simple 3.5mm common PCB mount audio jack. SKU: PRT-08032</description>
 <wire x1="-1.3" y1="-1.3" x2="-2" y2="-0.7" width="0.127" layer="51" curve="-90"/>
 <wire x1="-2" y1="-0.7" x2="-2" y2="0.7" width="0.127" layer="51"/>
 <wire x1="-2" y1="0.7" x2="-1.4" y2="1.3" width="0.127" layer="51" curve="-90"/>
-<smd name="P$1" x="2" y="0" dx="2" dy="2.4" layer="1"/>
-<smd name="P$2" x="-2" y="0" dx="2" dy="2.4" layer="1" rot="R180"/>
+<smd name="1" x="2" y="0" dx="2" dy="2.4" layer="1"/>
+<smd name="2" x="-2" y="0" dx="2" dy="2.4" layer="1" rot="R180"/>
 <text x="0" y="2.54" size="1.27" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
 <text x="0" y="-2.54" size="1.27" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
 <wire x1="-2.5" y1="-1.40815" x2="-2.2764" y2="-1.63175" width="0.127" layer="21" curve="90"/>
@@ -4681,8 +4681,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </device>
 <device name="NX5032" package="NX5032">
 <connects>
-<connect gate="G$1" pin="P$1" pad="P$1"/>
-<connect gate="G$1" pin="P$2" pad="P$2"/>
+<connect gate="G$1" pin="P$1" pad="1"/>
+<connect gate="G$1" pin="P$2" pad="2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -23164,12 +23164,12 @@ Open = Sidereal
 <attribute name="MF" value="MULTICOMP" x="149.86" y="134.62" size="1.778" layer="96" rot="R90" display="off"/>
 <attribute name="MPN" value="MF12 1K" x="149.86" y="134.62" size="1.778" layer="96" rot="R90" display="off"/>
 </instance>
-<instance part="R23" gate="G$1" x="114.3" y="137.16" smashed="yes">
-<attribute name="NAME" x="115.316" y="140.6144" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="116.84" y="136.017" size="1.778" layer="96" rot="R180"/>
-<attribute name="OC_FARNELL" value="9342400" x="114.3" y="137.16" size="1.778" layer="96" rot="R90" display="off"/>
-<attribute name="MF" value="MULTICOMP" x="114.3" y="137.16" size="1.778" layer="96" rot="R90" display="off"/>
-<attribute name="MPN" value="MF12 1K" x="114.3" y="137.16" size="1.778" layer="96" rot="R90" display="off"/>
+<instance part="R23" gate="G$1" x="121.92" y="124.46" smashed="yes" rot="R180">
+<attribute name="NAME" x="120.904" y="121.0056" size="1.778" layer="95"/>
+<attribute name="VALUE" x="119.38" y="125.603" size="1.778" layer="96"/>
+<attribute name="OC_FARNELL" value="9342400" x="121.92" y="124.46" size="1.778" layer="96" rot="R270" display="off"/>
+<attribute name="MF" value="MULTICOMP" x="121.92" y="124.46" size="1.778" layer="96" rot="R270" display="off"/>
+<attribute name="MPN" value="MF12 1K" x="121.92" y="124.46" size="1.778" layer="96" rot="R270" display="off"/>
 </instance>
 <instance part="HCSPEED" gate="G$1" x="129.54" y="137.16" rot="R270"/>
 </instances>
@@ -23672,14 +23672,9 @@ Open = Sidereal
 <net name="RX" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="PD1/TXD0"/>
-<wire x1="142.24" y1="88.9" x2="106.68" y2="88.9" width="0.1524" layer="91"/>
 <label x="139.7" y="88.9" size="1.778" layer="95" rot="MR0"/>
 <label x="55.88" y="88.9" size="1.4224" layer="95" font="vector" ratio="10" rot="R180" xref="yes"/>
-<junction x="106.68" y="88.9"/>
-<wire x1="106.68" y1="88.9" x2="55.88" y2="88.9" width="0.1524" layer="91"/>
-<pinref part="R23" gate="G$1" pin="1"/>
-<wire x1="109.22" y1="137.16" x2="106.68" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="106.68" y1="137.16" x2="106.68" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="142.24" y1="88.9" x2="55.88" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="R16" gate="G$1" pin="1"/>
@@ -23693,15 +23688,16 @@ Open = Sidereal
 <pinref part="PROG" gate="G$1" pin="1"/>
 <wire x1="78.74" y1="71.12" x2="76.2" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="76.2" y1="71.12" x2="76.2" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="76.2" y1="104.14" x2="121.92" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="104.14" x2="114.3" y2="104.14" width="0.1524" layer="91"/>
 <label x="139.7" y="104.14" size="1.778" layer="95" rot="MR0"/>
-<wire x1="121.92" y1="104.14" x2="142.24" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="121.92" y1="104.14" x2="121.92" y2="137.16" width="0.1524" layer="91"/>
-<junction x="121.92" y="104.14"/>
-<wire x1="124.46" y1="137.16" x2="121.92" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="104.14" x2="142.24" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="104.14" x2="114.3" y2="124.46" width="0.1524" layer="91"/>
+<junction x="114.3" y="104.14"/>
+<wire x1="124.46" y1="137.16" x2="114.3" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="137.16" x2="114.3" y2="124.46" width="0.1524" layer="91"/>
 <pinref part="R23" gate="G$1" pin="2"/>
-<wire x1="119.38" y1="137.16" x2="121.92" y2="137.16" width="0.1524" layer="91"/>
-<junction x="121.92" y="137.16"/>
+<wire x1="116.84" y1="124.46" x2="114.3" y2="124.46" width="0.1524" layer="91"/>
+<junction x="114.3" y="124.46"/>
 <pinref part="HCSPEED" gate="G$1" pin="P"/>
 </segment>
 </net>
@@ -23879,10 +23875,10 @@ Open = Sidereal
 <segment>
 <label x="99.06" y="152.4" size="1.778" layer="95"/>
 <pinref part="Q1" gate="G$1" pin="G"/>
-<wire x1="99.06" y1="152.4" x2="101.6" y2="152.4" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="152.4" x2="101.6" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="152.4" x2="106.68" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="152.4" x2="106.68" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="PB1/T1/OC2"/>
-<wire x1="101.6" y1="116.84" x2="142.24" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="116.84" x2="142.24" y2="116.84" width="0.1524" layer="91"/>
 <label x="139.7" y="116.84" size="1.778" layer="95" rot="MR0"/>
 </segment>
 </net>
@@ -23967,19 +23963,6 @@ Open = Sidereal
 <wire x1="226.06" y1="15.24" x2="231.14" y2="15.24" width="0.1524" layer="91"/>
 <junction x="226.06" y="15.24"/>
 <label x="231.14" y="15.24" size="1.4224" layer="95" xref="yes"/>
-</segment>
-</net>
-<net name="!NOT-ALLOWED!" class="0">
-<segment>
-<wire x1="210.82" y1="93.98" x2="215.9" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="215.9" y1="93.98" x2="215.9" y2="71.12" width="0.1524" layer="91"/>
-<wire x1="215.9" y1="71.12" x2="210.82" y2="71.12" width="0.1524" layer="91"/>
-<label x="218.44" y="73.66" size="1.778" layer="95" rot="R90"/>
-<wire x1="210.82" y1="93.98" x2="210.82" y2="94.234" width="0.1524" layer="91"/>
-<wire x1="210.82" y1="94.234" x2="216.154" y2="94.234" width="0.1524" layer="91"/>
-<wire x1="216.154" y1="94.234" x2="216.154" y2="70.866" width="0.1524" layer="91"/>
-<wire x1="216.154" y1="70.866" x2="210.82" y2="70.866" width="0.1524" layer="91"/>
-<wire x1="210.82" y1="70.866" x2="210.82" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="IO2" class="0">
@@ -24206,6 +24189,18 @@ Open = Sidereal
 <pinref part="R2" gate="G$1" pin="1"/>
 <wire x1="144.78" y1="134.62" x2="134.62" y2="134.62" width="0.1524" layer="91"/>
 <pinref part="HCSPEED" gate="G$1" pin="S"/>
+</segment>
+</net>
+<net name="IO4" class="0">
+<segment>
+<pinref part="R23" gate="G$1" pin="1"/>
+<wire x1="127" y1="124.46" x2="129.54" y2="124.46" width="0.1524" layer="91"/>
+<label x="129.54" y="124.46" size="1.4224" layer="95" font="vector" ratio="10" xref="yes"/>
+</segment>
+<segment>
+<wire x1="213.36" y1="91.44" x2="215.9" y2="91.44" width="0.1524" layer="91"/>
+<label x="215.9" y="91.44" size="1.4224" layer="95" font="vector" ratio="10" xref="yes"/>
+<pinref part="IC1" gate="G$1" pin="PC0/A8/PCINT8"/>
 </segment>
 </net>
 </nets>

@@ -23656,14 +23656,9 @@ Open = Sidereal
 <net name="RX" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="PD1/TXD0"/>
-<wire x1="134.62" y1="91.44" x2="86.36" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="134.62" y1="91.44" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
 <label x="132.08" y="91.44" size="1.778" layer="95" rot="MR0"/>
 <label x="50.8" y="91.44" size="1.4224" layer="95" font="vector" ratio="10" rot="R180" xref="yes"/>
-<pinref part="R23" gate="G$1" pin="2"/>
-<wire x1="86.36" y1="91.44" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="83.82" y1="99.06" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
-<wire x1="86.36" y1="99.06" x2="86.36" y2="91.44" width="0.1524" layer="91"/>
-<junction x="86.36" y="91.44"/>
 </segment>
 <segment>
 <pinref part="R16" gate="G$1" pin="1"/>
@@ -23787,19 +23782,6 @@ Open = Sidereal
 <wire x1="261.62" y1="50.8" x2="261.62" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="261.62" y1="43.18" x2="251.46" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="SJ1" gate="1" pin="1"/>
-</segment>
-</net>
-<net name="!NOT-ALLOWED!" class="0">
-<segment>
-<wire x1="203.2" y1="96.52" x2="208.28" y2="96.52" width="0.1524" layer="91"/>
-<wire x1="208.28" y1="96.52" x2="208.28" y2="73.66" width="0.1524" layer="91"/>
-<wire x1="208.28" y1="73.66" x2="203.2" y2="73.66" width="0.1524" layer="91"/>
-<label x="210.82" y="76.2" size="1.778" layer="95" rot="R90"/>
-<wire x1="203.2" y1="96.52" x2="203.2" y2="96.774" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="96.774" x2="208.534" y2="96.774" width="0.1524" layer="91"/>
-<wire x1="208.534" y1="96.774" x2="208.534" y2="73.406" width="0.1524" layer="91"/>
-<wire x1="208.534" y1="73.406" x2="203.2" y2="73.406" width="0.1524" layer="91"/>
-<wire x1="203.2" y1="73.406" x2="203.2" y2="73.66" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="RA+/SO" class="0">
@@ -24124,6 +24106,18 @@ Open = Sidereal
 <wire x1="50.8" y1="218.44" x2="50.8" y2="231.14" width="0.1524" layer="91"/>
 <wire x1="50.8" y1="231.14" x2="48.26" y2="231.14" width="0.1524" layer="91"/>
 <pinref part="D2" gate="G$1" pin="C"/>
+</segment>
+</net>
+<net name="IO4" class="0">
+<segment>
+<pinref part="R23" gate="G$1" pin="2"/>
+<wire x1="83.82" y1="99.06" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
+<label x="86.36" y="99.06" size="1.4224" layer="95" font="vector" ratio="10" xref="yes"/>
+</segment>
+<segment>
+<wire x1="205.74" y1="93.98" x2="210.82" y2="93.98" width="0.1524" layer="91"/>
+<label x="210.82" y="93.98" size="1.4224" layer="95" font="vector" ratio="10" xref="yes"/>
+<pinref part="IC1" gate="G$1" pin="PC0/A8/PCINT8"/>
 </segment>
 </net>
 </nets>
