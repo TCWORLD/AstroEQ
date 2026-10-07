@@ -40,6 +40,8 @@ void Commands_init(unsigned long _eVal, byte _gVal){
     EEPROM_readAccelTable(cmd.accelTable[DC],AccelTableLength,AccelTable2_Address); //Load the DC accel/decel table
     
     for(byte i = 0;i < 2;i++){
+        unsigned long bValEqmod;
+        unsigned int correction;
         cmd.dir[i] = CMD_FORWARD;
         cmd.stepDir[i] = 1; //1-dir*2
         cmd.highSpeedMode[i] = false;
@@ -56,6 +58,14 @@ void Commands_init(unsigned long _eVal, byte _gVal){
         cmd.stopSpeed[i] = cmd.minSpeed[i];
         cmd.currentIVal[i] = cmd.stopSpeed[i]+1; //just slower than stop speed as axes are stopped.
         cmd.motorSpeed[i] = cmd.stopSpeed[i]+1; //same as above.
+        
+        // Calculate bVal we will report to EQMOD based on IVal and aVal settings. We do this to allow
+        // correcting for drift in the MCU clock rate by saving an adjusted bVal in the config file. It
+        // also corrects for rounding in the EQMOD DLL.
+        bValEqmod = (unsigned long)roundf(cmd.siderealIVal[i] * (cmd.aVal[i] / 86164.0905f));
+        correction = (cmd.siderealIVal[i] << 1);
+        cmd.bValEqmod[i] = (bValEqmod * (correction+1))/correction; //account for rounding inside Skywatcher DLL.
+    
     }
     Commands_configureST4Speed(CMD_ST4_TRACK, CMD_ST4_SIDEREAL, AXIS_COUNT, CMD_ST4_EQMOD_COUNT);
 }

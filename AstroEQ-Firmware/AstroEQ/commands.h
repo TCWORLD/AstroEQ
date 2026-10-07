@@ -66,6 +66,7 @@ typedef struct{
     unsigned long    eVal           [2]; //_eVal: Version number
     unsigned long    aVal           [2]; //_aVal: Steps per axis revolution
     unsigned long    bVal           [2]; //_bVal: Sidereal Rate of axis
+    unsigned long    bValEqmod      [2]; //_bVal: Sidereal Rate of axis as reported to EQMOD. This is calculated from aVal and IVal to allow manually adjusting bVal for MCU clock rate correction.
     unsigned long    sVal           [2]; //_sVal: Steps per worm gear revolution
     MotorDir         st4RAReverse;       //Reverse RA- axis direction if true.
     ST4SpeedMode     st4Mode;            //Current ST-4 mode

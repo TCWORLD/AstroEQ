@@ -1242,7 +1242,6 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
     unsigned long responseData = 0; //data for response
     bool success = true;
     byte axis = synta_getaxis();
-    unsigned int correction;
     byte oldSREG;
     if ((progMode == RUNMODE) && (command != 'O')) {
         //If any command other than programming entry request is sent, reset the entry count.
@@ -1256,11 +1255,11 @@ bool decodeCommand(char command, char* buffer){ //each command is axis specific.
             responseData = cmd.aVal[axis]; //response to the a command is stored in the aVal function for that axis.
             break;
         case 'b': //read-only, return the bVal (sidereal step rate)
-            responseData = cmd.bVal[axis]; //response to the b command is stored in the bVal function for that axis.
             if (progMode == RUNMODE) {
-                //If not in programming mode, we need to apply a correction factor to ensure that calculations in EQMOD round correctly
-                correction = (cmd.siderealIVal[axis] << 1);
-                responseData = (responseData * (correction+1))/correction; //account for rounding inside Skywatcher DLL.
+                //If not in programming mode, use calculated bVal
+                responseData = cmd.bValEqmod[axis]; //response to the b command is stored in the bValEqmod function for that axis.
+            } else {
+                responseData = cmd.bVal[axis]; //response to the b command is stored in the bVal function for that axis.
             }
             break;
         case 'g': //read-only, return the gVal (high speed multiplier)
